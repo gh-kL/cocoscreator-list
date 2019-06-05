@@ -56,6 +56,6 @@
 - 新增List的配套组件----ListItem。
 - 新增选择模式。
 
-2019/5/13
+### 2019/5/13
 
 - 新增带动画删除Item接口`list.aniDelItem(id, callFunc, aniType)`，因本组件毕竟还是数据驱动，所以请务必在callFunc中删除数据数组中相应下标的数据，然后手动更新该list（即`list.numItems=Number`）。
