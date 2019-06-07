@@ -2,6 +2,10 @@
 
 这是一个基于**Cocos Creator**写的**虚拟列表**组件。本组件是配合Cocos Creator本身的**滚动窗结构**去写的，所以在编辑器中操作会很方便，**所见即所得**。
 
+Cocos论坛帖子链接：
+
+> https://forum.cocos.com/t/dc/79055
+
 支持：
 
 - 所有类型布局。（单列、单行、网格，甚至各种花式RIGHT_TO_LEFT、BOTTOM_TO_TOP）
