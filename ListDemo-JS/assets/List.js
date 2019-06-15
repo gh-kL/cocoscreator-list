@@ -2,23 +2,6 @@
  * @author kL <klk0@qq.com>
  * @copyright Nemo 2019/1/5
  * @doc 列表组件.
- * ### 说明：
- *      1、在编辑器中，创建一个ScrollView（也就是ScrollView->Mask->Content这样层级结构的节点!）。
- *      2、将List组件拖拽到ScrollView节点上。
- *      3、设置模板Item，选择TemplateType，可切换模板类型，请按需选择。
- *      4、设置滑动模式（SlideMode），NORMAL=通常，ADHERING=粘附（可用来制作分页效果）。
- *      5、设置是否为虚拟列表（Virtual），默认为true，如果为false，则跟普通列表没有区别。
- *      6、可选设置逐帧渲染（FrameByFrameRenderNum），该数量为每帧渲染的数量。
- *      7、设置渲染器（RenderEvent），在View中写一个函数，将该函数指向RenderEvent，运行时，设置List数量，Item将会通过该函数进行回调，开发者在该函数中实现Item的刷新。
- *      8、可选设置选择模式（SelectedMode），选择模式有SIMPLE（单选）、MULT（多选）两种模式，须与ListItem组件搭配使用，ListItem组件需要拖拽到模板Item上。在View中写一个函数，将该函数指向SelectedEvent，运行时，当选择变更，将会通过该函数回调。在View中，若是单选模式，用list.selectedId=N来改变当前选择。若是多选模式，则调用list.setMultSelected(args, boolean)接口来设置多选数据。
- *      9、完成以上设置后，在View中调用list.numItems=N设置列表数量，本组件就会通过渲染器（即RenderEvent）进行回调了!
- *      10、在View中可设置list.customSize以达到每个Item宽度或高度不一样的虚拟列表效果，简直美滋滋!但这个会耗费更多性能!仅支持虚拟列表!仅支持单列或单行!
- * ----------------------------------------
- * ### 注意：
- *      1、本组件所依赖的ScrollView节点以及ScrollView下的孙子节点Content，这两个节点的锚点需要按方向去设置。比如从顶到底单列排列，就需要设置锚点为（0.5, 1）。如果是从左到右网格排列，就需要设置锚点为（0, 1）。始终将锚点设置到首个Item那一边。
- *      2、各种反方向排列的布局（BOTTOM_TO_TOP、RIGHT_TO_LEFT）都会有问题（item数量过少，就会导致Content错位），这个是官方Bug。而本组件是配合cc.ScrollView去写的，所以也不支持，待官方后续修复（Last test by Creator_v2.1.1）。
- *      3、理论上设为虚拟列表后不可再设回普通列表（即virtual属性）。
- *      4、SlideMode设为ADHERING（粘附）后，组件将强行屏蔽惯性滚动。
  * @end
  ******************************************/
 const TemplateType = cc.Enum({
