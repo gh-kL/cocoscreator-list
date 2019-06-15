@@ -26,7 +26,7 @@ cc.Class({
 
     onLoad: function () {
         this.data = [];
-        for (let n = 0; n < 9999; n++) {
+        for (let n = 0; n < 30; n++) {
             this.data.push(n);
         }
         this.listV.numItems = this.data.length;

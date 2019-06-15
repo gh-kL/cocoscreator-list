@@ -1,7 +1,7 @@
 /******************************************
  * @author kL <klk0@qq.com>
  * @copyright Nemo 2019/6/6
- * @doc Main.
+ * @doc Demo入口.
  * @end
  ******************************************/
 const { ccclass, property } = cc._decorator;
@@ -10,7 +10,7 @@ import List from './List';
 import ListItem from './ListItem';
 
 @ccclass
-export default class Main extends cc.Component {
+export default class Game extends cc.Component {
     //垂直列表
     @property(List)
     listV: List = null;
@@ -34,7 +34,7 @@ export default class Main extends cc.Component {
 
     onLoad() {
         this.data = [];
-        for (let n: number = 0; n < 9999; n++) {
+        for (let n: number = 0; n < 30; n++) {
             this.data.push(n);
         }
         this.listV.numItems = this.data.length;
@@ -62,7 +62,6 @@ export default class Main extends cc.Component {
             label2 = lab.getComponent(cc.Label);
         if (label2)
             label2.string = 'width=' + item.width;
-        cc.log(idx, item.width, label2)
         this.info.string = 'ListH当前渲染总数 = ' + this.listH.actualNumItems;
     }
     //网格列表渲染器
@@ -76,7 +75,7 @@ export default class Main extends cc.Component {
         this.info.string = 'ListG2当前渲染总数 = ' + this.listG2.actualNumItems;
     }
     //当列表项被选择...
-    onListSelected(item, selectedId, lastSelectedId, val) {
+    onListSelected(item: any, selectedId: number, lastSelectedId: number, val: number) {
         if (!item)
             return;
         let list: List = item.getComponent(ListItem).list;
