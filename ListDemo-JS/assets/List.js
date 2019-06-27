@@ -1,6 +1,6 @@
 /******************************************
  * @author kL <klk0@qq.com>
- * @copyright Nemo 2019/1/5
+ * @date 2019/1/5
  * @doc 列表组件.
  * @end
  ******************************************/
@@ -607,8 +607,6 @@ cc.Class({
                 endId--;
                 if (curId < 0)
                     curId = 0;
-                if (endId < 0)
-                    endId = 0;
                 else if (endId >= this._numItems)
                     endId = this._numItems - 1;
                 // cc.log(curId, endId);
@@ -616,8 +614,10 @@ cc.Class({
                     this.displayData.push(this._calcItemPos(curId));
                 }
             }
-            if (this.displayData.length <= 0)
+            if (this.displayData.length <= 0 || !this._numItems) { //if none, delete all.
+                this._delRedundantItem();
                 return;
+            }
             this.firstListId = this.displayData[0].id;
             this.actualNumItems = this.displayData.length;
             let len = this._lastDisplayData.length;
@@ -1212,6 +1212,8 @@ cc.Class({
             }
             if (isOutside) {
                 for (let c = this.actualNumItems - 1; c >= 0; c--) {
+                    if (!this.displayData[c])
+                        continue;
                     let listId = this.displayData[c].id;
                     if (item._listId == listId) {
                         isOutside = false;
@@ -1260,7 +1262,7 @@ cc.Class({
             item.destroy();
         item = null;
     },
-    /** 
+    /**
      * 动效删除Item（此方法只适用于虚拟列表，即_virtual=true）
      * 一定要在回调函数里重新设置新的numItems进行刷新，毕竟本List是靠数据驱动的。
      */
@@ -1364,7 +1366,9 @@ cc.Class({
         if (!t.checkInited())
             return;
         t._scrollView.stopAutoScroll();
-        if (timeInSecond == null || timeInSecond < 0)
+        if (timeInSecond == null)   //默认0.5
+            timeInSecond = .5;
+        else if (timeInSecond < 0)
             timeInSecond = 0;
         if (listId < 0)
             listId = 0;
@@ -1539,10 +1543,14 @@ cc.Class({
     },
     //上一页
     prePage(timeInSecond) {
+        if (timeInSecond == null)
+            timeInSecond = .5;
         this.skipPage(this.curPageNum - 1, timeInSecond);
     },
     //下一页
     nextPage(timeInSecond) {
+        if (timeInSecond == null)
+            timeInSecond = .5;
         this.skipPage(this.curPageNum + 1, timeInSecond);
     },
     //跳转到第几页

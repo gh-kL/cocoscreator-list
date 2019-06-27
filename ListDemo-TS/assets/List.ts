@@ -1,6 +1,6 @@
 /******************************************
  * @author kL <klk0@qq.com>
- * @copyright Nemo 2019/6/6
+ * @date 2019/6/6
  * @doc 列表组件.
  * TS版必须与ListItem搭配使用!TS版必须与ListItem搭配使用!TS版必须与ListItem搭配使用!
  * @end
@@ -643,8 +643,6 @@ export default class NewClass extends cc.Component {
                 endId--;
                 if (curId < 0)
                     curId = 0;
-                if (endId < 0)
-                    endId = 0;
                 else if (endId >= this._numItems)
                     endId = this._numItems - 1;
                 // cc.log(curId, endId);
@@ -652,8 +650,10 @@ export default class NewClass extends cc.Component {
                     this.displayData.push(this._calcItemPos(curId));
                 }
             }
-            if (this.displayData.length <= 0)
+            if (this.displayData.length <= 0 || !this._numItems) { //if none, delete all.
+                this._delRedundantItem();
                 return;
+            }
             this.firstListId = this.displayData[0].id;
             this.actualNumItems = this.displayData.length;
             let len: number = this._lastDisplayData.length;
@@ -1248,6 +1248,8 @@ export default class NewClass extends cc.Component {
             }
             if (isOutside) {
                 for (let c: number = this.actualNumItems - 1; c >= 0; c--) {
+                    if (!this.displayData[c])
+                        continue;
                     let listId: number = this.displayData[c].id;
                     if (item.getComponent(ListItem).listId == listId) {
                         isOutside = false;
@@ -1396,12 +1398,14 @@ export default class NewClass extends cc.Component {
      * @param {Number} offset 索引目标位置偏移，0-1
      * @param {Boolean} overStress 滚动后是否强调该Item（这只是个实验功能）
      */
-    scrollTo(listId: number, timeInSecond: number, offset: number, overStress: boolean) {
+    scrollTo(listId: number, timeInSecond: number = .5, offset: number = null, overStress: boolean = false) {
         let t = this;
         if (!t.checkInited(false))
             return;
         t._scrollView.stopAutoScroll();
-        if (timeInSecond == null || timeInSecond < 0)
+        if (timeInSecond == null)   //默认0.5
+            timeInSecond = .5;
+        else if (timeInSecond < 0)
             timeInSecond = 0;
         if (listId < 0)
             listId = 0;
@@ -1571,11 +1575,11 @@ export default class NewClass extends cc.Component {
         return data;
     }
     //上一页
-    prePage(timeInSecond: number) {
+    prePage(timeInSecond: number = .5) {
         this.skipPage(this.curPageNum - 1, timeInSecond);
     }
     //下一页
-    nextPage(timeInSecond: number) {
+    nextPage(timeInSecond: number = .5) {
         this.skipPage(this.curPageNum + 1, timeInSecond);
     }
     //跳转到第几页

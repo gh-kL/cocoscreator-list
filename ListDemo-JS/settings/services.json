@@ -111,11 +111,12 @@
         "iOS",
         "HTML5"
       ],
-      "package_download_url": "http://download.cocos.com/CocosServices/plugins/service-agora/1.0.1_2.2.3.20_2.5.2.zip",
-      "package_version_desc": "first release.",
+      "package_download_url": "http://download.cocos.com/CocosServices/plugins/service-agora/1.0.2_2.2.3.20_2.5.2.zip",
+      "package_version_desc": "解决Bug：onAudioVolumeIndication 回调收不到.",
       "service_component_name": "service-agora",
       "package_versions": [
-        "1.0.1_2.2.3.20_2.5.2"
+        "1.0.1_2.2.3.20_2.5.2",
+        "1.0.2_2.2.3.20_2.5.2"
       ],
       "build_platform": [
         "web-mobile",
