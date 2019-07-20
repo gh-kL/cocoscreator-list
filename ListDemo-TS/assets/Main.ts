@@ -1,6 +1,6 @@
 /******************************************
  * @author kL <klk0@qq.com>
- * @copyright Nemo 2019/6/6
+ * @date 2019/6/6
  * @doc Demo入口.
  * @end
  ******************************************/
@@ -34,7 +34,7 @@ export default class Game extends cc.Component {
 
     onLoad() {
         this.data = [];
-        for (let n: number = 0; n < 30; n++) {
+        for (let n: number = 0; n < 999; n++) {
             this.data.push(n);
         }
         this.listV.numItems = this.data.length;

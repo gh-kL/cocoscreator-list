@@ -41,8 +41,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.60858154296875,
-      "y": 0.60858154296875,
+      "x": 0.37667776257828955,
+      "y": 0.37667776257828955,
       "z": 1
     },
     "_quat": {
@@ -953,6 +953,7 @@
       "__id__": 23
     },
     "_virtual": true,
+    "lackCenter": false,
     "_updateRate": 2,
     "frameByFrameRenderNum": 0,
     "renderEvent": {

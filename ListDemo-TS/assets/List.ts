@@ -96,6 +96,11 @@ export default class NewClass extends cc.Component {
     get virtual() {
         return this._virtual;
     }
+    @property({
+        tooltip: CC_DEV && 'Item数量过少时是否居中所有Item（不支持Grid布局）',
+        visible() { return this.virtual }
+    })
+    public lackCenter: boolean = false;
     //刷新频率
     @property({ type: cc.Integer })
     private _updateRate: number = 2;
@@ -145,55 +150,56 @@ export default class NewClass extends cc.Component {
     private _lastSelectedId: number;
     private multSelected: number[];
     set selectedId(val: number) {
-        if (this.selectedMode == SelectedType.SINGLE && val == this._selectedId)
+        let t: any = this;
+        if (t.selectedMode == SelectedType.SINGLE && val == t._selectedId)
             return;
         let item: any;
-        switch (this.selectedMode) {
+        switch (t.selectedMode) {
             case SelectedType.SINGLE: {
-                if (val == this._selectedId)
+                if (val == t._selectedId)
                     return;
-                item = this.getItemByListId(val);
+                item = t.getItemByListId(val);
                 if (!item && val >= 0)
                     return;
                 let listItem: ListItem;
-                if (this._selectedId >= 0)
-                    this._lastSelectedId = this._selectedId;
+                if (t._selectedId >= 0)
+                    t._lastSelectedId = t._selectedId;
                 else //如果＜0则取消选择，把_lastSelectedId也置空吧，如果以后有特殊需求再改吧。
-                    this._lastSelectedId = null;
-                this._selectedId = val;
+                    t._lastSelectedId = null;
+                t._selectedId = val;
                 if (item) {
                     listItem = item.getComponent(ListItem);
                     listItem.selected = true;
                 }
-                if (this._lastSelectedId >= 0) {
-                    let lastItem: any = this.getItemByListId(this._lastSelectedId);
+                if (t._lastSelectedId >= 0) {
+                    let lastItem: any = t.getItemByListId(t._lastSelectedId);
                     if (lastItem) {
                         lastItem.getComponent(ListItem).selected = false;
                     }
                 }
-                if (this.selectedEvent) {
-                    cc.Component.EventHandler.emitEvents([this.selectedEvent], item, val, this._lastSelectedId);
+                if (t.selectedEvent) {
+                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val, t._lastSelectedId);
                 }
                 break;
             }
             case SelectedType.MULT: {
-                item = this.getItemByListId(val);
+                item = t.getItemByListId(val);
                 if (!item)
                     return;
                 let listItem = item.getComponent(ListItem);
-                if (this._selectedId >= 0)
-                    this._lastSelectedId = this._selectedId;
-                this._selectedId = val;
+                if (t._selectedId >= 0)
+                    t._lastSelectedId = t._selectedId;
+                t._selectedId = val;
                 let bool: boolean = !listItem.selected;
                 listItem.selected = bool;
-                let sub: number = this.multSelected.indexOf(val);
+                let sub: number = t.multSelected.indexOf(val);
                 if (bool && sub < 0) {
-                    this.multSelected.push(val);
+                    t.multSelected.push(val);
                 } else if (!bool && sub >= 0) {
-                    this.multSelected.splice(sub, 1);
+                    t.multSelected.splice(sub, 1);
                 }
-                if (this.selectedEvent) {
-                    cc.Component.EventHandler.emitEvents([this.selectedEvent], item, val, this._lastSelectedId, bool);
+                if (t.selectedEvent) {
+                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val, t._lastSelectedId, bool);
                 }
                 break;
             }
@@ -213,94 +219,47 @@ export default class NewClass extends cc.Component {
     public actualNumItems: number;
     private _updateDone: boolean = true;
     private _updateCounter;
-    //渲染数量（通过这个刷新）
+    @property({
+        serializable: false
+    })
     private _numItems: number = 0;
     set numItems(val: number) {
-        if (!this.checkInited(false))
+        let t = this;
+        if (!t.checkInited(false))
             return;
         if (val == null || val < 0) {
             cc.error('numItems set the wrong::', val);
             return;
         }
-        this._numItems = val;
-        this._forceUpdate = true;
+        t._numItems = val;
+        t._forceUpdate = true;
 
-        switch (this._align) {
-            case cc.Layout.Type.HORIZONTAL: {
-                switch (this._horizontalDir) {
-                    case cc.Layout.HorizontalDirection.LEFT_TO_RIGHT:
-                        this._alignCalcType = 1;
-                        break;
-                    case cc.Layout.HorizontalDirection.RIGHT_TO_LEFT:
-                        this._alignCalcType = 2;
-                        break;
-                }
-                break;
-            }
-            case cc.Layout.Type.VERTICAL: {
-                switch (this._verticalDir) {
-                    case cc.Layout.VerticalDirection.TOP_TO_BOTTOM:
-                        this._alignCalcType = 3;
-                        break;
-                    case cc.Layout.VerticalDirection.BOTTOM_TO_TOP:
-                        this._alignCalcType = 4;
-                        break;
-                }
-                break;
-            }
-            case cc.Layout.Type.GRID: {
-                switch (this._startAxis) {
-                    case cc.Layout.AxisDirection.HORIZONTAL:
-                        switch (this._verticalDir) {
-                            case cc.Layout.VerticalDirection.TOP_TO_BOTTOM:
-                                this._alignCalcType = 3;
-                                break;
-                            case cc.Layout.VerticalDirection.BOTTOM_TO_TOP:
-                                this._alignCalcType = 4;
-                                break;
-                        }
-                        break;
-                    case cc.Layout.AxisDirection.VERTICAL:
-                        switch (this._horizontalDir) {
-                            case cc.Layout.HorizontalDirection.LEFT_TO_RIGHT:
-                                this._alignCalcType = 1;
-                                break;
-                            case cc.Layout.HorizontalDirection.RIGHT_TO_LEFT:
-                                this._alignCalcType = 2;
-                                break;
-                        }
-                        break;
-                }
-                break;
-            }
-        }
-
-        if (this._virtual) {
-            this._resizeContent();
-            this._onScrolling(null);
+        if (t._virtual) {
+            t._resizeContent();
+            t._onScrolling(null);
         } else {
-            let layout: cc.Layout = this.content.getComponent(cc.Layout);
+            let layout: cc.Layout = t.content.getComponent(cc.Layout);
             if (layout) {
                 layout.enabled = true;
             }
-            this._delRedundantItem();
+            t._delRedundantItem();
 
-            this.firstListId = 0;
-            if (this.frameByFrameRenderNum > 0) {
+            t.firstListId = 0;
+            if (t.frameByFrameRenderNum > 0) {
                 //先渲染几个出来
-                let len: number = this.frameByFrameRenderNum > this._numItems ? this._numItems : this.frameByFrameRenderNum;
+                let len: number = t.frameByFrameRenderNum > t._numItems ? t._numItems : t.frameByFrameRenderNum;
                 for (let n: number = 0; n < len; n++) {
-                    this._createOrUpdateItem2(n);
+                    t._createOrUpdateItem2(n);
                 }
-                if (this.frameByFrameRenderNum < this._numItems) {
-                    this._updateCounter = this.frameByFrameRenderNum;
-                    this._updateDone = false;
+                if (t.frameByFrameRenderNum < t._numItems) {
+                    t._updateCounter = t.frameByFrameRenderNum;
+                    t._updateDone = false;
                 }
             } else {
                 for (let n: number = 0; n < val; n++) {
-                    this._createOrUpdateItem2(n);
+                    t._createOrUpdateItem2(n);
                 }
-                this.actualNumItems = val;
+                t.actualNumItems = val;
             }
         }
     }
@@ -325,7 +284,7 @@ export default class NewClass extends cc.Component {
 
     private _lastDisplayData: number[];
     public displayData: any[];
-    private _pool: any[];
+    private _pool: cc.NodePool;
 
     private _itemTmp: any;
     private _itemSize: cc.Size;
@@ -358,6 +317,10 @@ export default class NewClass extends cc.Component {
     private _beganPos: number;
     private _scrollPos: number;
 
+    private _lackSize: number;
+    private _allItemSize: number;
+    private _allItemSizeNoBorder: number;
+
     onLoad() {
         this._init();
     }
@@ -380,116 +343,175 @@ export default class NewClass extends cc.Component {
     }
     //注册事件
     _registerEvent() {
-        this.node.on('touch-up', this._onScrollTouchUp, this);
-        this.node.on('scroll-began', this._onScrollBegan, this, true);
-        this.node.on('scroll-ended', this._onScrollEnded, this, true);
-        this.node.on('scrolling', this._onScrolling, this, true);
+        let t: any = this;
+        t.node.on('touch-up', t._onScrollTouchUp, t);
+        t.node.on('scroll-began', t._onScrollBegan, t, true);
+        t.node.on('scroll-ended', t._onScrollEnded, t, true);
+        t.node.on('scrolling', t._onScrolling, t, true);
     }
     //卸载事件
     _unregisterEvent() {
-        this.node.off('touch-up', this._onScrollTouchUp, this);
-        this.node.off('scroll-began', this._onScrollBegan, this, true);
-        this.node.off('scroll-ended', this._onScrollEnded, this, true);
-        this.node.off('scrolling', this._onScrolling, this, true);
+        let t: any = this;
+        t.node.off('touch-up', t._onScrollTouchUp, t);
+        t.node.off('scroll-began', t._onScrollBegan, t, true);
+        t.node.off('scroll-ended', t._onScrollEnded, t, true);
+        t.node.off('scrolling', t._onScrolling, t, true);
     }
     //初始化各种..
     _init() {
-        if (this._inited)
+        let t: any = this;
+        if (t._inited)
             return;
 
-        this._scrollView = this.node.getComponent(cc.ScrollView);
-        if (!this._scrollView) {
-            cc.error(this.node.name + ' no assembly cc.ScrollView!');
-            return;
-        }
-        this.content = this._scrollView.content;
-        if (!this.content) {
-            cc.error(this.node.name + "'s cc.ScrollView unset content!");
+        t._scrollView = t.node.getComponent(cc.ScrollView);
+        if (!t._scrollView) {
+            cc.error(t.node.name + ' no assembly cc.ScrollView!');
             return;
         }
+        t.content = t._scrollView.content;
+        if (!t.content) {
+            cc.error(t.node.name + "'s cc.ScrollView unset content!");
+            return;
+        }
 
-        this._layout = this.content.getComponent(cc.Layout);
+        t._layout = t.content.getComponent(cc.Layout);
 
-        this._align = this._layout.type; //排列模式
-        this._resizeMode = this._layout.resizeMode; //自适应模式
-        this._startAxis = this._layout.startAxis;
+        t._align = t._layout.type; //排列模式
+        t._resizeMode = t._layout.resizeMode; //自适应模式
+        t._startAxis = t._layout.startAxis;
 
-        this._topGap = this._layout.paddingTop; //顶边距
-        this._rightGap = this._layout.paddingRight; //右边距
-        this._bottomGap = this._layout.paddingBottom; //底边距
-        this._leftGap = this._layout.paddingLeft; //左边距
+        t._topGap = t._layout.paddingTop; //顶边距
+        t._rightGap = t._layout.paddingRight; //右边距
+        t._bottomGap = t._layout.paddingBottom; //底边距
+        t._leftGap = t._layout.paddingLeft; //左边距
 
-        this._columnGap = this._layout.spacingX; //列距
-        this._lineGap = this._layout.spacingY; //行距
+        t._columnGap = t._layout.spacingX; //列距
+        t._lineGap = t._layout.spacingY; //行距
 
-        this._colLineNum; //列数或行数（非GRID模式则=1，表示单列或单行）;
+        t._colLineNum; //列数或行数（非GRID模式则=1，表示单列或单行）;
 
-        this._verticalDir = this._layout.verticalDirection; //垂直排列子节点的方向
-        this._horizontalDir = this._layout.horizontalDirection; //水平排列子节点的方向
+        t._verticalDir = t._layout.verticalDirection; //垂直排列子节点的方向
+        t._horizontalDir = t._layout.horizontalDirection; //水平排列子节点的方向
 
-        this.setTemplateItem(this.templateType == TemplateType.PREFAB ? this.tmpPrefab.data : this.tmpNode);
+        t.setTemplateItem(t.templateType == TemplateType.PREFAB ? t.tmpPrefab.data : t.tmpNode);
 
-        if (this._slideMode == SlideType.ADHERING || this._slideMode == SlideType.PAGE) //特定的滑动模式需要关闭惯性
-            this._scrollView.inertia = false;
+        if (t._slideMode == SlideType.ADHERING || t._slideMode == SlideType.PAGE) //特定的滑动模式需要关闭惯性
+            t._scrollView.inertia = false;
+        if (!t.virtual)         // lackCenter 仅支持 Virtual 模式
+            t.lackCenter = false;
 
-        this._lastDisplayData = []; //最后一次刷新的数据
-        this.displayData = []; //当前数据
-        this._pool = []; //这是个池子..
-        this._forceUpdate = false;
-        this._updateCounter = 0;
-        this._updateDone = true;
+        t._lastDisplayData = []; //最后一次刷新的数据
+        t.displayData = []; //当前数据
+        t._pool = new cc.NodePool(); //这是个池子..
+        t._forceUpdate = false;
+        t._updateCounter = 0;
+        t._updateDone = true;
 
-        this.content.removeAllChildren();
-        this._inited = true;
+        switch (t._align) {
+            case cc.Layout.Type.HORIZONTAL: {
+                switch (t._horizontalDir) {
+                    case cc.Layout.HorizontalDirection.LEFT_TO_RIGHT:
+                        t._alignCalcType = 1;
+                        break;
+                    case cc.Layout.HorizontalDirection.RIGHT_TO_LEFT:
+                        t._alignCalcType = 2;
+                        break;
+                }
+                break;
+            }
+            case cc.Layout.Type.VERTICAL: {
+                switch (t._verticalDir) {
+                    case cc.Layout.VerticalDirection.TOP_TO_BOTTOM:
+                        t._alignCalcType = 3;
+                        break;
+                    case cc.Layout.VerticalDirection.BOTTOM_TO_TOP:
+                        t._alignCalcType = 4;
+                        break;
+                }
+                break;
+            }
+            case cc.Layout.Type.GRID: {
+                switch (t._startAxis) {
+                    case cc.Layout.AxisDirection.HORIZONTAL:
+                        switch (t._verticalDir) {
+                            case cc.Layout.VerticalDirection.TOP_TO_BOTTOM:
+                                t._alignCalcType = 3;
+                                break;
+                            case cc.Layout.VerticalDirection.BOTTOM_TO_TOP:
+                                t._alignCalcType = 4;
+                                break;
+                        }
+                        break;
+                    case cc.Layout.AxisDirection.VERTICAL:
+                        switch (t._horizontalDir) {
+                            case cc.Layout.HorizontalDirection.LEFT_TO_RIGHT:
+                                t._alignCalcType = 1;
+                                break;
+                            case cc.Layout.HorizontalDirection.RIGHT_TO_LEFT:
+                                t._alignCalcType = 2;
+                                break;
+                        }
+                        break;
+                }
+                break;
+            }
+        }
+
+        t.content.removeAllChildren();
+        t._inited = true;
     }
     //设置模板Item
     setTemplateItem(item: any) {
-        this._itemTmp = item;
-        if (this._resizeMode == cc.Layout.ResizeMode.CHILDREN)
-            this._itemSize = this._layout.cellSize;
+        if (!item)
+            return;
+        let t: any = this;
+        t._itemTmp = item;
+        if (t._resizeMode == cc.Layout.ResizeMode.CHILDREN)
+            t._itemSize = t._layout.cellSize;
         else
-            this._itemSize = cc.size(this._itemTmp.width, this._itemTmp.height);
-        if (this.selectedMode == SelectedType.MULT)
-            this.multSelected = [];
+            t._itemSize = cc.size(t._itemTmp.width, t._itemTmp.height);
 
-        switch (this._align) {
+        if (t.selectedMode == SelectedType.MULT)
+            t.multSelected = [];
+
+        switch (t._align) {
             case cc.Layout.Type.HORIZONTAL:
-                this._colLineNum = 1;
-                this._sizeType = false;
+                t._colLineNum = 1;
+                t._sizeType = false;
                 break;
             case cc.Layout.Type.VERTICAL:
-                this._colLineNum = 1;
-                this._sizeType = true;
+                t._colLineNum = 1;
+                t._sizeType = true;
                 break;
             case cc.Layout.Type.GRID:
-                switch (this._startAxis) {
+                switch (t._startAxis) {
                     case cc.Layout.AxisDirection.HORIZONTAL:
                         //计算列数
-                        let trimW: number = this.content.width - this._leftGap - this._rightGap;
-                        this._colLineNum = 1;
+                        let trimW: number = t.content.width - t._leftGap - t._rightGap;
+                        t._colLineNum = 1;
                         while (1) {
-                            if (trimW - ((this._colLineNum * this._itemSize.width) + ((this._colLineNum - 1) * this._columnGap)) < 0) {
-                                this._colLineNum--;
+                            if (trimW - ((t._colLineNum * t._itemSize.width) + ((t._colLineNum - 1) * t._columnGap)) < 0) {
+                                t._colLineNum--;
                                 break;
                             } else {
-                                this._colLineNum++;
+                                t._colLineNum++;
                             }
                         }
-                        this._sizeType = true;
+                        t._sizeType = true;
                         break;
                     case cc.Layout.AxisDirection.VERTICAL:
                         //计算行数
-                        let trimH: number = this.content.height - this._topGap - this._bottomGap;
-                        this._colLineNum = 1;
+                        let trimH: number = t.content.height - t._topGap - t._bottomGap;
+                        t._colLineNum = 1;
                         while (1) {
-                            if (trimH - ((this._colLineNum * this._itemSize.height) + ((this._colLineNum - 1) * this._lineGap)) < 0) {
-                                this._colLineNum--;
+                            if (trimH - ((t._colLineNum * t._itemSize.height) + ((t._colLineNum - 1) * t._lineGap)) < 0) {
+                                t._colLineNum--;
                                 break;
                             } else {
-                                this._colLineNum++;
+                                t._colLineNum++;
                             }
                         }
-                        this._sizeType = false;
+                        t._sizeType = false;
                         break;
                 }
                 break;
@@ -511,47 +533,71 @@ export default class NewClass extends cc.Component {
     }
     //禁用 Layout 组件，自行计算 Content Size
     _resizeContent() {
-        let layout = this.content.getComponent(cc.Layout);
-        if (layout) {
-            layout.enabled = false;
-        }
-        switch (this._align) {
+        let t: any = this;
+        let result: number;
+
+        switch (t._align) {
             case cc.Layout.Type.HORIZONTAL: {
-                let res: number;
-                if (this.customSize) {
-                    let fixed: any = this._getFixedSize(null);
-                    res = this._leftGap + fixed.val + (this._itemSize.width * (this._numItems - fixed.count)) + (this._columnGap * (this._numItems - 1)) + this._rightGap;
+                if (t.customSize) {
+                    let fixed: any = t._getFixedSize(null);
+                    result = t._leftGap + fixed.val + (t._itemSize.width * (t._numItems - fixed.count)) + (t._columnGap * (t._numItems - 1)) + t._rightGap;
                 } else {
-                    res = this._leftGap + (this._itemSize.width * this._numItems) + (this._columnGap * (this._numItems - 1)) + this._rightGap;
+                    result = t._leftGap + (t._itemSize.width * t._numItems) + (t._columnGap * (t._numItems - 1)) + t._rightGap;
                 }
-                this.content.width = res;
                 break;
             }
             case cc.Layout.Type.VERTICAL: {
-                let res: number;
-                if (this.customSize) {
-                    let fixed: any = this._getFixedSize(null);
-                    res = this._topGap + fixed.val + (this._itemSize.height * (this._numItems - fixed.count)) + (this._lineGap * (this._numItems - 1)) + this._bottomGap;
+                if (t.customSize) {
+                    let fixed: any = t._getFixedSize(null);
+                    result = t._topGap + fixed.val + (t._itemSize.height * (t._numItems - fixed.count)) + (t._lineGap * (t._numItems - 1)) + t._bottomGap;
                 } else {
-                    res = this._topGap + (this._itemSize.height * this._numItems) + (this._lineGap * (this._numItems - 1)) + this._bottomGap;
+                    result = t._topGap + (t._itemSize.height * t._numItems) + (t._lineGap * (t._numItems - 1)) + t._bottomGap;
                 }
-                this.content.height = res;
                 break;
             }
             case cc.Layout.Type.GRID: {
-                switch (this._startAxis) {
+                //网格模式不支持居中
+                if (t.lackCenter)
+                    t.lackCenter = false;
+                switch (t._startAxis) {
                     case cc.Layout.AxisDirection.HORIZONTAL:
-                        let lineNum: number = Math.ceil(this._numItems / this._colLineNum);
-                        this.content.height = this._topGap + (this._itemSize.height * lineNum) + (this._lineGap * (lineNum - 1)) + this._bottomGap;
+                        let lineNum: number = Math.ceil(t._numItems / t._colLineNum);
+                        result = t._topGap + (t._itemSize.height * lineNum) + (t._lineGap * (lineNum - 1)) + t._bottomGap;
                         break;
                     case cc.Layout.AxisDirection.VERTICAL:
-                        let colNum: number = Math.ceil(this._numItems / this._colLineNum);
-                        this.content.width = this._leftGap + (this._itemSize.width * colNum) + (this._columnGap * (colNum - 1)) + this._rightGap;
+                        let colNum: number = Math.ceil(t._numItems / t._colLineNum);
+                        result = t._leftGap + (t._itemSize.width * colNum) + (t._columnGap * (colNum - 1)) + t._rightGap;
                         break;
                 }
                 break;
             }
         }
+
+        let layout: cc.Layout = t.content.getComponent(cc.Layout);
+        if (layout)
+            layout.enabled = false;
+
+        t._allItemSize = result;
+
+        let targetWH: number;
+        if (t._sizeType) {
+            //-0.1是为了避免content的size不会超出node.size 0.00000001这种情况
+            targetWH = result < t.node.height ? (t.node.height - .1) : result;
+            if (targetWH < 0)
+                targetWH = 0;
+            t._lackSize = t.lackCenter ? targetWH : null;
+            t._allItemSizeNoBorder = t._allItemSize - t._topGap - t._bottomGap;
+            t.content.height = targetWH;
+        } else {
+            //-0.1是为了避免content的size不会超出node.size 0.00000001这种情况
+            targetWH = result < t.node.width ? (t.node.width - .1) : result;
+            if (targetWH < 0)
+                targetWH = 0;
+            t._lackSize = t.lackCenter ? targetWH : null;
+            t._allItemSizeNoBorder = t._allItemSize - t._leftGap - t._rightGap;
+            t.content.width = targetWH;
+        }
+
         // cc.log('_resizeContent()  numItems =', this._numItems, '，content =', this.content);
     }
 
@@ -643,7 +689,7 @@ export default class NewClass extends cc.Component {
                 endId--;
                 if (curId < 0)
                     curId = 0;
-                else if (endId >= this._numItems)
+                if (endId >= this._numItems)
                     endId = this._numItems - 1;
                 // cc.log(curId, endId);
                 for (; curId <= endId; curId++) {
@@ -741,11 +787,15 @@ export default class NewClass extends cc.Component {
                             left = this._leftGap + ((this._itemSize.width + this._columnGap) * (id - fixed.count)) + (fixed.val + (this._columnGap * fixed.count));
                             let cs: number = this.customSize[id];
                             width = (cs > 0 ? cs : this._itemSize.width);
-                            right = left + width;
                         } else {
                             left = this._leftGap + ((this._itemSize.width + this._columnGap) * id);
-                            right = left + this._itemSize.width;
                             width = this._itemSize.width;
+                        }
+                        right = left + width;
+                        if (this.lackCenter && this._lackSize >= 0) {
+                            let offset: number = (this.content.width / 2) - (this._allItemSizeNoBorder / 2);
+                            left += offset;
+                            right += offset;
                         }
                         return {
                             id: id,
@@ -761,11 +811,15 @@ export default class NewClass extends cc.Component {
                             right = -this._rightGap - ((this._itemSize.width + this._columnGap) * (id - fixed.count)) - (fixed.val + (this._columnGap * fixed.count));
                             let cs: number = this.customSize[id];
                             width = (cs > 0 ? cs : this._itemSize.width);
-                            left = right - width;
                         } else {
                             right = -this._rightGap - ((this._itemSize.width + this._columnGap) * id);
-                            left = right - this._itemSize.width;
                             width = this._itemSize.width;
+                        }
+                        left = right - width;
+                        if (this.lackCenter && this._lackSize >= 0) {
+                            let offset: number = (this.content.width / 2) - (this._allItemSizeNoBorder / 2);
+                            left -= offset;
+                            right -= offset;
                         }
                         return {
                             id: id,
@@ -785,11 +839,15 @@ export default class NewClass extends cc.Component {
                             top = -this._topGap - ((this._itemSize.height + this._lineGap) * (id - fixed.count)) - (fixed.val + (this._lineGap * fixed.count));
                             let cs: number = this.customSize[id];
                             height = (cs > 0 ? cs : this._itemSize.height);
-                            bottom = top - height;
                         } else {
                             top = -this._topGap - ((this._itemSize.height + this._lineGap) * id);
-                            bottom = top - this._itemSize.height;
                             height = this._itemSize.height;
+                        }
+                        bottom = top - height;
+                        if (this.lackCenter && this._lackSize >= 0) {
+                            let offset: number = (this.content.height / 2) - (this._allItemSizeNoBorder / 2);
+                            top -= offset;
+                            bottom -= offset;
                         }
                         return {
                             id: id,
@@ -810,6 +868,11 @@ export default class NewClass extends cc.Component {
                             height = this._itemSize.height;
                         }
                         top = bottom + height;
+                        if (this.lackCenter && this._lackSize >= 0) {
+                            let offset: number = (this.content.height / 2) - (this._allItemSizeNoBorder / 2);
+                            top += offset;
+                            bottom += offset;
+                        }
                         return {
                             id: id,
                             top: top,
@@ -1069,20 +1132,12 @@ export default class NewClass extends cc.Component {
         let item: any = this.getItemByListId(data.id);
         let listItem: ListItem;
         if (!item) { //如果不存在
-            item = this._pool.shift();
-            if (item)
-                listItem = item.getComponent(ListItem);
-            //判断取出的item是否当前正在显示（滑动太快的情况下就会有这种情况，所以这里必须做这一步）
-            while (item && this.firstListId <= listItem.listId && listItem.listId <= this.displayData[this.actualNumItems - 1].id) {
-                item = this._pool.shift();
-                if (item)
-                    listItem = item.getComponent(ListItem);
-            }
-            if (!item) {
+            if (this._pool.size()) {
+                item = this._pool.get();
+                // cc.log('从池中取出::   旧id =', item._listId, '，新id =', data.id, item);
+            } else {
                 item = cc.instantiate(this._itemTmp);
                 // cc.log('新建::', data.id, item);
-            } else {
-                // cc.log('从池中取出::   旧id =', listItem.listId, '，新id =', data.id, item);
             }
             item.setPosition(cc.v2(data.x, data.y));
             this._resetItemSize(item);
@@ -1240,12 +1295,6 @@ export default class NewClass extends cc.Component {
         for (let n: number = this.content.childrenCount - 1; n >= 0; n--) {
             item = this.content.children[n];
             isOutside = true;
-            for (let n: number = this._pool.length; n >= 0; n--) {
-                if (item == this._pool[n]) {
-                    isOutside = false;
-                    break;
-                }
-            }
             if (isOutside) {
                 for (let c: number = this.actualNumItems - 1; c >= 0; c--) {
                     if (!this.displayData[c])
@@ -1268,19 +1317,7 @@ export default class NewClass extends cc.Component {
         if (this._virtual) {
             let arr: any[] = this._getOutsideItem();
             for (let n: number = arr.length - 1; n >= 0; n--) {
-                arr[n].removeFromParent();
-                this._pool.push(arr[n]);
-            }
-            if (arr.length) {
-                let item: any, listItem: ListItem;
-                for (let n: number = this._pool.length - 1; n >= 0; n--) {
-                    item = this._pool[n];
-                    listItem = item.getComponent(ListItem);
-                    if (listItem.listId < this.firstListId - this._colLineNum || listItem.listId > this.firstListId + this.actualNumItems + this._colLineNum) {
-                        this._pool.splice(n, 1);
-                        this._delSingleItem(item);
-                    }
-                }
+                this._pool.put(arr[n]);
             }
             // cc.log('存入::', str, '    pool.length =', this._pool.length);
         } else {
@@ -1597,5 +1634,27 @@ export default class NewClass extends cc.Component {
         }
         t.scrollTo(pageNum, timeInSecond);
     }
-
+    //计算 CustomSize（比较复杂的Item结构不建议使用此方法来计算）
+    calcCustomSize(numItems: number) {
+        let t: any = this;
+        if (!t._itemTmp)
+            return cc.error('Unset template item!');
+        if (!t.renderEvent)
+            return cc.error('Unset Render-Event!');
+        t.customSize = {};
+        let temp: any = cc.instantiate(t._itemTmp);
+        t.content.addChild(temp);
+        for (let n: number = 0; n < numItems; n++) {
+            cc.Component.EventHandler.emitEvents([t.renderEvent], temp, n);
+            if (temp.height != t._itemSize.height || temp.width != t._itemSize.width) {
+                t.customSize[n] = t._sizeType ? temp.height : temp.width;
+            }
+        }
+        if (!Object.keys(t.customSize).length)
+            t.customSize = null;
+        temp.removeFromParent();
+        if (temp.destroy)
+            temp.destroy();
+        return t.customSize;
+    }
 }

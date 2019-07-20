@@ -1,6 +1,6 @@
 /******************************************
  * @author kL <klk0@qq.com>
- * @copyright Nemo 2019/1/5
+ * @date 2019/1/5
  * @doc Main.
  * @end
  ******************************************/
@@ -26,7 +26,7 @@ cc.Class({
 
     onLoad: function () {
         this.data = [];
-        for (let n = 0; n < 30; n++) {
+        for (let n = 0; n < 999; n++) {
             this.data.push(n);
         }
         this.listV.numItems = this.data.length;

@@ -66,14 +66,15 @@
         "iOS",
         "HTML5"
       ],
-      "package_download_url": "http://download.cocos.com/CocosServices/plugins/service-matchvs/1.0.7_3.7.9.6.zip",
-      "package_version_desc": "更新日期：2019-05-15<br>更新内容：<br>1、调整getRoomListEx接口，获取系统创建房间<br>2、增加appkey等的校验<br>3、新增以下平台支持:<li>VIVO 小游戏<li>OPPO 小游戏<li>HUAWEI 快游戏<li>百度小游戏（默认不支持，需修改代码强制开启WSS选项）",
+      "package_download_url": "http://download.cocos.com/CocosServices/plugins/service-matchvs/1.0.9_3.7.9.9.zip",
+      "package_version_desc": "更新日期：2019-07-18<br>更新内容：<br>1、修复多节点登录返回值错误<br>2、修复FaceBook平台受限安全策略的问题",
       "service_component_name": "service-matchvs",
       "package_versions": [
         "1.0.3_3.7.6.4",
         "1.0.5_3.7.7.3",
         "1.0.6_3.7.9.2",
-        "1.0.7_3.7.9.6"
+        "1.0.7_3.7.9.6",
+        "1.0.9_3.7.9.9"
       ],
       "build_platform": [
         "web-mobile",
@@ -98,11 +99,11 @@
     {
       "service_id": "242",
       "service_name": "Agora Voice",
-      "service_icon": "https://account.cocos.com/uploads/client_icon/date(\"Y-m-d\")/50fe52b789c2fc1e1fff9eec161c1bb3.png",
+      "service_icon": "https://account.cocos.com/uploads/client_icon/2019-07-16/273952d155b4cdb72d2b1bc61de91ade.png",
       "service_desc": "稳定、低耗、76ms超低延时、全球200+数据中心覆盖；变声器、超高音质、听声辩位等丰富玩法极速接入；全平台支持：Android、iOS、Web。\n技术支持群QQ群：799099183\n",
       "service_title": "游戏内置实时语音",
-      "service_guide_url": "https://docs.agora.io/cn/Interactive Gaming/game_c",
-      "service_sample_url": "https://github.com/AgoraIO/Voice-Call-for-Mobile-Gaming/tree/master/Basic-Voice-Call-for-Gaming/Hello-Cocos-Creator-Voice-Agora",
+      "service_guide_url": "https://docs.agora.io/cn/Interactive Gaming/game_c?platform=Cocos Creator",
+      "service_sample_url": "https://github.com/AgoraIO/Voice-Call-for-Mobile-Gaming/tree/master/Basic-Voice-Call-for-Gaming/Hello-CocosCreator-Voice-Agora",
       "service_dev_url": "https://sso.agora.io/api/oauth/cocos/login",
       "service_type": "3",
       "service_type_zh": "公司和个人游戏",

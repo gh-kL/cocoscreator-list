@@ -41,8 +41,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.60858154296875,
-      "y": 0.60858154296875,
+      "x": 0.5251519097222223,
+      "y": 0.5251519097222223,
       "z": 1
     },
     "_quat": {
@@ -1083,6 +1083,7 @@
       "__id__": 26
     },
     "_virtual": true,
+    "lackCenter": false,
     "_updateRate": 2,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -1950,6 +1951,7 @@
       "__id__": 49
     },
     "_virtual": true,
+    "lackCenter": true,
     "_updateRate": 2,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -2667,6 +2669,7 @@
       "__id__": 68
     },
     "_virtual": true,
+    "lackCenter": false,
     "_updateRate": 2,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -3384,6 +3387,7 @@
       "__id__": 87
     },
     "_virtual": true,
+    "lackCenter": false,
     "_updateRate": 2,
     "frameByFrameRenderNum": 0,
     "renderEvent": {

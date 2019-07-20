@@ -50,8 +50,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.5421875,
-      "y": 0.5421875,
+      "x": 0.460058619557862,
+      "y": 0.460058619557862,
       "z": 1
     },
     "_quat": {
@@ -1091,6 +1091,7 @@
     "pageDistance": 0.3,
     "pageChangeEvent": null,
     "_virtual": true,
+    "lackCenter": false,
     "_updateRate": 2,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -1099,7 +1100,6 @@
     "selectedMode": 0,
     "selectedEvent": null,
     "_selectedId": -1,
-    "_numItems": 0,
     "_id": "82LnTe21ZMgYG72Jqy45Fz"
   },
   {
@@ -1941,6 +1941,7 @@
     "pageDistance": 0.3,
     "pageChangeEvent": null,
     "_virtual": true,
+    "lackCenter": false,
     "_updateRate": 2,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -1951,7 +1952,6 @@
       "__id__": 48
     },
     "_selectedId": -1,
-    "_numItems": 0,
     "_id": "4dRTFoD/tCO7snudR8pTPb"
   },
   {
@@ -2651,6 +2651,7 @@
     "pageDistance": 0.3,
     "pageChangeEvent": null,
     "_virtual": true,
+    "lackCenter": false,
     "_updateRate": 1,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -2661,7 +2662,6 @@
       "__id__": 66
     },
     "_selectedId": -1,
-    "_numItems": 0,
     "_id": "d70U9KNUpGLI9j0GDYoyPh"
   },
   {
@@ -3361,6 +3361,7 @@
     "pageDistance": 0.3,
     "pageChangeEvent": null,
     "_virtual": true,
+    "lackCenter": false,
     "_updateRate": 1,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -3371,7 +3372,6 @@
       "__id__": 84
     },
     "_selectedId": -1,
-    "_numItems": 0,
     "_id": "02PaW69NVIG5j7XFEiMBxK"
   },
   {
