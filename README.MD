@@ -43,7 +43,7 @@ Cocos论坛帖子链接：
 
 ## Tips
 
-1. 每一个`Item-Node`都会被赋值一个`_listId`，即该`Item`在`List`中的`下标`，假如你的`Item`的`childrens`中，有一个`按钮`，在`按钮`的`回调事件`中，通过`event.target.parent._listId`就能取得该`Item的下标`了，这非常方便。`TS版`比较特殊，`_listId`保存在`ListItem`组件中，可以通过`item.getComponent('ListItem').listId`来获得。
+1. 每一个`Item-Node`都会被赋值一个`_listId`，即该`Item`在`List`中的`下标`。假如你的`Item`的`childrens`中，有一个`按钮`，在`按钮`的`回调事件`中，通过`event.target.parent._listId`就能取得该`Item的下标`了，这非常方便。`TS版`比较特殊，`_listId`保存在`ListItem`组件中，可以通过`item.getComponent('ListItem').listId`来获得。
 2. 在**View**中设置 `list.customSize` 以达到**每个Item宽度或高度不一样**的**虚拟列表**效果，简直美滋滋！但这个会**耗费更多性能！仅支持虚拟列表！仅支持单列或单行**！
 
 --------------------------------------------------------------------------------
