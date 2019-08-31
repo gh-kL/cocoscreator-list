@@ -5,6 +5,7 @@
 在线DEMO：
 
 > https://gh-kl.github.io/cocoscreator-list/web-mobile/index.html
+
 > https://gh-kl.github.io/cocoscreator-list/web-mobile-chat-list/index.html
 
 Cocos论坛帖子链接：
