@@ -10,7 +10,7 @@ import List from './List';
 import ListItem from './ListItem';
 
 @ccclass
-export default class Game extends cc.Component {
+export default class TestPage extends cc.Component {
     @property(List)
     list: List = null;
     @property(cc.EditBox)

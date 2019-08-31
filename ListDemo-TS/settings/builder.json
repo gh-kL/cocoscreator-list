@@ -29,22 +29,21 @@
     "portrait": false,
     "upsideDown": false
   },
-  "packageName": "org.cocos2d.ListDemo",
+  "packageName": "org.cocos2d.ListDemo-TS",
   "qqplay": {
     "REMOTE_SERVER_ROOT": "",
     "orientation": "portrait",
     "zip": false
   },
-  "startScene": "b0376683-63b8-48e1-b23b-77af85567dbc",
-  "title": "ListDemo_TestCustomSize",
+  "startScene": "3156d91c-e3d5-48ba-9db7-b7a795c72578",
+  "title": "ListDemo-TS",
   "webOrientation": "auto",
   "wechatgame": {
     "REMOTE_SERVER_ROOT": "",
     "appid": "wx6ac3f5090a6b99c5",
     "orientation": "portrait",
-    "separate_engine": false,
     "subContext": ""
   },
-  "xxteaKey": "c284d5cb-1447-4a",
+  "xxteaKey": "39a6f104-09fc-4c",
   "zipCompressJs": true
 }

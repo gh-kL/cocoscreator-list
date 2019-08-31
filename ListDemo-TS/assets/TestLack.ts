@@ -10,7 +10,7 @@ import List from './List';
 import ListItem from './ListItem';
 
 @ccclass
-export default class NewClass extends cc.Component {
+export default class TestLack extends cc.Component {
     //水平列表
     @property(List)
     listH: List = null;

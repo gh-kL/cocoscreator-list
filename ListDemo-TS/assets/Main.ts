@@ -10,7 +10,7 @@ import List from './List';
 import ListItem from './ListItem';
 
 @ccclass
-export default class Game extends cc.Component {
+export default class Main extends cc.Component {
     //垂直列表
     @property(List)
     listV: List = null;

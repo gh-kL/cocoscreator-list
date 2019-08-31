@@ -30,7 +30,7 @@ Cocos论坛帖子链接：
 2. 将 `List` 组件挂载到**ScrollView**节点上。
 3. 设置**模板Item**，选择 `TemplateType` ，可切换**模板类型**，请按需选择。
 4. 设置**滑动模式（ `SlideMode` ）**， `NORMAL=通常` ， `ADHERING=粘附` ， `PAGE=分页` ，三选一。
-5. 设置是否为**虚拟列表（ `Virtual` ）**，默认为 `true` ，意思是仅在可视范围内渲染`Item`。反之，如果为 `false` ，则会渲染所有数量的Item，一般不推荐这么做，但凡事总有个万一，所以预留了。
+5. 设置是否为**虚拟列表（ `Virtual` ）**，默认为 `true` ，意思是仅在可视范围内渲染 `Item` 。反之，如果为 `false` ，则会渲染所有数量的Item，一般不推荐这么做，但凡事总有个万一，所以预留了。
 6. 可选设置**逐帧渲染（ `FrameByFrameRenderNum` ）**，该数量为**每帧渲染的数量**。
 7. 设置**渲染器（ `RenderEvent` ）**，在**View**中写一个函数，将该函数指向**RenderEvent**，运行时，设置List数量，Item将会**通过该函数进行回调**，开发者在该函数中实现**Item的刷新**。
 8. 可选设置**选择模式（ `SelectedMode` ）**，选择模式有 `SIMPLE（单选）` 、 `MULT（多选）` 两种模式，须与 `ListItem` 组件搭配使用， `ListItem` 组件需要拖拽到**模板Item**上。在**View**中写一个函数，将该函数指向 `SelectedEvent` ，运行时，当**选择变更**，将会通过该函数**回调**。
@@ -43,7 +43,7 @@ Cocos论坛帖子链接：
 
 ## Tips
 
-1. 每一个`Item-Node`都会被赋值一个`_listId`，即该`Item`在`List`中的`下标`。假如你的`Item`的`childrens`中，有一个`按钮`，在`按钮`的`回调事件`中，通过`event.target.parent._listId`就能取得该`Item的下标`了，这非常方便。`TS版`比较特殊，`_listId`保存在`ListItem`组件中，可以通过`item.getComponent('ListItem').listId`来获得。
+1. 每一个 `Item-Node` 都会被赋值一个 `_listId` ，即该 `Item` 在 `List` 中的 `下标` 。假如你的 `Item` 的 `childrens` 中，有一个 `按钮` ，在 `按钮` 的 `回调事件` 中，通过 `event.target.parent._listId` 就能取得该 `Item的下标` 了，这非常方便。 `TS版` 比较特殊， `_listId` 保存在 `ListItem` 组件中，可以通过 `item.getComponent('ListItem').listId` 来获得。
 2. 在**View**中设置 `list.customSize` 以达到**每个Item宽度或高度不一样**的**虚拟列表**效果，简直美滋滋！但这个会**耗费更多性能！仅支持虚拟列表！仅支持单列或单行**！
 
 --------------------------------------------------------------------------------
@@ -51,13 +51,20 @@ Cocos论坛帖子链接：
 ## 注意
 
 1. 本组件所依赖的**ScrollView节点**、**Mask节点**以及**Content节点**，这三个节点的**锚点**需要**按方向**去设置。比如**从顶到底单列排列**，就需要设置锚点为（0.5, 1）。如果是**从左到右网格排列**，就需要设置锚点为（0, 1）。始终将锚点设置到**首个Item**那一边。
-2. `TS`版，`Item`必须要挂载`ListItem`组件。（因为`TS`不能随意给`Node`赋值变量，但`Item-Node`必须要记录一个`listId`）。
+2. `TS` 版， `Item` 必须要挂载 `ListItem` 组件。（因为 `TS` 不能随意给 `Node` 赋值变量，但 `Item-Node` 必须要记录一个 `listId` ）。
 3. 理论上**设为虚拟列表后不可再设回普通列表**（即 `virtual` 属性）。
 4. SlideMode设为 `ADHERING（粘附）` 或 `PAGE（页面）` 后，组件将**强行屏蔽惯性滚动**。
 
 --------------------------------------------------------------------------------
 
 ## 更新日志
+
+### 2019/8/31
+
+* 新增 `TestCustomSize` 场景例子，着重演示如何用本组件实现 `聊天列表` 。
+* 优化局部代码，提升一丁点效率。
+* 将 `updateAppointed` 接口更名为 `updateItem` 。
+* 新增 `updateAll()` 接口。
 
 ### 2019/7/20
 
