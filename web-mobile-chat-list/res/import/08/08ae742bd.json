@@ -1074,8 +1074,8 @@
       },
       "_scale": {
         "__type__": "cc.Vec3",
-        "x": 0.7187447525418728,
-        "y": 0.7187447525418728,
+        "x": 0.1,
+        "y": 0.1,
         "z": 1
       },
       "autoReleaseAssets": false
@@ -1500,7 +1500,7 @@
     },
     {
       "__type__": "cc.Node",
-      "_name": "avatar_1",
+      "_name": "avatar",
       "_parent": {
         "__id__": 10
       },

@@ -129,8 +129,8 @@
       },
       "_scale": {
         "__type__": "cc.Vec3",
-        "x": 0.6403194586188232,
-        "y": 0.6403194586188232,
+        "x": 0.60859375,
+        "y": 0.60859375,
         "z": 1
       },
       "autoReleaseAssets": false
@@ -513,6 +513,7 @@
       "_parent": {
         "__id__": 7
       },
+      "_active": false,
       "_level": 6,
       "_components": [
         {

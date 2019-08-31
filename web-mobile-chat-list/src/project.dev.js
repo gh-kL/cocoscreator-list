@@ -179,6 +179,7 @@ window.__require = function e(t, n, r) {
       editor: {
         disallowMultiple: false,
         menu: "\u81ea\u5b9a\u4e49\u7ec4\u4ef6/List",
+        requireComponent: cc.ScrollView,
         executionOrder: -5e3
       },
       properties: {
@@ -1508,19 +1509,19 @@ window.__require = function e(t, n, r) {
           text: "\u4e00\u8d77\u505a\u4e2a<color=#cc6600>\u62dc\u91d1\u4e3b\u4e49</color>\u7684\u6bd2\u866b\u3002"
         }, {
           type: 2,
-          text: "\u8ba9<color=#cc6600>\u6d88\u8d39</color>\u9ebb\u9189\u81ea\u5df1\u3002"
+          text: "\u7528<color=#cc6600>\u6d88\u8d39</color>\u9ebb\u9189\u81ea\u5df1\u3002"
         }, {
           type: 1,
           text: "\u7528\u79f0\u4f5c<color=#cc6600>\u7269\u8d28\u6b32\u671b</color>\u7684<color=#cc6600>\u9488\u5934</color>\u3002"
         }, {
           type: 2,
-          text: "\u6ce8\u5c04<color=#cc6600>\u9ebb\u75f9</color>\u548c<color=#cc6600>\u6743\u529b</color>\u3002"
+          text: "\u6ce8\u5c04<color=#cc6600>\u8d2a\u5a6a</color>\u548c<color=#cc6600>\u6743\u529b</color>\u3002"
         }, {
           type: 3,
           text: "14:55"
         }, {
           type: 1,
-          text: "<color=#cc6600>\u78e8\u788e\u4e2d\u4e0b\u7ea7\u7684\u7c89\u672b\uff0c\n\u5316\u6210\u9ad8\u7eaf\u5ea6\u7684\u4e0a\u6d41\u3002</color>"
+          text: "<color=#cc6600>\u78e8\u788e\u4e2d\u4e0b\u9636\u7ea7\u7684\u7c89\u672b\uff0c\n\u5316\u6210\u9ad8\u7eaf\u5ea6\u7684\u4e0a\u6d41\u3002</color>"
         }, {
           type: 1,
           text: "\u6e34\u671b\u91d1\u5b57\u5854\u9876\u7aef\u7684\u5815\u843d<color=#cc6600>\u5931\u5fc3\u75af</color>\uff0c\n\u7684\u4f60\u548c\u6211\u3002"
@@ -1562,13 +1563,28 @@ window.__require = function e(t, n, r) {
           text: "\u8001\u7834\u9ebb - \u6bd2\u866b"
         }, {
           type: 2,
-          text: '\u8c22\u8c22\u89c2\u8d4f<img src="37"/><img src="37"/><img src="37"/>\n\u4e0a\u9762\u7684\u6587\u5b57\u6458\u81ea\u4e00\u9996\u6447\u6eda\u6b4c\u66f2\u2014\u2014<color=#cc6600>\u300a\u6bd2\u866b\u300b</color>\uff0c\u521b\u4f5c\u4e50\u961f\uff1a<color=#cc6600>\u8001\u7834\u9ebb</color>\u3002\nemmmm...\u6211\u89c9\u5f97\u5199\u7684\u5f88\u597d\uff0c\u5531\u7684\u4e5f\u5f88\u597d\uff0c\u6211<color=#ff0000><size=28>\u5899\u88c2\u63a8\u8350</size></color>\uff01\uff01\uff01'
-        }, {
-          type: 1,
-          text: '<color=#cc6600>\u8001\u7834\u9ebb</color>\u662f\u4e00\u652f\u53f0\u6e7e\u4e50\u961f\uff0c\u76ee\u524d\u8fd8\u5f88\u5c0f\u4f17\uff0c\u4f46\u7edd\u5bf9\u662f<color=#ff0000><size=28>\u5b9d\u85cf\u4e50\u961f</size></color>\uff01<img src="42"/><img src="42"/><img src="42"/>'
+          text: '\u8c22\u8c22\u89c2\u8d4f<img src="37"/><img src="37"/><img src="37"/>'
         }, {
           type: 2,
-          text: '\u662f\u7684\u6ca1\u9519\uff0c\u4ed6\u4eec\u7684\u98ce\u683c\u56ca\u62ec\u4e86<color=#cc6600>\u6447\u6eda</color>\u3001<color=#cc6600>\u91d1\u5c5e</color>\u3001<color=#cc6600>\u6838</color>\uff0c\u751a\u81f3\u662f<color=#cc6600>BossaNova</color>\uff0c\u501f\u7528<color=#cc6600>\u5f20\u4e9a\u4e1c</color>\u8001\u5e08\u7684\u4e00\u53e5\u7ecf\u5178\u53f0\u8bcd\uff1a\u975e\u5e38\u597d\u2014\u2014<img src="15"/><img src="15"/><img src="15"/>'
+          text: "\u4e0a\u9762\u7684\u6587\u5b57\u6458\u81ea\u4e00\u9996\u6447\u6eda\u6b4c\u66f2\u2014\u2014<color=#cc6600>\u300a\u6bd2\u866b\u300b</color>\uff0c\u521b\u4f5c\u4e50\u961f\uff1a<color=#cc6600>\u8001\u7834\u9ebb</color>\u3002"
+        }, {
+          type: 2,
+          text: "emmmm...\u6211\u89c9\u5f97\u5199\u7684\u5f88\u597d\uff0c\u5531\u7684\u4e5f\u5f88\u597d\u3002"
+        }, {
+          type: 2,
+          text: "<color=#ff0000><size=28>\u5899\u88c2\u63a8\u8350</size></color>\uff01\uff01\uff01"
+        }, {
+          type: 1,
+          text: "\u55ef\uff0c<color=#cc6600>\u8001\u7834\u9ebb</color>\u662f\u4e00\u652f\u53f0\u6e7e\u4e50\u961f\uff0c\u76ee\u524d\u8fd8\u5f88\u5c0f\u4f17\u3002"
+        }, {
+          type: 1,
+          text: '\u4f46\u7edd\u5bf9\u662f<color=#ff0000><size=28>\u5b9d\u85cf\u4e50\u961f</size></color>\uff01<img src="42"/><img src="42"/><img src="42"/>'
+        }, {
+          type: 2,
+          text: "\u662f\u7684\u6ca1\u9519\uff0c\u4ed6\u4eec\u7684\u98ce\u683c\u56ca\u62ec\u4e86<color=#cc6600>\u6447\u6eda</color>\u3001<color=#cc6600>\u91d1\u5c5e</color>\u3001<color=#cc6600>\u6838</color>\uff0c\u751a\u81f3\u662f<color=#cc6600>BossaNova</color>\u3002"
+        }, {
+          type: 2,
+          text: '\u501f\u7528<color=#cc6600>\u5f20\u4e9a\u4e1c</color>\u8001\u5e08\u7684\u4e00\u53e5\u7ecf\u5178\u53f0\u8bcd\uff1a\u975e\u5e38\u597d\u2014\u2014<img src="15"/><img src="15"/><img src="15"/>'
         }, {
           type: 2,
           text: '\u597d\u4e86\uff0c\u6211\u4eec\u8bf4\u4e00\u4e0b\u8fd9\u4e2a\u7ec4\u4ef6<img src="22"/><img src="22"/>'
@@ -1580,10 +1596,13 @@ window.__require = function e(t, n, r) {
           text: 'okok...<img src="53"/><img src="53"/>'
         }, {
           type: 2,
-          text: '\u6709\u95ee\u9898\u53ef\u4ee5\u53bb\u6211\u4eec\u56e2\u961f\u7684Github\u63d0Issues\u3002<img src="39"/><img src="39"/><img src="39"/>\n\u94fe\u63a5\uff1a\n<u><color=#cc6600>https://github.com/gh-kL/cocoscreator-list</color></u>\n\uff08\u70b9\u8fd9\u91cc\u80af\u5b9a\u70b9\u4e0d\u5f00\u94fe\u63a5\uff0c\u61d2\u5f97\u505aWebView\u4e86<img src="38"/><img src="38"/><img src="38"/>\uff09'
+          text: '\u6709\u95ee\u9898\u53ef\u4ee5\u53bb\u6211\u4eec\u56e2\u961f\u7684Github\u63d0Issues\u3002<img src="39"/><img src="39"/><img src="39"/>'
+        }, {
+          type: 2,
+          text: "\u94fe\u63a5\uff1a\n<u><color=#cc6600>https://github.com/gh-kL/cocoscreator-list</color></u>"
         }, {
           type: 1,
-          text: '\u56e2\u4f60\u59b9\u592b\uff01\u5c31\u4f60\u4e00\u4eba\u5199\u7684\u7834\u7ec4\u4ef6<img src="20"/><img src="20"/>\u8fd8\u56e2\u961f\u5462\u6211\u53bb'
+          text: '\u56e2\u4f60\u59b9\u592b\uff01\u5c31\u4e00\u7834\u7ec4\u4ef6<img src="20"/><img src="20"/>\u8fd8\u56e2\u961f\u5462\u6211\u53bb'
         }, {
           type: 2,
           text: "\u3002\u3002\u3002"
@@ -1592,7 +1611,7 @@ window.__require = function e(t, n, r) {
           text: '\u522b\u6233\u7a7f\u6211\u561b<img src="27"/><img src="27"/>'
         }, {
           type: 1,
-          text: '\u6211tm..<img src="39"/><img src="39"/>'
+          text: '\u6211tm<img src="39"/><img src="39"/>'
         }, {
           type: 2,
           text: '\u6211\u5e0c\u671b\u8fd9\u4e2a\u7ec4\u4ef6\u5927\u5bb6\u7528\u4e86\u4e4b\u540e\u4f1a\u89c9\u5f97<color=#cc6600>\u771f\u9999</color>\uff0c\u800c\u4e0d\u662f<color=#cc6600>\u771f\u81ed</color><img src="37"/><img src="37"/><img src="37"/>'
