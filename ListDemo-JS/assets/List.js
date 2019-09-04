@@ -27,7 +27,6 @@ cc.Class({
     editor: {
         disallowMultiple: false,
         menu: '自定义组件/List',
-        requireComponent: cc.ScrollView,
         //脚本生命周期回调的执行优先级。小于 0 的脚本将优先执行，大于 0 的脚本将最后执行。该优先级只对 onLoad, onEnable, start, update 和 lateUpdate 有效，对 onDisable 和 onDestroy 无效。
         executionOrder: -5000,
     },
@@ -453,29 +452,13 @@ cc.Class({
                     case cc.Layout.AxisDirection.HORIZONTAL:
                         //计算列数
                         let trimW = t.content.width - t._leftGap - t._rightGap;
-                        t._colLineNum = 1;
-                        while (1) {
-                            if (trimW - ((t._colLineNum * t._itemSize.width) + ((t._colLineNum - 1) * t._columnGap)) < 0) {
-                                t._colLineNum--;
-                                break;
-                            } else {
-                                t._colLineNum++;
-                            }
-                        }
+                        t._colLineNum = Math.floor((trimW + t._columnGap) / (t._itemSize.width + t._columnGap));
                         t._sizeType = true;
                         break;
                     case cc.Layout.AxisDirection.VERTICAL:
                         //计算行数
                         let trimH = t.content.height - t._topGap - t._bottomGap;
-                        t._colLineNum = 1;
-                        while (1) {
-                            if (trimH - ((t._colLineNum * t._itemSize.height) + ((t._colLineNum - 1) * t._lineGap)) < 0) {
-                                t._colLineNum--;
-                                break;
-                            } else {
-                                t._colLineNum++;
-                            }
-                        }
+                        t._colLineNum = Math.floor((trimH + t._lineGap) / (t._itemSize.height + t._lineGap));
                         t._sizeType = false;
                         break;
                 }
@@ -1198,7 +1181,6 @@ cc.Class({
             args = [args];
         }
         if (bool == null) {
-            t.multSelected = null;
             t.multSelected = args;
         } else {
             let listId, sub;
@@ -1228,18 +1210,23 @@ cc.Class({
      * @param {Array} args 单个listId，或者数组
      * @returns
      */
-    updateAppointed(args) {
+    updateItem(args) {
         if (!Array.isArray(args)) {
             args = [args];
         }
-        let len = args.length;
-        for (let n = 0; n < len; n++) {
+        for (let n = 0, len = args.length; n < len; n++) {
             let listId = args[n];
             let item = this.getItemByListId(listId);
             if (item) {
                 cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId);
             }
         }
+    },
+    /**
+     * 更新全部
+     */
+    updateAll() {
+        this.numItems = this.numItems;
     },
     /**
      * 根据ListID获取Item
@@ -1251,7 +1238,6 @@ cc.Class({
             if (this.content.children[n]._listId == listId)
                 return this.content.children[n];
         }
-        return null;
     },
     /**
      * 获取在显示区域外的Item
@@ -1416,9 +1402,8 @@ cc.Class({
             listId = 0;
         else if (listId >= t._numItems)
             listId = t._numItems - 1;
-        let pos = t._calcItemPos(listId); //嗯...不管virtual=true还是false，都自己算，反正结果都一样，懒得去遍历content.children了。
+        let pos = t._virtual ? t._calcItemPos(listId) : t._calcExistItemPos(listId);
         let targetX, targetY;
-
 
         switch (t._alignCalcType) {
             case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
@@ -1454,7 +1439,6 @@ cc.Class({
                 pos = new cc.v2(0, -targetY + t.content.height);
                 break;
         }
-
         let viewPos = t.content.getPosition();
         viewPos = Math.abs(t._sizeType ? viewPos.y : viewPos.x);
 
