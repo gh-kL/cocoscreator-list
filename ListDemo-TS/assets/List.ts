@@ -269,14 +269,6 @@ export default class List extends cc.Component {
     get numItems() {
         return this._numItems;
     }
-    //VIEW距离扩增。该变量用以避免Item是Buttom组件时，容易触发ScollView卡住的现象。
-    @property({
-        type: cc.Integer,
-        range: [0, 300, 1],
-        tooltip: CC_DEV && 'VIEW距离扩增。该变量用以避免Item是Buttom组件时，容易触发ScollView卡住的现象。',
-        slide: true,
-    })
-    private cushionDistance: number = 0;
 
     private _inited: boolean = false;
     private _scrollView: cc.ScrollView;
@@ -333,6 +325,10 @@ export default class List extends cc.Component {
     private _allItemSize: number;
     private _allItemSizeNoBorder: number;
 
+    private _scrollItem: any;//当前控制 ScrollView 滚动的 Item
+
+    //----------------------------------------------------------------------------
+
     onLoad() {
         this._init();
     }
@@ -356,6 +352,7 @@ export default class List extends cc.Component {
     //注册事件
     _registerEvent() {
         let t: any = this;
+        t.node.on(cc.Node.EventType.TOUCH_START, this._onTouchStart, this, true);
         t.node.on('touch-up', t._onTouchUp, t);
         t.node.on(cc.Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
         t.node.on('scroll-began', t._onScrollBegan, t, true);
@@ -365,6 +362,7 @@ export default class List extends cc.Component {
     //卸载事件
     _unregisterEvent() {
         let t: any = this;
+        t.node.off(cc.Node.EventType.TOUCH_START, this._onTouchStart, this, true);
         t.node.off('touch-up', t._onTouchUp, t);
         t.node.off(cc.Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
         t.node.off('scroll-began', t._onScrollBegan, t, true);
@@ -630,11 +628,11 @@ export default class List extends cc.Component {
 
         let vTop: number, vRight: number, vBottom: number, vLeft: number;
         if (this._sizeType) {
-            vTop = this.getViewPos(0);
-            vBottom = this.getViewPos(2);
+            vTop = this.viewTop;
+            vBottom = this.viewBottom;
         } else {
-            vRight = this.getViewPos(1);
-            vLeft = this.getViewPos(3);
+            vRight = this.viewRight;
+            vLeft = this.viewLeft;
         }
 
         if (this._virtual) {
@@ -795,40 +793,6 @@ export default class List extends cc.Component {
                 // cc.log(this.elasticTop, this.elasticBottom, this.viewTop, this.viewBottom);
                 break;
         }
-        if (this.cushionDistance) {
-            if (this._sizeType) {
-                this.viewTop += this.cushionDistance;
-                this.viewBottom -= this.cushionDistance;
-            } else {
-                this.viewLeft -= this.cushionDistance;
-                this.viewRight += this.cushionDistance;
-            }
-        }
-    }
-    //获取View位置
-    getViewPos(dir: number, tailor: boolean = false) {
-        let result: number;
-        switch (dir) {
-            case 0://顶
-                result = this.viewTop;
-                break;
-            case 1://右
-                result = this.viewRight;
-                break;
-            case 2://下
-                result = this.viewBottom;
-                break;
-            case 3://左
-                result = this.viewLeft;
-                break;
-        }
-        if (tailor && this.cushionDistance) {
-            if (dir < 2)
-                result -= this.cushionDistance;
-            else
-                result += this.cushionDistance;
-        }
-        return result;
     }
     //计算位置 根据id
     _calcItemPos(id: number) {
@@ -1077,6 +1041,14 @@ export default class List extends cc.Component {
             }
         }
     }
+    // 触摸时
+    _onTouchStart(ev, captureListeners) {
+        if (this._scrollView['_hasNestedViewGroup'](ev, captureListeners))
+            return;
+        let isMe = ev.eventPhase === cc.Event.AT_TARGET && ev.target === this.node;
+        if (!isMe)
+            this._scrollItem = ev.target;
+    }
     //触摸抬起时..
     _onTouchUp() {
         let t: any = this;
@@ -1092,6 +1064,7 @@ export default class List extends cc.Component {
                 t.adhere();
             }
         }
+        this._scrollItem = null;
     }
 
     _onTouchCancelled(ev, captureListeners) {
@@ -1111,6 +1084,7 @@ export default class List extends cc.Component {
                 t.adhere();
             }
         }
+        this._scrollItem = null;
     }
 
     _pageAdhere() {
@@ -1400,7 +1374,10 @@ export default class List extends cc.Component {
         if (this._virtual) {
             let arr: any[] = this._getOutsideItem();
             for (let n: number = arr.length - 1; n >= 0; n--) {
-                this._pool.put(arr[n]);
+                let item = arr[n];
+                if (this._scrollItem && item['_listId'] == this._scrollItem['_listId'])
+                    continue;
+                this._pool.put(item);
             }
             // cc.log('存入::', str, '    pool.length =', this._pool.length);
         } else {
@@ -1612,10 +1589,10 @@ export default class List extends cc.Component {
             this._calcViewPos();
 
         let vTop: number, vRight: number, vBottom: number, vLeft: number;
-        vTop = this.getViewPos(0, true);
-        vRight = this.getViewPos(1, true);
-        vBottom = this.getViewPos(2, true);
-        vLeft = this.getViewPos(3, true);
+        vTop = this.viewTop;
+        vRight = this.viewRight;
+        vBottom = this.viewBottom;
+        vLeft = this.viewLeft;
 
         let breakFor: boolean = false;
         for (let n = 0; n < this.content.childrenCount && !breakFor; n += this._colLineNum) {
