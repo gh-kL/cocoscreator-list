@@ -50,8 +50,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.2932074652777778,
-      "y": 0.2932074652777778,
+      "x": 0.17800550220335806,
+      "y": 0.17800550220335806,
       "z": 1
     },
     "_quat": {
@@ -904,6 +904,7 @@
     "selectedFlag": null,
     "selectedSpriteFrame": null,
     "_selected": false,
+    "_btnCom": null,
     "_id": "12N3hm73RL4b9JPmAwprB+"
   },
   {
@@ -1098,6 +1099,7 @@
       "__id__": 26
     },
     "selectedMode": 0,
+    "repeatEventSingle": false,
     "selectedEvent": null,
     "_selectedId": -1,
     "cushionDistance": 0,
@@ -1755,6 +1757,7 @@
     },
     "selectedSpriteFrame": null,
     "_selected": false,
+    "_btnCom": null,
     "_id": "5eHN2U4w1L14oDuwRo2L81"
   },
   {
@@ -1949,6 +1952,7 @@
       "__id__": 47
     },
     "selectedMode": 1,
+    "repeatEventSingle": true,
     "selectedEvent": {
       "__id__": 48
     },
@@ -2466,6 +2470,7 @@
     },
     "selectedSpriteFrame": null,
     "_selected": false,
+    "_btnCom": null,
     "_id": "82JGQFCUJF5o8bNdTFwIve"
   },
   {
@@ -2660,6 +2665,7 @@
       "__id__": 65
     },
     "selectedMode": 2,
+    "repeatEventSingle": false,
     "selectedEvent": {
       "__id__": 66
     },
@@ -3177,6 +3183,7 @@
     },
     "selectedSpriteFrame": null,
     "_selected": false,
+    "_btnCom": null,
     "_id": "f4T0vloC9JQ4X2Ohf+vyc5"
   },
   {
@@ -3371,6 +3378,7 @@
       "__id__": 83
     },
     "selectedMode": 1,
+    "repeatEventSingle": false,
     "selectedEvent": {
       "__id__": 84
     },

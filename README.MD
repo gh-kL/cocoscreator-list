@@ -6,6 +6,8 @@
 
 > https://gh-kl.github.io/cocoscreator-list/web-mobile/index.html
 
+> https://gh-kl.github.io/cocoscreator-list/web-mobile-chat-list/index.html
+
 Cocos论坛帖子链接：
 
 > https://forum.cocos.com/t/dc/79055
@@ -21,6 +23,8 @@ Cocos论坛帖子链接：
 * 自定义Item的宽/高。（用来做**聊天列表**再适合不过）
 * 动态删除Item项。
 * ...
+
+Last test by ccc_v2.1.2
 
 --------------------------------------------------------------------------------
 
@@ -62,6 +66,7 @@ Cocos论坛帖子链接：
 ### 2019/9/24
 
 * TS版， `模板Item` 取消强制挂载 `ListItem` ，现可通过 `item['_listId']` 来获取 `Item下标` 。
+* 新增 `repeatEventSingle` 属性，为 `true` 时，可重复触发相同的单选事件。
 * 新增 `cushionDistance` 属性，VIEW距离扩增。该变量用以避免 `Item` 有 `cc.Buttom` 组件时，滚动 `ScollView` 容易卡住的BUG。
 * 修复 `SlideMode` 为 `PAGE` 或 `ADHERING` 时，滚动 `ScollView` 容易卡住的BUG。
 

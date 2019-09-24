@@ -71,6 +71,11 @@ export default class ListItem extends cc.Component {
     }
     //按钮组件
     private _btnCom: any;
+    get btnCom() {
+        if (!this._btnCom)
+            this._btnCom = this.node.getComponent(cc.Button);
+        return this._btnCom;
+    }
     //依赖的List组件
     public list: List;
     //是否已经注册过事件
@@ -79,9 +84,8 @@ export default class ListItem extends cc.Component {
     public listId: number;
 
     onLoad() {
-        //获取按钮组件，没有的话，selectedFlag无效
-        this._btnCom = this.node.getComponent(cc.Button);
-        if (!this._btnCom)
+        //如果没有按钮组件，selectedMode无效
+        if (!this.btnCom)
             this.selectedMode == SelectedType.NONE;
         //有选择模式时，保存相应的东西
         if (this.selectedMode == SelectedType.SWITCH) {

@@ -82,25 +82,31 @@ cc.Class({
                 }
             }
         },
+        _btnCom: null,
+        btnCom: {
+            get: function () {
+                if (!this._btnCom)
+                    this._btnCom = this.node.getComponent(cc.Button);
+                return this._btnCom;
+            }
+        }
     },
 
     onLoad() {
-        //强行把文字组件转换给title...方便使用
+        //强行把文本组件转换给title，方便使用
         if (this.title) {
             let com = this.title.getComponent(cc.Label);
             if (!com)
                 com = this.title.getComponent(cc.RichText);
-            this.title = com;
+            if (com)
+                this.title = com;
         }
-        //获取按钮组件，没有的话，selectedFlag无效
-        this._btnCom = this.node.getComponent(cc.Button);
-        if (!this._btnCom)
+        //如果没有按钮组件，selectedMode无效
+        if (!this.btnCom)
             this.selectedMode == SelectedType.NONE;
         //有选择模式时，保存相应的东西
         if (this.selectedMode == SelectedType.SWITCH) {
             let com = this.selectedFlag.getComponent(cc.Sprite);
-            // if (!com)
-            //     cc.error('SelectedMode为"SWITCH"时，selectedFlag必须要有cc.Sprite组件！');
             this.selectedFlag = com;
             this._unselectedSpriteFrame = com.spriteFrame;
         }

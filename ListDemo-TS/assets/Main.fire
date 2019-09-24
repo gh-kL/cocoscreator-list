@@ -1090,6 +1090,7 @@
       "__id__": 27
     },
     "selectedMode": 0,
+    "repeatEventSingle": false,
     "selectedEvent": {
       "__id__": 28
     },
@@ -1959,6 +1960,7 @@
       "__id__": 50
     },
     "selectedMode": 1,
+    "repeatEventSingle": true,
     "selectedEvent": {
       "__id__": 51
     },
@@ -2678,6 +2680,7 @@
       "__id__": 69
     },
     "selectedMode": 2,
+    "repeatEventSingle": false,
     "selectedEvent": {
       "__id__": 70
     },
@@ -3397,6 +3400,7 @@
       "__id__": 88
     },
     "selectedMode": 2,
+    "repeatEventSingle": false,
     "selectedEvent": {
       "__id__": 89
     },

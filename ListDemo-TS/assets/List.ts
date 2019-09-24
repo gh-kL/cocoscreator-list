@@ -6,7 +6,7 @@
  * @end
  ******************************************/
 
-const { ccclass, property, disallowMultiple, menu, requireComponent, executionOrder } = cc._decorator;
+const { ccclass, property, disallowMultiple, menu, executionOrder } = cc._decorator;
 
 import ListItem from './ListItem';
 
@@ -30,7 +30,6 @@ enum SelectedType {
 @ccclass
 @disallowMultiple()
 @menu('自定义组件/List')
-@requireComponent(cc.ScrollView)
 //脚本生命周期回调的执行优先级。小于 0 的脚本将优先执行，大于 0 的脚本将最后执行。该优先级只对 onLoad, onEnable, start, update 和 lateUpdate 有效，对 onDisable 和 onDestroy 无效。
 @executionOrder(-5000)
 export default class List extends cc.Component {
@@ -41,14 +40,14 @@ export default class List extends cc.Component {
     @property({
         type: cc.Node,
         tooltip: CC_DEV && '模板Item',
-        visible() { return this.templateType == TemplateType.NODE }
+        visible() { return this.templateType == TemplateType.NODE; }
     })
     tmpNode: cc.Node = null;
     //模板Item（Prefab）
     @property({
         type: cc.Prefab,
         tooltip: CC_DEV && '模板Item',
-        visible() { return this.templateType == TemplateType.PREFAB }
+        visible() { return this.templateType == TemplateType.PREFAB; }
     })
     tmpPrefab: cc.Prefab = null;
     //滑动模式
@@ -70,14 +69,14 @@ export default class List extends cc.Component {
         range: [0, 1, .1],
         tooltip: CC_DEV && '翻页作用距离',
         slide: true,
-        visible() { return this._slideMode == SlideType.PAGE }
+        visible() { return this._slideMode == SlideType.PAGE; }
     })
     public pageDistance: number = .3;
     //页面改变事件
     @property({
         type: cc.Component.EventHandler,
         tooltip: CC_DEV && '页面改变事件',
-        visible() { return this._slideMode == SlideType.PAGE }
+        visible() { return this._slideMode == SlideType.PAGE; }
     })
     private pageChangeEvent: cc.Component.EventHandler = new cc.Component.EventHandler();
     //是否为虚拟列表（动态列表）
@@ -99,7 +98,7 @@ export default class List extends cc.Component {
     }
     @property({
         tooltip: CC_DEV && 'Item数量过少时是否居中所有Item（不支持Grid布局）',
-        visible() { return this.virtual }
+        visible() { return this.virtual; }
     })
     public lackCenter: boolean = false;
     //刷新频率
@@ -139,11 +138,16 @@ export default class List extends cc.Component {
         tooltip: CC_DEV && '选择模式'
     })
     public selectedMode: SelectedType = SelectedType.NONE;
+    @property({
+        tooltip: CC_DEV && '是否重复响应单选事件',
+        visible() { return this.selectedMode == SelectedType.SINGLE; }
+    })
+    public repeatEventSingle: boolean = false;
     //触发选择事件
     @property({
         type: cc.Component.EventHandler,
         tooltip: CC_DEV && '触发选择事件',
-        visible() { return this.selectedMode > SelectedType.NONE }
+        visible() { return this.selectedMode > SelectedType.NONE; }
     })
     private selectedEvent: cc.Component.EventHandler = null//new cc.Component.EventHandler();
     //当前选择id
@@ -152,16 +156,14 @@ export default class List extends cc.Component {
     private multSelected: number[];
     set selectedId(val: number) {
         let t: any = this;
-        if (t.selectedMode == SelectedType.SINGLE && val == t._selectedId)
-            return;
         let item: any;
         switch (t.selectedMode) {
             case SelectedType.SINGLE: {
-                if (val == t._selectedId)
+                if (!t.repeatEventSingle && val == t._selectedId)
                     return;
                 item = t.getItemByListId(val);
-                if (!item && val >= 0)
-                    return;
+                // if (!item && val >= 0)
+                //     return;
                 let listItem: ListItem;
                 if (t._selectedId >= 0)
                     t._lastSelectedId = t._selectedId;
@@ -172,7 +174,7 @@ export default class List extends cc.Component {
                     listItem = item.getComponent(ListItem);
                     listItem.selected = true;
                 }
-                if (t._lastSelectedId >= 0) {
+                if (t._lastSelectedId >= 0 && t._lastSelectedId != t._selectedId) {
                     let lastItem: any = t.getItemByListId(t._lastSelectedId);
                     if (lastItem) {
                         lastItem.getComponent(ListItem).selected = false;
@@ -478,11 +480,25 @@ export default class List extends cc.Component {
             return;
         let t: any = this;
         t._itemTmp = item;
+
         if (t._resizeMode == cc.Layout.ResizeMode.CHILDREN)
             t._itemSize = t._layout.cellSize;
         else
             t._itemSize = cc.size(t._itemTmp.width, t._itemTmp.height);
 
+        //获取ListItem，如果没有就取消选择模式
+        let com = t._itemTmp.getComponent(ListItem);
+        let remove = false;
+        if (!com)
+            remove = true;
+        if (com) {
+            if (!com._btnCom && !t._itemTmp.getComponent(cc.Button)) {
+                remove = true;
+            }
+        }
+        if (remove) {
+            t.selectedMode = SelectedType.NONE;
+        }
         if (t.selectedMode == SelectedType.MULT)
             t.multSelected = [];
 
@@ -1517,7 +1533,7 @@ export default class List extends cc.Component {
             listId = t._numItems - 1;
         let pos: any = t._virtual ? t._calcItemPos(listId) : t._calcExistItemPos(listId);
         let targetX: number, targetY: number;
-        
+
         switch (t._alignCalcType) {
             case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
                 targetX = pos.left;

@@ -27,7 +27,6 @@ cc.Class({
     editor: {
         disallowMultiple: false,
         menu: '自定义组件/List',
-        requireComponent: cc.ScrollView,
         //脚本生命周期回调的执行优先级。小于 0 的脚本将优先执行，大于 0 的脚本将最后执行。该优先级只对 onLoad, onEnable, start, update 和 lateUpdate 有效，对 onDisable 和 onDestroy 无效。
         executionOrder: -5000,
     },
@@ -145,6 +144,13 @@ cc.Class({
             type: SelectedType,
             tooltip: CC_DEV && '选择模式',
         },
+        repeatEventSingle: {
+            default: false,
+            tooltip: CC_DEV && '是否重复响应单选事件',
+            visible: function () {
+                return this.selectedMode == SelectedType.SINGLE;
+            }
+        },
         selectedEvent: {
             default: null,
             type: cc.Component.EventHandler,
@@ -164,16 +170,14 @@ cc.Class({
             },
             set: function (val) {
                 let t = this;
-                if (t.selectedMode == SelectedType.SINGLE && val == t._selectedId)
-                    return;
                 let item;
                 switch (t.selectedMode) {
                     case SelectedType.SINGLE: {
-                        if (val == t._selectedId)
+                        if (!t.repeatEventSingle && val == t._selectedId)
                             return;
                         item = t.getItemByListId(val);
-                        if (!item && val >= 0)
-                            return;
+                        // if (!item && val >= 0)
+                        //     return;
                         if (t._selectedId >= 0)
                             t._lastSelectedId = t._selectedId;
                         else //如果＜0则取消选择，把_lastSelectedId也置空吧，如果以后有特殊需求再改吧。
@@ -181,7 +185,7 @@ cc.Class({
                         t._selectedId = val;
                         if (item)
                             item.listItem.selected = true;
-                        if (t._lastSelectedId >= 0) {
+                        if (t._lastSelectedId >= 0 && t._lastSelectedId != t._selectedId) {
                             let lastItem = t.getItemByListId(t._lastSelectedId);
                             if (lastItem) {
                                 lastItem.listItem.selected = false;
@@ -411,7 +415,6 @@ cc.Class({
                 break;
             }
         }
-
         t.content.removeAllChildren();
         t._inited = true;
     },
@@ -421,20 +424,19 @@ cc.Class({
             return;
         let t = this;
         t._itemTmp = item;
+
         if (t._resizeMode == cc.Layout.ResizeMode.CHILDREN)
             t._itemSize = t._layout.cellSize;
         else
             t._itemSize = new cc.size(t._itemTmp.width, t._itemTmp.height);
+
         //获取ListItem，如果没有就取消选择模式
         let com = t._itemTmp.getComponent(ListItem);
         let remove = false;
-        if (!com) {
+        if (!com)
             remove = true;
-        }
         if (com) {
-            // com._list = t;
-            // t._itemTmp.listItem = com;
-            if (!com._btnCom) {
+            if (!com._btnCom && !t._itemTmp.getComponent(cc.Button)) {
                 remove = true;
             }
         }
