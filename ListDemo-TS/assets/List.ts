@@ -33,7 +33,7 @@ enum SelectedType {
 @requireComponent(cc.ScrollView)
 //脚本生命周期回调的执行优先级。小于 0 的脚本将优先执行，大于 0 的脚本将最后执行。该优先级只对 onLoad, onEnable, start, update 和 lateUpdate 有效，对 onDisable 和 onDestroy 无效。
 @executionOrder(-5000)
-export default class NewClass extends cc.Component {
+export default class List extends cc.Component {
     //模板类型
     @property({ type: cc.Enum(TemplateType), tooltip: CC_DEV && '模板类型', })
     private templateType: TemplateType = TemplateType.NODE;
@@ -267,6 +267,15 @@ export default class NewClass extends cc.Component {
     get numItems() {
         return this._numItems;
     }
+    //VIEW距离扩增。该变量用以避免Item是Buttom组件时，容易触发ScollView卡住的现象。
+    @property({
+        type: cc.Integer,
+        range: [0, 300, 1],
+        tooltip: CC_DEV && 'VIEW距离扩增。该变量用以避免Item是Buttom组件时，容易触发ScollView卡住的现象。',
+        slide: true,
+    })
+    private cushionDistance: number = 0;
+
     private _inited: boolean = false;
     private _scrollView: cc.ScrollView;
     get scrollView() {
@@ -345,7 +354,8 @@ export default class NewClass extends cc.Component {
     //注册事件
     _registerEvent() {
         let t: any = this;
-        t.node.on('touch-up', t._onScrollTouchUp, t);
+        t.node.on('touch-up', t._onTouchUp, t);
+        t.node.on(cc.Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
         t.node.on('scroll-began', t._onScrollBegan, t, true);
         t.node.on('scroll-ended', t._onScrollEnded, t, true);
         t.node.on('scrolling', t._onScrolling, t, true);
@@ -353,7 +363,8 @@ export default class NewClass extends cc.Component {
     //卸载事件
     _unregisterEvent() {
         let t: any = this;
-        t.node.off('touch-up', t._onScrollTouchUp, t);
+        t.node.off('touch-up', t._onTouchUp, t);
+        t.node.off(cc.Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
         t.node.off('scroll-began', t._onScrollBegan, t, true);
         t.node.off('scroll-ended', t._onScrollEnded, t, true);
         t.node.off('scrolling', t._onScrolling, t, true);
@@ -489,29 +500,13 @@ export default class NewClass extends cc.Component {
                     case cc.Layout.AxisDirection.HORIZONTAL:
                         //计算列数
                         let trimW: number = t.content.width - t._leftGap - t._rightGap;
-                        t._colLineNum = 1;
-                        while (1) {
-                            if (trimW - ((t._colLineNum * t._itemSize.width) + ((t._colLineNum - 1) * t._columnGap)) < 0) {
-                                t._colLineNum--;
-                                break;
-                            } else {
-                                t._colLineNum++;
-                            }
-                        }
+                        t._colLineNum = Math.floor((trimW + t._columnGap) / (t._itemSize.width + t._columnGap));
                         t._sizeType = true;
                         break;
                     case cc.Layout.AxisDirection.VERTICAL:
                         //计算行数
                         let trimH: number = t.content.height - t._topGap - t._bottomGap;
-                        t._colLineNum = 1;
-                        while (1) {
-                            if (trimH - ((t._colLineNum * t._itemSize.height) + ((t._colLineNum - 1) * t._lineGap)) < 0) {
-                                t._colLineNum--;
-                                break;
-                            } else {
-                                t._colLineNum++;
-                            }
-                        }
+                        t._colLineNum = Math.floor((trimH + t._lineGap) / (t._itemSize.height + t._lineGap));
                         t._sizeType = false;
                         break;
                 }
@@ -617,6 +612,15 @@ export default class NewClass extends cc.Component {
 
         this._calcViewPos();
 
+        let vTop: number, vRight: number, vBottom: number, vLeft: number;
+        if (this._sizeType) {
+            vTop = this.getViewPos(0);
+            vBottom = this.getViewPos(2);
+        } else {
+            vRight = this.getViewPos(1);
+            vLeft = this.getViewPos(3);
+        }
+
         if (this._virtual) {
             this.displayData = [];
             let itemPos: any;
@@ -631,14 +635,14 @@ export default class NewClass extends cc.Component {
                     itemPos = this._calcItemPos(curId);
                     switch (this._align) {
                         case cc.Layout.Type.HORIZONTAL:
-                            if (itemPos.right >= this.viewLeft && itemPos.left <= this.viewRight) {
+                            if (itemPos.right >= vLeft && itemPos.left <= vRight) {
                                 this.displayData.push(itemPos);
                             } else if (curId != 0 && this.displayData.length > 0) {
                                 breakFor = true;
                             }
                             break;
                         case cc.Layout.Type.VERTICAL:
-                            if (itemPos.bottom <= this.viewTop && itemPos.top >= this.viewBottom) {
+                            if (itemPos.bottom <= vTop && itemPos.top >= vBottom) {
                                 this.displayData.push(itemPos);
                             } else if (curId != 0 && this.displayData.length > 0) {
                                 breakFor = true;
@@ -647,14 +651,14 @@ export default class NewClass extends cc.Component {
                         case cc.Layout.Type.GRID:
                             switch (this._startAxis) {
                                 case cc.Layout.AxisDirection.HORIZONTAL:
-                                    if (itemPos.bottom <= this.viewTop && itemPos.top >= this.viewBottom) {
+                                    if (itemPos.bottom <= vTop && itemPos.top >= vBottom) {
                                         this.displayData.push(itemPos);
                                     } else if (curId != 0 && this.displayData.length > 0) {
                                         breakFor = true;
                                     }
                                     break;
                                 case cc.Layout.AxisDirection.VERTICAL:
-                                    if (itemPos.right >= this.viewLeft && itemPos.left <= this.viewRight) {
+                                    if (itemPos.right >= vLeft && itemPos.left <= vRight) {
                                         this.displayData.push(itemPos);
                                     } else if (curId != 0 && this.displayData.length > 0) {
                                         breakFor = true;
@@ -669,20 +673,20 @@ export default class NewClass extends cc.Component {
                 let hh: number = this._itemSize.height + this._lineGap;
                 switch (this._alignCalcType) {
                     case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
-                        curId = (this.viewLeft + this._leftGap) / ww;
-                        endId = (this.viewRight + this._rightGap) / ww;
+                        curId = (vLeft + this._leftGap) / ww;
+                        endId = (vRight + this._rightGap) / ww;
                         break;
                     case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
-                        curId = (-this.viewRight - this._rightGap) / ww;
-                        endId = (-this.viewLeft - this._leftGap) / ww;
+                        curId = (-vRight - this._rightGap) / ww;
+                        endId = (-vLeft - this._leftGap) / ww;
                         break;
                     case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
-                        curId = (-this.viewTop - this._topGap) / hh;
-                        endId = (-this.viewBottom - this._bottomGap) / hh;
+                        curId = (-vTop - this._topGap) / hh;
+                        endId = (-vBottom - this._bottomGap) / hh;
                         break;
                     case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                        curId = (this.viewBottom + this._bottomGap) / hh;
-                        endId = (this.viewTop + this._topGap) / hh;
+                        curId = (vBottom + this._bottomGap) / hh;
+                        endId = (vTop + this._topGap) / hh;
                         break;
                 }
                 curId = Math.floor(curId) * this._colLineNum;
@@ -775,6 +779,40 @@ export default class NewClass extends cc.Component {
                 // cc.log(this.elasticTop, this.elasticBottom, this.viewTop, this.viewBottom);
                 break;
         }
+        if (this.cushionDistance) {
+            if (this._sizeType) {
+                this.viewTop += this.cushionDistance;
+                this.viewBottom -= this.cushionDistance;
+            } else {
+                this.viewLeft -= this.cushionDistance;
+                this.viewRight += this.cushionDistance;
+            }
+        }
+    }
+    //获取View位置
+    getViewPos(dir: number, tailor: boolean = false) {
+        let result: number;
+        switch (dir) {
+            case 0://顶
+                result = this.viewTop;
+                break;
+            case 1://右
+                result = this.viewRight;
+                break;
+            case 2://下
+                result = this.viewBottom;
+                break;
+            case 3://左
+                result = this.viewLeft;
+                break;
+        }
+        if (tailor && this.cushionDistance) {
+            if (dir < 2)
+                result -= this.cushionDistance;
+            else
+                result += this.cushionDistance;
+        }
+        return result;
     }
     //计算位置 根据id
     _calcItemPos(id: number) {
@@ -1024,19 +1062,35 @@ export default class NewClass extends cc.Component {
         }
     }
     //触摸抬起时..
-    _onScrollTouchUp() {
+    _onTouchUp() {
         let t: any = this;
         t._scrollPos = null;
-        if (t._slideMode == SlideType.ADHERING
-            // !t.adhering
-        ) {
+        if (t._slideMode == SlideType.ADHERING) {
             if (this.adhering)
                 this._adheringBarrier = true;
             t.adhere();
-            // }
         } else if (t._slideMode == SlideType.PAGE) {
             if (t._beganPos != null) {
                 this._pageAdhere();
+            } else {
+                t.adhere();
+            }
+        }
+    }
+
+    _onTouchCancelled(ev, captureListeners) {
+        let t = this;
+        if (t._scrollView['_hasNestedViewGroup'](ev, captureListeners) || ev.simulate)
+            return;
+
+        t._scrollPos = null;
+        if (t._slideMode == SlideType.ADHERING) {
+            if (t.adhering)
+                t._adheringBarrier = true;
+            t.adhere();
+        } else if (t._slideMode == SlideType.PAGE) {
+            if (t._beganPos != null) {
+                t._pageAdhere();
             } else {
                 t.adhere();
             }
@@ -1131,23 +1185,27 @@ export default class NewClass extends cc.Component {
      */
     _createOrUpdateItem(data: any) {
         let item: any = this.getItemByListId(data.id);
-        let listItem: ListItem;
         if (!item) { //如果不存在
             if (this._pool.size()) {
                 item = this._pool.get();
-                // cc.log('从池中取出::   旧id =', item._listId, '，新id =', data.id, item);
+                // cc.log('从池中取出::   旧id =', item['_listId'], '，新id =', data.id, item);
             } else {
                 item = cc.instantiate(this._itemTmp);
                 // cc.log('新建::', data.id, item);
             }
+            item['_listId'] = data.id;
             item.setPosition(cc.v2(data.x, data.y));
             this._resetItemSize(item);
             this.content.addChild(item);
             item.setSiblingIndex(this.content.childrenCount - 1);
-            listItem = item.getComponent(ListItem);
-            listItem.listId = data.id;
-            listItem.list = this;
-            listItem._registerEvent();
+
+            let listItem: ListItem = item.getComponent(ListItem);
+            item['listItem'] = listItem;
+            if (listItem) {
+                listItem.listId = data.id;
+                listItem.list = this;
+                listItem._registerEvent();
+            }
             if (this.renderEvent) {
                 cc.Component.EventHandler.emitEvents([this.renderEvent], item, data.id);
             }
@@ -1161,7 +1219,7 @@ export default class NewClass extends cc.Component {
         }
         this._resetItemSize(item);
 
-        this._updateListItem(listItem);
+        this._updateListItem(item['listItem']);
         if (this._lastDisplayData.indexOf(data.id) < 0) {
             this._lastDisplayData.push(data.id);
         }
@@ -1172,17 +1230,22 @@ export default class NewClass extends cc.Component {
         let listItem: ListItem;
         if (!item) { //如果不存在
             item = cc.instantiate(this._itemTmp);
+            item['_listId'] = listId;
             this.content.addChild(item);
             listItem = item.getComponent(ListItem);
-            listItem.listId = listId;
-            listItem.list = this;
-            listItem._registerEvent();
+            item['listItem'] = listItem;
+            if (listItem) {
+                listItem.listId = listId;
+                listItem.list = this;
+                listItem._registerEvent();
+            }
             if (this.renderEvent) {
                 cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId);
             }
         } else if (this._forceUpdate && this.renderEvent) { //强制更新
-            listItem = item.getComponent(ListItem);
-            listItem.listId = listId;
+            item['_listId'] = listId;
+            if (listItem)
+                listItem.listId = listId;
             if (this.renderEvent) {
                 cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId);
             }
@@ -1199,10 +1262,10 @@ export default class NewClass extends cc.Component {
         if (this.selectedMode > SelectedType.NONE) {
             switch (this.selectedMode) {
                 case SelectedType.SINGLE:
-                    listItem.selected = this.selectedId == listItem.listId;
+                    listItem.selected = this.selectedId == listItem.node['_listId'];
                     break;
                 case SelectedType.MULT:
-                    listItem.selected = this.multSelected.indexOf(listItem.listId) >= 0;
+                    listItem.selected = this.multSelected.indexOf(listItem.node['_listId']) >= 0;
                     break;
             }
         }
@@ -1210,11 +1273,11 @@ export default class NewClass extends cc.Component {
     //仅虚拟列表用
     _resetItemSize(item: any) {
         let listItem: ListItem = item.getComponent(ListItem);
-        if (!this.customSize || !this.customSize[listItem.listId]) {
+        if (!this.customSize || !this.customSize[listItem.node['_listId']]) {
             item.setContentSize(this._itemSize);
             return;
         }
-        let size: number = this.customSize[listItem.listId];
+        let size: number = this.customSize[listItem.node['_listId']];
         if (this._align == cc.Layout.Type.HORIZONTAL) {
             item.width = size;
         } else if (this._align == cc.Layout.Type.VERTICAL) {
@@ -1232,7 +1295,6 @@ export default class NewClass extends cc.Component {
             args = [args];
         }
         if (bool == null) {
-            t.multSelected = null;
             t.multSelected = args;
         } else {
             let listId: number, sub: number;
@@ -1262,17 +1324,22 @@ export default class NewClass extends cc.Component {
      * @param {Array} args 单个listId，或者数组
      * @returns
      */
-    updateAppointed(args: any) {
+    updateItem(args: any) {
         if (!Array.isArray(args)) {
             args = [args];
         }
-        let len: number = args.length;
-        for (let n: number = 0; n < len; n++) {
+        for (let n: number = 0, len: number = args.length; n < len; n++) {
             let listId: number = args[n];
             let item: any = this.getItemByListId(listId);
             if (item)
                 cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId);
         }
+    }
+    /**
+     * 更新全部
+     */
+    updateAll() {
+        this.numItems = this.numItems;
     }
     /**
      * 根据ListID获取Item
@@ -1281,10 +1348,9 @@ export default class NewClass extends cc.Component {
      */
     getItemByListId(listId: number) {
         for (let n: number = this.content.childrenCount - 1; n >= 0; n--) {
-            if (this.content.children[n].getComponent(ListItem).listId == listId)
+            if (this.content.children[n]['_listId'] == listId)
                 return this.content.children[n];
         }
-        return null;
     }
     /**
      * 获取在显示区域外的Item
@@ -1301,7 +1367,7 @@ export default class NewClass extends cc.Component {
                     if (!this.displayData[c])
                         continue;
                     let listId: number = this.displayData[c].id;
-                    if (item.getComponent(ListItem).listId == listId) {
+                    if (item['_listId'] == listId) {
                         isOutside = false;
                         break;
                     }
@@ -1329,7 +1395,7 @@ export default class NewClass extends cc.Component {
     }
     //删除单个Item
     _delSingleItem(item: any) {
-        // cc.log('DEL::', item.getComponent(ListItem).listId, item);
+        // cc.log('DEL::', item['_listId'], item);
         item.removeFromParent();
         if (item.destroy)
             item.destroy();
@@ -1449,8 +1515,9 @@ export default class NewClass extends cc.Component {
             listId = 0;
         else if (listId >= t._numItems)
             listId = t._numItems - 1;
-        let pos: any = t._calcItemPos(listId); //嗯...不管virtual=true还是false，都自己算，反正结果都一样，懒得去遍历content.children了。
+        let pos: any = t._virtual ? t._calcItemPos(listId) : t._calcExistItemPos(listId);
         let targetX: number, targetY: number;
+        
         switch (t._alignCalcType) {
             case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
                 targetX = pos.left;
@@ -1485,7 +1552,6 @@ export default class NewClass extends cc.Component {
                 pos = cc.v2(0, -targetY + t.content.height);
                 break;
         }
-
         let viewPos: any = t.content.getPosition();
         viewPos = Math.abs(t._sizeType ? viewPos.y : viewPos.x);
 
@@ -1529,39 +1595,45 @@ export default class NewClass extends cc.Component {
         if (this._virtual)
             this._calcViewPos();
 
+        let vTop: number, vRight: number, vBottom: number, vLeft: number;
+        vTop = this.getViewPos(0, true);
+        vRight = this.getViewPos(1, true);
+        vBottom = this.getViewPos(2, true);
+        vLeft = this.getViewPos(3, true);
+
         let breakFor: boolean = false;
         for (let n = 0; n < this.content.childrenCount && !breakFor; n += this._colLineNum) {
             data = this._virtual ? this.displayData[n] : this._calcExistItemPos(n);
             center = this._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
             switch (this._alignCalcType) {
                 case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
-                    if (data.right >= this.viewLeft) {
+                    if (data.right >= vLeft) {
                         this.nearestListId = data.id;
-                        if (this.viewLeft > center)
+                        if (vLeft > center)
                             this.nearestListId += this._colLineNum;
                         breakFor = true;
                     }
                     break;
                 case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
-                    if (data.left <= this.viewRight) {
+                    if (data.left <= vRight) {
                         this.nearestListId = data.id;
-                        if (this.viewRight < center)
+                        if (vRight < center)
                             this.nearestListId += this._colLineNum;
                         breakFor = true;
                     }
                     break;
                 case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
-                    if (data.bottom <= this.viewTop) {
+                    if (data.bottom <= vTop) {
                         this.nearestListId = data.id;
-                        if (this.viewTop < center)
+                        if (vTop < center)
                             this.nearestListId += this._colLineNum;
                         breakFor = true;
                     }
                     break;
                 case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                    if (data.top >= this.viewBottom) {
+                    if (data.top >= vBottom) {
                         this.nearestListId = data.id;
-                        if (this.viewBottom > center)
+                        if (vBottom > center)
                             this.nearestListId += this._colLineNum;
                         breakFor = true;
                     }
@@ -1574,19 +1646,19 @@ export default class NewClass extends cc.Component {
             center = this._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
             switch (this._alignCalcType) {
                 case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
-                    if (this.viewRight > center)
+                    if (vRight > center)
                         this.nearestListId = data.id;
                     break;
                 case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
-                    if (this.viewLeft < center)
+                    if (vLeft < center)
                         this.nearestListId = data.id;
                     break;
                 case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
-                    if (this.viewBottom < center)
+                    if (vBottom < center)
                         this.nearestListId = data.id;
                     break;
                 case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                    if (this.viewTop > center)
+                    if (vTop > center)
                         this.nearestListId = data.id;
                     break;
             }

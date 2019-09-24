@@ -41,8 +41,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 1.682733504148546,
-      "y": 1.682733504148546,
+      "x": 0.21022319179624377,
+      "y": 0.21022319179624377,
       "z": 1
     },
     "_quat": {
@@ -931,6 +931,7 @@
     "selectedEvent": {
       "__id__": 24
     },
+    "cushionDistance": 0,
     "_id": "31EJc+sHBJYpYTakz//Czt"
   },
   {
@@ -1679,6 +1680,7 @@
     },
     "selectedMode": 1,
     "selectedEvent": null,
+    "cushionDistance": 0,
     "_id": "c8CUMSvtlF/ZUHFvORjuFu"
   },
   {

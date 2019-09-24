@@ -265,6 +265,13 @@ cc.Class({
                 }
             }
         },
+        cushionDistance: {
+            default: 0,
+            type: cc.Integer,
+            range: [0, 300, 1],
+            tooltip: CC_DEV && 'VIEW距离扩增。该变量用以避免Item是Buttom组件时，容易触发ScollView卡住的现象。',
+            slide: true,
+        },
     },
 
     onLoad() {
@@ -286,9 +293,8 @@ cc.Class({
     //注册事件
     _registerEvent() {
         let t = this;
-        t.node.on('touch-up', t._onScrollTouchUp, t, true);
-        // t.node.on(cc.Node.EventType.TOUCH_CANCEL, t._onScrollTouchUp, t);
-        // t.node.on(cc.Node.EventType.TOUCH_MOVE, t._onScrollTouchMove, t);
+        t.node.on('touch-up', t._onTouchUp, t, true);
+        t.node.on(cc.Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
         t.node.on('scroll-began', t._onScrollBegan, t, true);
         t.node.on('scroll-ended', t._onScrollEnded, t, true);
         t.node.on('scrolling', t._onScrolling, t, true);
@@ -296,9 +302,8 @@ cc.Class({
     //卸载事件
     _unregisterEvent() {
         let t = this;
-        t.node.off('touch-up', t._onScrollTouchUp, t, true);
-        // t.node.off(cc.Node.EventType.TOUCH_CANCEL, t._onScrollTouchUp, t);
-        // t.node.off(cc.Node.EventType.TOUCH_MOVE, t._onScrollTouchMove, t);
+        t.node.off('touch-up', t._onTouchUp, t, true);
+        t.node.off(cc.Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
         t.node.off('scroll-began', t._onScrollBegan, t, true);
         t.node.off('scroll-ended', t._onScrollEnded, t, true);
         t.node.off('scrolling', t._onScrolling, t, true);
@@ -453,29 +458,13 @@ cc.Class({
                     case cc.Layout.AxisDirection.HORIZONTAL:
                         //计算列数
                         let trimW = t.content.width - t._leftGap - t._rightGap;
-                        t._colLineNum = 1;
-                        while (1) {
-                            if (trimW - ((t._colLineNum * t._itemSize.width) + ((t._colLineNum - 1) * t._columnGap)) < 0) {
-                                t._colLineNum--;
-                                break;
-                            } else {
-                                t._colLineNum++;
-                            }
-                        }
+                        t._colLineNum = Math.floor((trimW + t._columnGap) / (t._itemSize.width + t._columnGap));
                         t._sizeType = true;
                         break;
                     case cc.Layout.AxisDirection.VERTICAL:
                         //计算行数
                         let trimH = t.content.height - t._topGap - t._bottomGap;
-                        t._colLineNum = 1;
-                        while (1) {
-                            if (trimH - ((t._colLineNum * t._itemSize.height) + ((t._colLineNum - 1) * t._lineGap)) < 0) {
-                                t._colLineNum--;
-                                break;
-                            } else {
-                                t._colLineNum++;
-                            }
-                        }
+                        t._colLineNum = Math.floor((trimH + t._lineGap) / (t._itemSize.height + t._lineGap));
                         t._sizeType = false;
                         break;
                 }
@@ -579,6 +568,15 @@ cc.Class({
 
         this._calcViewPos();
 
+        let vTop, vRight, vBottom, vLeft;
+        if (this._sizeType) {
+            vTop = this.getViewPos(0);
+            vBottom = this.getViewPos(2);
+        } else {
+            vRight = this.getViewPos(1);
+            vLeft = this.getViewPos(3);
+        }
+
         if (this._virtual) {
             this.displayData = [];
             let itemPos;
@@ -593,14 +591,14 @@ cc.Class({
                     itemPos = this._calcItemPos(curId);
                     switch (this._align) {
                         case cc.Layout.Type.HORIZONTAL:
-                            if (itemPos.right >= this.viewLeft && itemPos.left <= this.viewRight) {
+                            if (itemPos.right >= vLeft && itemPos.left <= vRight) {
                                 this.displayData.push(itemPos);
                             } else if (curId != 0 && this.displayData.length > 0) {
                                 breakFor = true;
                             }
                             break;
                         case cc.Layout.Type.VERTICAL:
-                            if (itemPos.bottom <= this.viewTop && itemPos.top >= this.viewBottom) {
+                            if (itemPos.bottom <= vTop && itemPos.top >= vBottom) {
                                 this.displayData.push(itemPos);
                             } else if (curId != 0 && this.displayData.length > 0) {
                                 breakFor = true;
@@ -609,14 +607,14 @@ cc.Class({
                         case cc.Layout.Type.GRID:
                             switch (this._startAxis) {
                                 case cc.Layout.AxisDirection.HORIZONTAL:
-                                    if (itemPos.bottom <= this.viewTop && itemPos.top >= this.viewBottom) {
+                                    if (itemPos.bottom <= vTop && itemPos.top >= vBottom) {
                                         this.displayData.push(itemPos);
                                     } else if (curId != 0 && this.displayData.length > 0) {
                                         breakFor = true;
                                     }
                                     break;
                                 case cc.Layout.AxisDirection.VERTICAL:
-                                    if (itemPos.right >= this.viewLeft && itemPos.left <= this.viewRight) {
+                                    if (itemPos.right >= vLeft && itemPos.left <= vRight) {
                                         this.displayData.push(itemPos);
                                     } else if (curId != 0 && this.displayData.length > 0) {
                                         breakFor = true;
@@ -631,20 +629,20 @@ cc.Class({
                 let hh = this._itemSize.height + this._lineGap;
                 switch (this._alignCalcType) {
                     case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
-                        curId = (this.viewLeft + this._leftGap) / ww;
-                        endId = (this.viewRight + this._rightGap) / ww;
+                        curId = (vLeft + this._leftGap) / ww;
+                        endId = (vRight + this._rightGap) / ww;
                         break;
                     case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
-                        curId = (-this.viewRight - this._rightGap) / ww;
-                        endId = (-this.viewLeft - this._leftGap) / ww;
+                        curId = (-vRight - this._rightGap) / ww;
+                        endId = (-vLeft - this._leftGap) / ww;
                         break;
                     case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
-                        curId = (-this.viewTop - this._topGap) / hh;
-                        endId = (-this.viewBottom - this._bottomGap) / hh;
+                        curId = (-vTop - this._topGap) / hh;
+                        endId = (-vBottom - this._bottomGap) / hh;
                         break;
                     case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                        curId = (this.viewBottom + this._bottomGap) / hh;
-                        endId = (this.viewTop + this._topGap) / hh;
+                        curId = (vBottom + this._bottomGap) / hh;
+                        endId = (vTop + this._topGap) / hh;
                         break;
                 }
                 curId = Math.floor(curId) * this._colLineNum;
@@ -700,7 +698,7 @@ cc.Class({
             this._calcNearestItem();
         }
     },
-    //计算可视范围
+    //计算View位置
     _calcViewPos() {
         let scrollPos = this.content.getPosition();
         switch (this._alignCalcType) {
@@ -737,6 +735,40 @@ cc.Class({
                 // cc.log(this.elasticTop, this.elasticBottom, this.viewTop, this.viewBottom);
                 break;
         }
+        if (this.cushionDistance) {
+            if (this._sizeType) {
+                this.viewTop += this.cushionDistance;
+                this.viewBottom -= this.cushionDistance;
+            } else {
+                this.viewLeft -= this.cushionDistance;
+                this.viewRight += this.cushionDistance;
+            }
+        }
+    },
+    //获取View位置
+    getViewPos(dir, tailor) {
+        let result;
+        switch (dir) {
+            case 0://顶
+                result = this.viewTop;
+                break;
+            case 1://右
+                result = this.viewRight;
+                break;
+            case 2://下
+                result = this.viewBottom;
+                break;
+            case 3://左
+                result = this.viewLeft;
+                break;
+        }
+        if (tailor && this.cushionDistance) {
+            if (dir < 2)
+                result -= this.cushionDistance;
+            else
+                result += this.cushionDistance;
+        }
+        return result;
     },
     //计算位置 根据id
     _calcItemPos(id) {
@@ -987,19 +1019,35 @@ cc.Class({
         }
     },
     //触摸抬起时..
-    _onScrollTouchUp() {
+    _onTouchUp() {
         let t = this;
         t._scrollPos = null;
-        if (t._slideMode == SlideType.ADHERING
-            // !t.adhering
-        ) {
-            if (this.adhering)
-                this._adheringBarrier = true;
+        if (t._slideMode == SlideType.ADHERING) {
+            if (t.adhering)
+                t._adheringBarrier = true;
             t.adhere();
-            // }
         } else if (t._slideMode == SlideType.PAGE) {
             if (t._beganPos != null) {
-                this._pageAdhere();
+                t._pageAdhere();
+            } else {
+                t.adhere();
+            }
+        }
+    },
+
+    _onTouchCancelled(ev, captureListeners) {
+        let t = this;
+        if (t._scrollView._hasNestedViewGroup(ev, captureListeners) || ev.simulate)
+            return;
+
+        t._scrollPos = null;
+        if (t._slideMode == SlideType.ADHERING) {
+            if (t.adhering)
+                t._adheringBarrier = true;
+            t.adhere();
+        } else if (t._slideMode == SlideType.PAGE) {
+            if (t._beganPos != null) {
+                t._pageAdhere();
             } else {
                 t.adhere();
             }
@@ -1108,6 +1156,7 @@ cc.Class({
             this._resetItemSize(item);
             this.content.addChild(item);
             item.setSiblingIndex(this.content.childrenCount - 1);
+
             let listItem = item.getComponent(ListItem);
             item.listItem = listItem;
             if (listItem) {
@@ -1198,7 +1247,6 @@ cc.Class({
             args = [args];
         }
         if (bool == null) {
-            t.multSelected = null;
             t.multSelected = args;
         } else {
             let listId, sub;
@@ -1228,18 +1276,23 @@ cc.Class({
      * @param {Array} args 单个listId，或者数组
      * @returns
      */
-    updateAppointed(args) {
+    updateItem(args) {
         if (!Array.isArray(args)) {
             args = [args];
         }
-        let len = args.length;
-        for (let n = 0; n < len; n++) {
+        for (let n = 0, len = args.length; n < len; n++) {
             let listId = args[n];
             let item = this.getItemByListId(listId);
             if (item) {
                 cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId);
             }
         }
+    },
+    /**
+     * 更新全部
+     */
+    updateAll() {
+        this.numItems = this.numItems;
     },
     /**
      * 根据ListID获取Item
@@ -1251,7 +1304,6 @@ cc.Class({
             if (this.content.children[n]._listId == listId)
                 return this.content.children[n];
         }
-        return null;
     },
     /**
      * 获取在显示区域外的Item
@@ -1284,10 +1336,8 @@ cc.Class({
     _delRedundantItem() {
         if (this._virtual) {
             let arr = this._getOutsideItem();
-            // let str = '';
             for (let n = arr.length - 1; n >= 0; n--) {
                 this._pool.put(arr[n]);
-                // str += (arr[n]._listId + ', ');
             }
             // cc.log('存入::', str, '    pool.length =', this._pool.length);
         } else {
@@ -1416,9 +1466,8 @@ cc.Class({
             listId = 0;
         else if (listId >= t._numItems)
             listId = t._numItems - 1;
-        let pos = t._calcItemPos(listId); //嗯...不管virtual=true还是false，都自己算，反正结果都一样，懒得去遍历content.children了。
+        let pos = t._virtual ? t._calcItemPos(listId) : t._calcExistItemPos(listId);
         let targetX, targetY;
-
 
         switch (t._alignCalcType) {
             case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
@@ -1454,7 +1503,6 @@ cc.Class({
                 pos = new cc.v2(0, -targetY + t.content.height);
                 break;
         }
-
         let viewPos = t.content.getPosition();
         viewPos = Math.abs(t._sizeType ? viewPos.y : viewPos.x);
 
@@ -1500,39 +1548,45 @@ cc.Class({
         if (this._virtual)
             this._calcViewPos();
 
+        let vTop, vRight, vBottom, vLeft;
+        vTop = this.getViewPos(0, true);
+        vRight = this.getViewPos(1, true);
+        vBottom = this.getViewPos(2, true);
+        vLeft = this.getViewPos(3, true);
+
         let breakFor = false;
         for (let n = 0; n < this.content.childrenCount && !breakFor; n += this._colLineNum) {
             data = this._virtual ? this.displayData[n] : this._calcExistItemPos(n);
             center = this._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
             switch (this._alignCalcType) {
                 case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
-                    if (data.right >= this.viewLeft) {
+                    if (data.right >= vLeft) {
                         this.nearestListId = data.id;
-                        if (this.viewLeft > center)
+                        if (vLeft > center)
                             this.nearestListId += this._colLineNum;
                         breakFor = true;
                     }
                     break;
                 case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
-                    if (data.left <= this.viewRight) {
+                    if (data.left <= vRight) {
                         this.nearestListId = data.id;
-                        if (this.viewRight < center)
+                        if (vRight < center)
                             this.nearestListId += this._colLineNum;
                         breakFor = true;
                     }
                     break;
                 case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
-                    if (data.bottom <= this.viewTop) {
+                    if (data.bottom <= vTop) {
                         this.nearestListId = data.id;
-                        if (this.viewTop < center)
+                        if (vTop < center)
                             this.nearestListId += this._colLineNum;
                         breakFor = true;
                     }
                     break;
                 case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                    if (data.top >= this.viewBottom) {
+                    if (data.top >= vBottom) {
                         this.nearestListId = data.id;
-                        if (this.viewBottom > center)
+                        if (vBottom > center)
                             this.nearestListId += this._colLineNum;
                         breakFor = true;
                     }
@@ -1545,19 +1599,19 @@ cc.Class({
             center = this._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
             switch (this._alignCalcType) {
                 case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
-                    if (this.viewRight > center)
+                    if (vRight > center)
                         this.nearestListId = data.id;
                     break;
                 case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
-                    if (this.viewLeft < center)
+                    if (vLeft < center)
                         this.nearestListId = data.id;
                     break;
                 case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
-                    if (this.viewBottom < center)
+                    if (vBottom < center)
                         this.nearestListId = data.id;
                     break;
                 case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                    if (this.viewTop > center)
+                    if (vTop > center)
                         this.nearestListId = data.id;
                     break;
             }
