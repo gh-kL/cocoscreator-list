@@ -2,7 +2,6 @@
  * @author kL <klk0@qq.com>
  * @date 2019/6/6
  * @doc 列表组件.
- * TS版必须与ListItem搭配使用!TS版必须与ListItem搭配使用!TS版必须与ListItem搭配使用!
  * @end
  ******************************************/
 
