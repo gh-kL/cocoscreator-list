@@ -55,7 +55,7 @@ Last test by ccc_v2.1.2
 ### 2019/9/24
 
 * TS版， `模板Item` 取消强制挂载 `ListItem` ，现可通过 `item['_listId']` 来获取 `Item下标` 。
-* 新增 `repeatEventSingle` 属性，为 `true` 时，可重复触发相同的单选事件。
+* 新增`单选模式`下 `repeatEventSingle` 属性，为 `true` 时，可重复触发相同的单选事件。
 * 修复滑动 `ScollView` 时，鼠标拖到 `ScollView` 之外，会中止滚动的BUG。
 * 修复 `SlideMode` 为 `PAGE` 或 `ADHERING` 时，滚动 `ScollView` 容易卡住的BUG。
 
