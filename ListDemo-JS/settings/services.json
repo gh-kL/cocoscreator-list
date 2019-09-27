@@ -52,15 +52,16 @@
         "iOS",
         "HTML5"
       ],
-      "package_download_url": "https://download.cocos.com/CocosServices/plugins/service-matchvs/1.0.9_3.7.9.9.zip",
-      "package_version_desc": "<p><strong>更新日期：</strong> 2019/07/18\n<strong>更新内容：</strong>\n1、修复多节点登录返回值错误\n2、修复FaceBook平台受限安全策略的问题</p>",
+      "package_download_url": "https://download.cocos.com/CocosServices/plugins/service-matchvs/1.0.10_3.7.9.10.zip",
+      "package_version_desc": "<p><strong>更新日期：</strong> 2019/9/12\n<strong>更新内容：</strong>\n1.多语言支持\n2.SDK日常更新</p>",
       "service_component_name": "service-matchvs",
       "package_versions": [
         "1.0.9_3.7.9.9",
         "1.0.7_3.7.9.6",
         "1.0.6_3.7.9.2",
         "1.0.5_3.7.7.3",
-        "1.0.3_3.7.6.4"
+        "1.0.3_3.7.6.4",
+        "1.0.10_3.7.9.10"
       ],
       "build_platform": [
       ],

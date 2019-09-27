@@ -6,7 +6,7 @@
  * @end
  ******************************************/
 
-const { ccclass, property, disallowMultiple, menu, executionOrder } = cc._decorator;
+const { ccclass, property, disallowMultiple, menu, executionOrder, requireComponent } = cc._decorator;
 
 import ListItem from './ListItem';
 
@@ -17,8 +17,8 @@ enum TemplateType {
 
 enum SlideType {
     NORMAL = 1,//普通
-    ADHERING = 2,//粘附效果，没有滚动惯性
-    PAGE = 3,//页面，没有滚动惯性
+    ADHERING = 2,//粘附效果，，将强制关闭滚动惯性
+    PAGE = 3,//页面，，将强制关闭滚动惯性
 }
 
 enum SelectedType {
@@ -30,6 +30,7 @@ enum SelectedType {
 @ccclass
 @disallowMultiple()
 @menu('自定义组件/List')
+@requireComponent(cc.ScrollView)
 //脚本生命周期回调的执行优先级。小于 0 的脚本将优先执行，大于 0 的脚本将最后执行。该优先级只对 onLoad, onEnable, start, update 和 lateUpdate 有效，对 onDisable 和 onDestroy 无效。
 @executionOrder(-5000)
 export default class List extends cc.Component {

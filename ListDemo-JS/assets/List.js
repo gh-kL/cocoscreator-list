@@ -10,8 +10,8 @@ const TemplateType = cc.Enum({
 });
 const SlideType = cc.Enum({
     'NORMAL': 1, //普通
-    'ADHERING': 2, //粘附效果，没有滚动惯性
-    'PAGE': 3,   //页面
+    'ADHERING': 2, //粘附效果，将强制关闭滚动惯性
+    'PAGE': 3,   //页面，将强制关闭滚动惯性
 });
 const SelectedType = cc.Enum({
     'NONE': 0,

@@ -41,7 +41,7 @@ Last test by ccc_v2.1.2
 
 ## 小贴士
 
-1. 每一个 `Item-Node` 都会被赋值一个 `_listId` ，即该 `Item` 在 `List` 中的 `下标` 。假如你的 `Item` 的 `childrens` 中，有一个 `按钮` ，在 `按钮` 的 `回调事件` 中，通过 `event.target.parent._listId` 就能取得该 `Item的下标` 了，这非常方便。（ `TS版` 比较特殊， 通过 `event.target.parent['_listId']` 来获得。）
+1. 每一个 `Item-Node` 都会被赋值一个 `_listId` ，即该 `Item` 在 `List` 中的 `下标` 。假如你的 `Item` 是个 `按钮` ，在该 `按钮` 的 `回调事件` 中，通过 `event.currentTarget._listId` 就能取得该 `Item的下标` 了，这非常方便。（ `TS版` 比较特殊， 通过 `event.currentTarget['_listId']` 来获得。）
 2. 在**View**中设置 `list.customSize` 以达到**每个Item宽度或高度不一样**的**虚拟列表**效果，简直美滋滋！但这个会**耗费更多性能！仅支持虚拟列表！仅支持单列或单行**！
 
 ## 注意
@@ -56,7 +56,7 @@ Last test by ccc_v2.1.2
 
 * TS版， `模板Item` 取消强制挂载 `ListItem` ，现可通过 `item['_listId']` 来获取 `Item下标` 。
 * 新增 `repeatEventSingle` 属性，为 `true` 时，可重复触发相同的单选事件。
-* 修复滑动滚动窗时，鼠标拖到滚动窗之外，会中止滚动的BUG。
+* 修复滑动 `ScollView` 时，鼠标拖到 `ScollView` 之外，会中止滚动的BUG。
 * 修复 `SlideMode` 为 `PAGE` 或 `ADHERING` 时，滚动 `ScollView` 容易卡住的BUG。
 
 ### 2019/8/31
