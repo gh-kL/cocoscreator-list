@@ -52,6 +52,10 @@ Last test by ccc_v2.1.2
 
 ## 更新日志
 
+### 2019/9/27
+
+* 新增`背包`示例场景（`TestBag.scene`）。
+
 ### 2019/9/24
 
 * TS版， `模板Item` 取消强制挂载 `ListItem` ，现可通过 `item['_listId']` 来获取 `Item下标` 。
