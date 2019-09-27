@@ -987,8 +987,12 @@ cc.Class({
         if (this._scrollView._hasNestedViewGroup(ev, captureListeners))
             return;
         let isMe = ev.eventPhase === cc.Event.AT_TARGET && ev.target === this.node;
-        if (!isMe)
-            this._scrollItem = ev.target;
+        if (!isMe) {
+            let itemNode = ev.target;
+            while (itemNode._listId == null || !itemNode.parent)
+                itemNode = itemNode.parent;
+            this._scrollItem = itemNode._listId != null ? itemNode : ev.target;;
+        }
     },
     //触摸抬起时..
     _onTouchUp() {
