@@ -33,7 +33,7 @@ Last test by ccc_v2.1.2
 5. 设置是否为**虚拟列表（ `Virtual` ）**，默认为 `true` ，意思是仅在可视范围内渲染 `Item` 。反之，如果为 `false` ，则会渲染所有数量的Item，一般不推荐这么做，但凡事总有个万一，所以预留了。
 6. 可选设置**逐帧渲染（ `FrameByFrameRenderNum` ）**，该数量为**每帧渲染的数量**。
 7. 设置**渲染器（ `RenderEvent` ）**，在**View**中写一个函数，将该函数指向**RenderEvent**，运行时，设置List数量，Item将会**通过该函数进行回调**，开发者在该函数中实现**Item的刷新**。
-8. 可选设置**选择模式（ `SelectedMode` ）**，选择模式有 `SIMPLE（单选）` 、 `MULT（多选）` 两种模式，须与 `ListItem` 组件搭配使用， `ListItem` 组件需要拖拽到**模板Item**上。在**View**中写一个函数，将该函数指向 `SelectedEvent` ，运行时，当**选择变更**，将会通过该函数**回调**。
+8. 可选设置**选择模式（ `SelectedMode` ）**，选择模式有 `SINGLE（单选）` 、 `MULT（多选）` 两种模式，须与 `ListItem` 组件搭配使用， `ListItem` 组件需要拖拽到**模板Item**上。在**View**中写一个函数，将该函数指向 `SelectedEvent` ，运行时，当**选择变更**，将会通过该函数**回调**。
 
   > 在**View**中，若是**单选**模式，用 `list.selectedId=Number` 来改变**当前选择**。若是**多选**模式，则调用 `list.setMultSelected(args, boolean)` 接口来设置多选数据。
 
