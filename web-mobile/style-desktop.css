@@ -21,9 +21,9 @@ body, canvas, div {
 /* Remove spin of input type number */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    /* display: none; <- Crashes Chrome on hover */
-    -webkit-appearance: none;
-    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
 
 #Cocos2dGameContainer {
@@ -62,7 +62,7 @@ p.footer {
   height: 100%;
 
   background: #171717 url(./splash.png) no-repeat center;
-  background-size: 40%;
+  background-size: 350px;
 }
 
 .progress-bar {
@@ -70,10 +70,9 @@ p.footer {
     position: absolute;
     left: 50%;
     top: 80%;
-    height: 26px;
-    padding: 5px;
-    width: 350px;
-    margin: 0 -175px;         
+    height: 5px;
+    width: 300px;
+    margin: 0 -150px;
     border-radius: 5px;
     box-shadow: 0 1px 5px #000 inset, 0 1px 0 #444;           
 }
@@ -81,10 +80,10 @@ p.footer {
 .progress-bar span {
     display: block;
     height: 100%;
-    border-radius: 3px;
+    border-radius: 5px;
     box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
     transition: width .4s ease-in-out; 
-    background-color: #34c2e3;    
+    background-color: #3dc5de;
 }
 
 .stripes span {
@@ -110,8 +109,8 @@ h1 {
     height: 450px;
     margin: 0 auto;
     background: black;
-    position:relative;
-    border:5px solid black;
-    border-radius: 10px;
-    box-shadow: 0 5px 50px #333
+    position: relative;
+    border: 3px solid black;
+    border-radius: 6px;
+    box-shadow: 0 5px 40px #333
 }

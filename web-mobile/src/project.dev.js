@@ -88,6 +88,14 @@ window.__require = function e(t, n, r) {
               this.selectedFlag.spriteFrame = val ? this.selectedSpriteFrame : this._unselectedSpriteFrame;
             }
           }
+        },
+        _btnCom: null,
+        btnCom: {
+          visible: false,
+          get: function get() {
+            this._btnCom || (this._btnCom = this.node.getComponent(cc.Button));
+            return this._btnCom;
+          }
         }
       },
       onLoad: function onLoad() {
@@ -96,8 +104,7 @@ window.__require = function e(t, n, r) {
           com || (com = this.title.getComponent(cc.RichText));
           this.title = com;
         }
-        this._btnCom = this.node.getComponent(cc.Button);
-        this._btnCom || this.selectedMode == SelectedType.NONE;
+        this.btnCom || this.selectedMode == SelectedType.NONE;
         if (this.selectedMode == SelectedType.SWITCH) {
           var _com = this.selectedFlag.getComponent(cc.Sprite);
           this.selectedFlag = _com;
@@ -105,12 +112,12 @@ window.__require = function e(t, n, r) {
         }
       },
       _registerEvent: function _registerEvent() {
-        if (this._btnCom && this._list.selectedMode > 0 && !this.eventReg) {
+        if (this.btnCom && this._list.selectedMode > 0 && !this.eventReg) {
           var eh = new cc.Component.EventHandler();
           eh.target = this.node;
           eh.component = "ListItem";
           eh.handler = "onClickThis";
-          this._btnCom.clickEvents.unshift(eh);
+          this.btnCom.clickEvents.unshift(eh);
           this.eventReg = true;
         }
       },
@@ -179,6 +186,7 @@ window.__require = function e(t, n, r) {
       editor: {
         disallowMultiple: false,
         menu: "\u81ea\u5b9a\u4e49\u7ec4\u4ef6/List",
+        requireComponent: cc.ScrollView,
         executionOrder: -5e3
       },
       properties: {
@@ -285,6 +293,13 @@ window.__require = function e(t, n, r) {
           type: SelectedType,
           tooltip: false
         },
+        repeatEventSingle: {
+          default: false,
+          tooltip: false,
+          visible: function visible() {
+            return this.selectedMode == SelectedType.SINGLE;
+          }
+        },
         selectedEvent: {
           default: null,
           type: cc.Component.EventHandler,
@@ -303,17 +318,15 @@ window.__require = function e(t, n, r) {
           },
           set: function set(val) {
             var t = this;
-            if (t.selectedMode == SelectedType.SINGLE && val == t._selectedId) return;
             var item = void 0;
             switch (t.selectedMode) {
              case SelectedType.SINGLE:
-              if (val == t._selectedId) return;
+              if (!t.repeatEventSingle && val == t._selectedId) return;
               item = t.getItemByListId(val);
-              if (!item && val >= 0) return;
               t._selectedId >= 0 ? t._lastSelectedId = t._selectedId : t._lastSelectedId = null;
               t._selectedId = val;
               item && (item.listItem.selected = true);
-              if (t._lastSelectedId >= 0) {
+              if (t._lastSelectedId >= 0 && t._lastSelectedId != t._selectedId) {
                 var lastItem = t.getItemByListId(t._lastSelectedId);
                 lastItem && (lastItem.listItem.selected = false);
               }
@@ -354,6 +367,7 @@ window.__require = function e(t, n, r) {
             if (t._virtual) {
               t._resizeContent();
               t._onScrolling();
+              t.frameByFrameRenderNum || t.slideMode != SlideType.PAGE || (t.curPageNum = t.nearestListId);
             } else {
               var layout = t.content.getComponent(cc.Layout);
               layout && (layout.enabled = true);
@@ -377,25 +391,34 @@ window.__require = function e(t, n, r) {
       onLoad: function onLoad() {
         this._init();
       },
+      onDestroy: function onDestroy() {
+        this._itemTmp && this._itemTmp.destroy();
+        while (this._pool.size()) {
+          var node = this._pool.get();
+          node.destroy();
+        }
+      },
       onEnable: function onEnable() {
-        true;
         this._registerEvent();
         this._init();
       },
       onDisable: function onDisable() {
-        true;
         this._unregisterEvent();
       },
       _registerEvent: function _registerEvent() {
         var t = this;
-        t.node.on("touch-up", t._onScrollTouchUp, t, true);
+        t.node.on(cc.Node.EventType.TOUCH_START, t._onTouchStart, t, true);
+        t.node.on("touch-up", t._onTouchUp, t, true);
+        t.node.on(cc.Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
         t.node.on("scroll-began", t._onScrollBegan, t, true);
         t.node.on("scroll-ended", t._onScrollEnded, t, true);
         t.node.on("scrolling", t._onScrolling, t, true);
       },
       _unregisterEvent: function _unregisterEvent() {
         var t = this;
-        t.node.off("touch-up", t._onScrollTouchUp, t, true);
+        t.node.off(cc.Node.EventType.TOUCH_START, t._onTouchStart, t, true);
+        t.node.off("touch-up", t._onTouchUp, t, true);
+        t.node.off(cc.Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
         t.node.off("scroll-began", t._onScrollBegan, t, true);
         t.node.off("scroll-ended", t._onScrollEnded, t, true);
         t.node.off("scrolling", t._onScrolling, t, true);
@@ -404,16 +427,11 @@ window.__require = function e(t, n, r) {
         var t = this;
         if (t._inited) return;
         t._scrollView = t.node.getComponent(cc.ScrollView);
-        if (!t._scrollView) {
-          cc.error(t.node.name + " no assembly cc.ScrollView!");
-          return;
-        }
         t.content = t._scrollView.content;
         if (!t.content) {
           cc.error(t.node.name + "'s cc.ScrollView unset content!");
           return;
         }
-        t.initContentAnchor = t.content.getAnchorPoint();
         t._layout = t.content.getComponent(cc.Layout);
         t._align = t._layout.type;
         t._resizeMode = t._layout.resizeMode;
@@ -427,7 +445,7 @@ window.__require = function e(t, n, r) {
         t._colLineNum;
         t._verticalDir = t._layout.verticalDirection;
         t._horizontalDir = t._layout.horizontalDirection;
-        t.setTemplateItem(t.templateType == TemplateType.PREFAB ? t.tmpPrefab.data : t.tmpNode);
+        t.setTemplateItem(t.templateType == TemplateType.PREFAB ? cc.instantiate(t.tmpPrefab) : t.tmpNode);
         t._slideMode != SlideType.ADHERING && t._slideMode != SlideType.PAGE || (t._scrollView.inertia = false);
         t.virtual || (t.lackCenter = false);
         t._lastDisplayData = [];
@@ -495,7 +513,7 @@ window.__require = function e(t, n, r) {
         var com = t._itemTmp.getComponent(ListItem);
         var remove = false;
         com || (remove = true);
-        com && (com._btnCom || (remove = true));
+        com && (com._btnCom || t._itemTmp.getComponent(cc.Button) || (remove = true));
         remove && (t.selectedMode = SelectedType.NONE);
         t.selectedMode == SelectedType.MULT && (t.multSelected = []);
         switch (t._align) {
@@ -513,35 +531,21 @@ window.__require = function e(t, n, r) {
           switch (t._startAxis) {
            case cc.Layout.AxisDirection.HORIZONTAL:
             var trimW = t.content.width - t._leftGap - t._rightGap;
-            t._colLineNum = 1;
-            while (1) {
-              if (trimW - (t._colLineNum * t._itemSize.width + (t._colLineNum - 1) * t._columnGap) < 0) {
-                t._colLineNum--;
-                break;
-              }
-              t._colLineNum++;
-            }
+            t._colLineNum = Math.floor((trimW + t._columnGap) / (t._itemSize.width + t._columnGap));
             t._sizeType = true;
             break;
 
            case cc.Layout.AxisDirection.VERTICAL:
             var trimH = t.content.height - t._topGap - t._bottomGap;
-            t._colLineNum = 1;
-            while (1) {
-              if (trimH - (t._colLineNum * t._itemSize.height + (t._colLineNum - 1) * t._lineGap) < 0) {
-                t._colLineNum--;
-                break;
-              }
-              t._colLineNum++;
-            }
+            t._colLineNum = Math.floor((trimH + t._lineGap) / (t._itemSize.height + t._lineGap));
             t._sizeType = false;
           }
         }
       },
       checkInited: function checkInited(printLog) {
-        var pL = printLog || true;
+        printLog = null == printLog || printLog;
         if (!this._inited) {
-          pL && cc.error("List initialization not completed!");
+          printLog && cc.error("List initialization not completed!");
           return false;
         }
         return true;
@@ -604,6 +608,14 @@ window.__require = function e(t, n, r) {
         this.frameCount = this._updateRate;
         if (this._aniDelRuning) return;
         this._calcViewPos();
+        var vTop = void 0, vRight = void 0, vBottom = void 0, vLeft = void 0;
+        if (this._sizeType) {
+          vTop = this.viewTop;
+          vBottom = this.viewBottom;
+        } else {
+          vRight = this.viewRight;
+          vLeft = this.viewLeft;
+        }
         if (this._virtual) {
           this.displayData = [];
           var itemPos = void 0;
@@ -615,21 +627,21 @@ window.__require = function e(t, n, r) {
               itemPos = this._calcItemPos(curId);
               switch (this._align) {
                case cc.Layout.Type.HORIZONTAL:
-                itemPos.right >= this.viewLeft && itemPos.left <= this.viewRight ? this.displayData.push(itemPos) : 0 != curId && this.displayData.length > 0 && (breakFor = true);
+                itemPos.right >= vLeft && itemPos.left <= vRight ? this.displayData.push(itemPos) : 0 != curId && this.displayData.length > 0 && (breakFor = true);
                 break;
 
                case cc.Layout.Type.VERTICAL:
-                itemPos.bottom <= this.viewTop && itemPos.top >= this.viewBottom ? this.displayData.push(itemPos) : 0 != curId && this.displayData.length > 0 && (breakFor = true);
+                itemPos.bottom <= vTop && itemPos.top >= vBottom ? this.displayData.push(itemPos) : 0 != curId && this.displayData.length > 0 && (breakFor = true);
                 break;
 
                case cc.Layout.Type.GRID:
                 switch (this._startAxis) {
                  case cc.Layout.AxisDirection.HORIZONTAL:
-                  itemPos.bottom <= this.viewTop && itemPos.top >= this.viewBottom ? this.displayData.push(itemPos) : 0 != curId && this.displayData.length > 0 && (breakFor = true);
+                  itemPos.bottom <= vTop && itemPos.top >= vBottom ? this.displayData.push(itemPos) : 0 != curId && this.displayData.length > 0 && (breakFor = true);
                   break;
 
                  case cc.Layout.AxisDirection.VERTICAL:
-                  itemPos.right >= this.viewLeft && itemPos.left <= this.viewRight ? this.displayData.push(itemPos) : 0 != curId && this.displayData.length > 0 && (breakFor = true);
+                  itemPos.right >= vLeft && itemPos.left <= vRight ? this.displayData.push(itemPos) : 0 != curId && this.displayData.length > 0 && (breakFor = true);
                 }
               }
             }
@@ -638,23 +650,23 @@ window.__require = function e(t, n, r) {
             var hh = this._itemSize.height + this._lineGap;
             switch (this._alignCalcType) {
              case 1:
-              curId = (this.viewLeft + this._leftGap) / ww;
-              endId = (this.viewRight + this._rightGap) / ww;
+              curId = (vLeft + this._leftGap) / ww;
+              endId = (vRight + this._rightGap) / ww;
               break;
 
              case 2:
-              curId = (-this.viewRight - this._rightGap) / ww;
-              endId = (-this.viewLeft - this._leftGap) / ww;
+              curId = (-vRight - this._rightGap) / ww;
+              endId = (-vLeft - this._leftGap) / ww;
               break;
 
              case 3:
-              curId = (-this.viewTop - this._topGap) / hh;
-              endId = (-this.viewBottom - this._bottomGap) / hh;
+              curId = (-vTop - this._topGap) / hh;
+              endId = (-vBottom - this._bottomGap) / hh;
               break;
 
              case 4:
-              curId = (this.viewBottom + this._bottomGap) / hh;
-              endId = (this.viewTop + this._topGap) / hh;
+              curId = (vBottom + this._bottomGap) / hh;
+              endId = (vTop + this._topGap) / hh;
             }
             curId = Math.floor(curId) * this._colLineNum;
             endId = Math.ceil(endId) * this._colLineNum;
@@ -903,6 +915,26 @@ window.__require = function e(t, n, r) {
           }
         }
       },
+      _calcExistItemPos: function _calcExistItemPos(id) {
+        var item = this.getItemByListId(id);
+        if (!item) return null;
+        var data = {
+          id: id,
+          x: item.x,
+          y: item.y
+        };
+        if (this._sizeType) {
+          data.top = item.y + item.height * (1 - item.anchorY);
+          data.bottom = item.y - item.height * item.anchorY;
+        } else {
+          data.left = item.x - item.width * item.anchorX;
+          data.right = item.x + item.width * (1 - item.anchorX);
+        }
+        return data;
+      },
+      getItemPos: function getItemPos(id) {
+        return this._virtual ? this._calcItemPos(id) : this.frameByFrameRenderNum ? this._calcItemPos(id) : this._calcExistItemPos(id);
+      },
       _getFixedSize: function _getFixedSize(listId) {
         if (!this.customSize) return null;
         null == listId && (listId = this._numItems);
@@ -930,13 +962,33 @@ window.__require = function e(t, n, r) {
         t._onScrolling();
         t._slideMode != SlideType.ADHERING || t.adhering ? t._slideMode == SlideType.PAGE && (null != t._beganPos ? this._pageAdhere() : t.adhere()) : t.adhere();
       },
-      _onScrollTouchUp: function _onScrollTouchUp() {
+      _onTouchStart: function _onTouchStart(ev, captureListeners) {
+        if (this._scrollView._hasNestedViewGroup(ev, captureListeners)) return;
+        var isMe = ev.eventPhase === cc.Event.AT_TARGET && ev.target === this.node;
+        if (!isMe) {
+          var itemNode = ev.target;
+          while (null == itemNode._listId && itemNode.parent) itemNode = itemNode.parent;
+          this._scrollItem = null != itemNode._listId ? itemNode : ev.target;
+        }
+      },
+      _onTouchUp: function _onTouchUp() {
         var t = this;
         t._scrollPos = null;
         if (t._slideMode == SlideType.ADHERING) {
-          this.adhering && (this._adheringBarrier = true);
+          t.adhering && (t._adheringBarrier = true);
           t.adhere();
-        } else t._slideMode == SlideType.PAGE && (null != t._beganPos ? this._pageAdhere() : t.adhere());
+        } else t._slideMode == SlideType.PAGE && (null != t._beganPos ? t._pageAdhere() : t.adhere());
+        this._scrollItem = null;
+      },
+      _onTouchCancelled: function _onTouchCancelled(ev, captureListeners) {
+        var t = this;
+        if (t._scrollView._hasNestedViewGroup(ev, captureListeners) || ev.simulate) return;
+        t._scrollPos = null;
+        if (t._slideMode == SlideType.ADHERING) {
+          t.adhering && (t._adheringBarrier = true);
+          t.adhere();
+        } else t._slideMode == SlideType.PAGE && (null != t._beganPos ? t._pageAdhere() : t.adhere());
+        this._scrollItem = null;
       },
       _pageAdhere: function _pageAdhere() {
         var t = this;
@@ -961,6 +1013,7 @@ window.__require = function e(t, n, r) {
       },
       adhere: function adhere() {
         var t = this;
+        if (!t.checkInited()) return;
         if (t.elasticTop > 0 || t.elasticRight > 0 || t.elasticBottom > 0 || t.elasticLeft > 0) return;
         t.adhering = true;
         t._calcNearestItem();
@@ -985,6 +1038,7 @@ window.__require = function e(t, n, r) {
             this._delRedundantItem();
             this._forceUpdate = false;
             this._calcNearestItem();
+            this.slideMode == SlideType.PAGE && (this.curPageNum = this.nearestListId);
           } else this._updateCounter += this.frameByFrameRenderNum;
         } else if (this._updateCounter < this._numItems) {
           var _len = this._updateCounter + this.frameByFrameRenderNum > this._numItems ? this._numItems : this._updateCounter + this.frameByFrameRenderNum;
@@ -993,6 +1047,7 @@ window.__require = function e(t, n, r) {
         } else {
           this._updateDone = true;
           this._calcNearestItem();
+          this.slideMode == SlideType.PAGE && (this.curPageNum = this.nearestListId);
         }
       },
       _createOrUpdateItem: function _createOrUpdateItem(data) {
@@ -1065,11 +1120,9 @@ window.__require = function e(t, n, r) {
       },
       setMultSelected: function setMultSelected(args, bool) {
         var t = this;
+        if (!t.checkInited()) return;
         Array.isArray(args) || (args = [ args ]);
-        if (null == bool) {
-          t.multSelected = null;
-          t.multSelected = args;
-        } else {
+        if (null == bool) t.multSelected = args; else {
           var listId = void 0, sub = void 0;
           if (bool) for (var n = args.length - 1; n >= 0; n--) {
             listId = args[n];
@@ -1084,18 +1137,21 @@ window.__require = function e(t, n, r) {
         t._forceUpdate = true;
         t._onScrolling();
       },
-      updateAppointed: function updateAppointed(args) {
+      updateItem: function updateItem(args) {
+        if (!this.checkInited()) return;
         Array.isArray(args) || (args = [ args ]);
-        var len = args.length;
-        for (var n = 0; n < len; n++) {
+        for (var n = 0, len = args.length; n < len; n++) {
           var listId = args[n];
           var item = this.getItemByListId(listId);
           item && cc.Component.EventHandler.emitEvents([ this.renderEvent ], item, listId);
         }
       },
+      updateAll: function updateAll() {
+        if (!this.checkInited()) return;
+        this.numItems = this.numItems;
+      },
       getItemByListId: function getItemByListId(listId) {
         for (var n = this.content.childrenCount - 1; n >= 0; n--) if (this.content.children[n]._listId == listId) return this.content.children[n];
-        return null;
       },
       _getOutsideItem: function _getOutsideItem() {
         var item = void 0, isOutside = void 0;
@@ -1118,7 +1174,11 @@ window.__require = function e(t, n, r) {
       _delRedundantItem: function _delRedundantItem() {
         if (this._virtual) {
           var arr = this._getOutsideItem();
-          for (var n = arr.length - 1; n >= 0; n--) this._pool.put(arr[n]);
+          for (var n = arr.length - 1; n >= 0; n--) {
+            var item = arr[n];
+            if (this._scrollItem && item._listId == this._scrollItem._listId) continue;
+            this._pool.put(item);
+          }
         } else while (this.content.childrenCount > this._numItems) this._delSingleItem(this.content.children[this.content.childrenCount - 1]);
       },
       _delSingleItem: function _delSingleItem(item) {
@@ -1128,6 +1188,7 @@ window.__require = function e(t, n, r) {
       },
       aniDelItem: function aniDelItem(listId, callFunc, aniType) {
         var t = this;
+        if (!t.checkInited()) return;
         var item = t.getItemByListId(listId);
         if (t._aniDelRuning || !t._virtual) return;
         if (!item) {
@@ -1193,7 +1254,8 @@ window.__require = function e(t, n, r) {
         t._scrollView.stopAutoScroll();
         null == timeInSecond ? timeInSecond = .5 : timeInSecond < 0 && (timeInSecond = 0);
         listId < 0 ? listId = 0 : listId >= t._numItems && (listId = t._numItems - 1);
-        var pos = t._calcItemPos(listId);
+        !t._virtual && t._layout && t._layout.enabled && t._layout.updateLayout();
+        var pos = t.getItemPos(listId);
         var targetX = void 0, targetY = void 0;
         switch (t._alignCalcType) {
          case 1:
@@ -1239,94 +1301,86 @@ window.__require = function e(t, n, r) {
         }
       },
       _calcNearestItem: function _calcNearestItem() {
-        this.nearestListId = null;
+        var t = this;
+        t.nearestListId = null;
         var data = void 0, center = void 0;
-        this._virtual && this._calcViewPos();
+        t._virtual && t._calcViewPos();
+        var vTop = void 0, vRight = void 0, vBottom = void 0, vLeft = void 0;
+        vTop = t.viewTop;
+        vRight = t.viewRight;
+        vBottom = t.viewBottom;
+        vLeft = t.viewLeft;
         var breakFor = false;
-        for (var n = 0; n < this.content.childrenCount && !breakFor; n += this._colLineNum) {
+        for (var n = 0; n < t.content.childrenCount && !breakFor; n += t._colLineNum) {
           data = this._virtual ? this.displayData[n] : this._calcExistItemPos(n);
           center = this._sizeType ? (data.top + data.bottom) / 2 : center = (data.left + data.right) / 2;
           switch (this._alignCalcType) {
            case 1:
-            if (data.right >= this.viewLeft) {
+            if (data.right >= vLeft) {
               this.nearestListId = data.id;
-              this.viewLeft > center && (this.nearestListId += this._colLineNum);
+              vLeft > center && (this.nearestListId += this._colLineNum);
               breakFor = true;
             }
             break;
 
            case 2:
-            if (data.left <= this.viewRight) {
+            if (data.left <= vRight) {
               this.nearestListId = data.id;
-              this.viewRight < center && (this.nearestListId += this._colLineNum);
+              vRight < center && (this.nearestListId += this._colLineNum);
               breakFor = true;
             }
             break;
 
            case 3:
-            if (data.bottom <= this.viewTop) {
+            if (data.bottom <= vTop) {
               this.nearestListId = data.id;
-              this.viewTop < center && (this.nearestListId += this._colLineNum);
+              vTop < center && (this.nearestListId += this._colLineNum);
               breakFor = true;
             }
             break;
 
            case 4:
-            if (data.top >= this.viewBottom) {
+            if (data.top >= vBottom) {
               this.nearestListId = data.id;
-              this.viewBottom > center && (this.nearestListId += this._colLineNum);
+              vBottom > center && (this.nearestListId += this._colLineNum);
               breakFor = true;
             }
           }
         }
         data = this._virtual ? this.displayData[this.actualNumItems - 1] : this._calcExistItemPos(this._numItems - 1);
-        if (data && data.id == this._numItems - 1) {
-          center = this._sizeType ? (data.top + data.bottom) / 2 : center = (data.left + data.right) / 2;
-          switch (this._alignCalcType) {
+        if (data && data.id == t._numItems - 1) {
+          center = t._sizeType ? (data.top + data.bottom) / 2 : center = (data.left + data.right) / 2;
+          switch (t._alignCalcType) {
            case 1:
-            this.viewRight > center && (this.nearestListId = data.id);
+            vRight > center && (t.nearestListId = data.id);
             break;
 
            case 2:
-            this.viewLeft < center && (this.nearestListId = data.id);
+            vLeft < center && (t.nearestListId = data.id);
             break;
 
            case 3:
-            this.viewBottom < center && (this.nearestListId = data.id);
+            vBottom < center && (t.nearestListId = data.id);
             break;
 
            case 4:
-            this.viewTop > center && (this.nearestListId = data.id);
+            vTop > center && (t.nearestListId = data.id);
           }
         }
       },
-      _calcExistItemPos: function _calcExistItemPos(id) {
-        var item = this.getItemByListId(id);
-        if (!item) return null;
-        var data = {
-          id: id,
-          x: item.x,
-          y: item.y
-        };
-        if (this._sizeType) {
-          data.top = item.y + item.height * (1 - item.anchorY);
-          data.bottom = item.y - item.height * item.anchorY;
-        } else {
-          data.left = item.x - item.width * item.anchorX;
-          data.right = item.x + item.width * (1 - item.anchorX);
-        }
-        return data;
-      },
       prePage: function prePage(timeInSecond) {
+        if (!this.checkInited()) return;
         null == timeInSecond && (timeInSecond = .5);
         this.skipPage(this.curPageNum - 1, timeInSecond);
       },
       nextPage: function nextPage(timeInSecond) {
+        if (!this.checkInited()) return;
         null == timeInSecond && (timeInSecond = .5);
         this.skipPage(this.curPageNum + 1, timeInSecond);
       },
       skipPage: function skipPage(pageNum, timeInSecond) {
         var t = this;
+        if (!t.checkInited()) return;
         if (t._slideMode != SlideType.PAGE) return cc.error("This function is not allowed to be called, Must SlideMode = PAGE!");
         if (pageNum < 0 || pageNum >= t._numItems) return;
         if (t.curPageNum == pageNum) return;
@@ -1336,6 +1390,7 @@ window.__require = function e(t, n, r) {
       },
       calcCustomSize: function calcCustomSize(numItems) {
         var t = this;
+        if (!t.checkInited()) return;
         if (!t._itemTmp) return cc.error("Unset template item!");
         if (!t.renderEvent) return cc.error("Unset Render-Event!");
         t.customSize = {};
@@ -1476,6 +1531,247 @@ window.__require = function e(t, n, r) {
   }, {
     List: "List"
   } ],
+  TestBag: [ function(require, module, exports) {
+    "use strict";
+    cc._RF.push(module, "f9e8dSA4rFKIYLHZnrxJ36j", "TestBag");
+    "use strict";
+    var List = require("List");
+    cc.Class({
+      extends: cc.Component,
+      properties: {
+        list: List,
+        bagItem: cc.Prefab,
+        curPage: cc.Label
+      },
+      onLoad: function onLoad() {
+        this.totalItemNum = 90;
+        this.pagePreNum = 16;
+        this.pageTotalNum = Math.ceil(this.totalItemNum / this.pagePreNum);
+        this.list.numItems = this.pageTotalNum;
+        this.onPageChange();
+      },
+      onListRender: function onListRender(item, idx) {
+        if (item.childrenCount) for (var n = 0; n < item.childrenCount; n++) {
+          var bi = item.children[n];
+          var exactIdx = idx * this.pagePreNum + n;
+          bi.getComponentInChildren(cc.Label).string = exactIdx < this.totalItemNum ? exactIdx + 1 : "";
+        } else for (var _n = 0; _n < this.pagePreNum; _n++) {
+          var _bi = cc.instantiate(this.bagItem);
+          item.addChild(_bi);
+          var _exactIdx = idx * this.pagePreNum + _n;
+          _bi.getComponentInChildren(cc.Label).string = _exactIdx < this.totalItemNum ? _exactIdx + 1 : "";
+        }
+      },
+      onPageChange: function onPageChange(pageNum) {
+        var pageN = null == pageNum ? this.list.curPageNum : pageNum;
+        this.curPage.string = "\u5f53\u524d\u9875\u6570\uff1a" + (pageN + 1);
+      }
+    });
+    cc._RF.pop();
+  }, {
+    List: "List"
+  } ],
+  TestCustomSize: [ function(require, module, exports) {
+    "use strict";
+    cc._RF.push(module, "3991bTH395GAJ1iMr9cYFxx", "TestCustomSize");
+    "use strict";
+    var List = require("List");
+    cc.Class({
+      extends: cc.Component,
+      properties: {
+        list: List,
+        avatar1SF: cc.SpriteFrame,
+        avatar2SF: cc.SpriteFrame,
+        bubble1SF: cc.SpriteFrame,
+        bubble2SF: cc.SpriteFrame
+      },
+      onLoad: function onLoad() {
+        this.data = [ {
+          type: 3,
+          text: "8\u670830\u65e5 1:37"
+        }, {
+          type: 1,
+          text: "\u70e7\u5427\uff0c\u5347\u8d77<color=#cc6600>\u7cdc\u70c2</color>\u7684\u70df\u3002\n\u62bd\u5427\uff0c\u5410\u51fa\u5168\u8eab\u7684\u75b2\u60eb\u3002"
+        }, {
+          type: 2,
+          text: "\u9057\u5fd8\uff0c\u90a3\u4e9b\u7410\u788e\u7684\u4e00\u5207\u3002\n\u8ff7\u60d8\uff0c\u5728\u81ea\u5df1<color=#cc6600>\u865a\u7a7a</color>\u7684\u4e16\u754c\u3002"
+        }, {
+          type: 3,
+          text: "\u6628\u5929 3:17"
+        }, {
+          type: 1,
+          text: "\u4e00\u8d77\u505a\u4e2a<color=#cc6600>\u62dc\u91d1\u4e3b\u4e49</color>\u7684\u6bd2\u866b\u3002"
+        }, {
+          type: 2,
+          text: "\u7528<color=#cc6600>\u6d88\u8d39</color>\u9ebb\u9189\u81ea\u5df1\u3002"
+        }, {
+          type: 1,
+          text: "\u7528\u79f0\u4f5c<color=#cc6600>\u7269\u8d28\u6b32\u671b</color>\u7684<color=#cc6600>\u9488\u5934</color>\u3002"
+        }, {
+          type: 2,
+          text: "\u6ce8\u5c04<color=#cc6600>\u8d2a\u5a6a</color>\u548c<color=#cc6600>\u6743\u529b</color>\u3002"
+        }, {
+          type: 3,
+          text: "14:55"
+        }, {
+          type: 1,
+          text: "<color=#cc6600>\u78e8\u788e\u4e2d\u4e0b\u9636\u7ea7\u7684\u7c89\u672b\uff0c\n\u5316\u6210\u9ad8\u7eaf\u5ea6\u7684\u4e0a\u6d41\u3002</color>"
+        }, {
+          type: 1,
+          text: "\u6e34\u671b\u91d1\u5b57\u5854\u9876\u7aef\u7684\u5815\u843d<color=#cc6600>\u5931\u5fc3\u75af</color>\uff0c\n\u7684\u4f60\u548c\u6211\u3002"
+        }, {
+          type: 2,
+          text: "\u7684\u4f60\u548c\u6211\u3002"
+        }, {
+          type: 3,
+          text: "23:56"
+        }, {
+          type: 2,
+          text: "<color=#cc6600>\u62dc\u91d1\u4e3b\u4e49</color>\u2014\u2014\uff01"
+        }, {
+          type: 1,
+          text: "<color=#cc6600>\u62dc\u91d1\u4e3b\u4e49</color>\u2014\u2014\uff01"
+        }, {
+          type: 2,
+          text: "<color=#cc6600>\u62dc\u91d1\u4e3b\u4e49</color>\u2014\u2014\uff01"
+        }, {
+          type: 1,
+          text: "<color=#cc6600>\u62dc\u91d1\u4e3b\u4e49</color>\u7684\u6bd2\u866b\u2014\u2014\uff01"
+        }, {
+          type: 1,
+          text: "<color=#cc6600>\u62dc\u91d1\u4e3b\u4e49</color>\u2014\u2014\uff01"
+        }, {
+          type: 2,
+          text: "<color=#cc6600>\u62dc\u91d1\u4e3b\u4e49</color>\u2014\u2014\uff01"
+        }, {
+          type: 1,
+          text: "<color=#cc6600>\u62dc\u91d1\u4e3b\u4e49</color>\u2014\u2014\uff01"
+        }, {
+          type: 2,
+          text: "<color=#cc6600>\u62dc\u91d1\u4e3b\u4e49</color>\u7684<color=#ff0000><size=28>\u6bd2\u866b</size></color>\u2014\u2014\uff01"
+        }, {
+          type: 1,
+          text: "\u70e7\u5427\uff0c\u5347\u8d77<color=#cc6600>\u7cdc\u70c2</color>\u7684\u70df\u3002\n\u62bd\u5427\uff0c\u5410\u51fa\u5168\u8eab\u7684\u75b2\u60eb\u3002"
+        }, {
+          type: 3,
+          text: "\u8001\u7834\u9ebb - \u6bd2\u866b"
+        }, {
+          type: 2,
+          text: '\u8c22\u8c22\u89c2\u8d4f<img src="37"/><img src="37"/><img src="37"/>'
+        }, {
+          type: 2,
+          text: "\u4e0a\u9762\u7684\u6587\u5b57\u6458\u81ea\u4e00\u9996\u6447\u6eda\u6b4c\u66f2\u2014\u2014<color=#cc6600>\u300a\u6bd2\u866b\u300b</color>\uff0c\u521b\u4f5c\u4e50\u961f\uff1a<color=#cc6600>\u8001\u7834\u9ebb</color>\u3002"
+        }, {
+          type: 2,
+          text: "emmmm...\u6211\u89c9\u5f97\u5199\u7684\u5f88\u597d\uff0c\u5531\u7684\u4e5f\u5f88\u597d\u3002"
+        }, {
+          type: 2,
+          text: "<color=#ff0000><size=28>\u5899\u88c2\u63a8\u8350</size></color>\uff01\uff01\uff01"
+        }, {
+          type: 1,
+          text: "\u55ef\uff0c<color=#cc6600>\u8001\u7834\u9ebb</color>\u662f\u4e00\u652f\u53f0\u6e7e\u4e50\u961f\uff0c\u76ee\u524d\u8fd8\u5f88\u5c0f\u4f17\u3002"
+        }, {
+          type: 1,
+          text: '\u4f46\u7edd\u5bf9\u662f<color=#ff0000><size=28>\u5b9d\u85cf\u4e50\u961f</size></color>\uff01<img src="42"/><img src="42"/><img src="42"/>'
+        }, {
+          type: 2,
+          text: "\u662f\u7684\u6ca1\u9519\uff0c\u4ed6\u4eec\u7684\u98ce\u683c\u56ca\u62ec\u4e86<color=#cc6600>\u6447\u6eda</color>\u3001<color=#cc6600>\u91d1\u5c5e</color>\u3001<color=#cc6600>\u6838</color>\uff0c\u751a\u81f3\u662f<color=#cc6600>BossaNova</color>\u3002"
+        }, {
+          type: 2,
+          text: '\u501f\u7528<color=#cc6600>\u5f20\u4e9a\u4e1c</color>\u8001\u5e08\u7684\u4e00\u53e5\u7ecf\u5178\u53f0\u8bcd\uff1a\u975e\u5e38\u597d\u2014\u2014<img src="15"/><img src="15"/><img src="15"/>'
+        }, {
+          type: 2,
+          text: '\u597d\u4e86\uff0c\u6211\u4eec\u8bf4\u4e00\u4e0b\u8fd9\u4e2a\u7ec4\u4ef6<img src="22"/><img src="22"/>'
+        }, {
+          type: 1,
+          text: '\u8bf4\u6bdb\u7ebf\uff0c\u6709\u6bdb\u7ebf\u597d\u8bf4\u554a\uff0c\u90a3\u4e48\u7b80\u5355\u8c01\u4e0d\u4f1a\u7528\u554a\uff01<img src="20"/><img src="20"/>'
+        }, {
+          type: 2,
+          text: 'okok...<img src="53"/><img src="53"/>'
+        }, {
+          type: 2,
+          text: '\u6709\u95ee\u9898\u53ef\u4ee5\u53bb\u6211\u4eec\u56e2\u961f\u7684Github\u63d0Issues\u3002<img src="39"/><img src="39"/><img src="39"/>'
+        }, {
+          type: 2,
+          text: "\u94fe\u63a5\uff1a\n<u><color=#cc6600>https://github.com/gh-kL/cocoscreator-list</color></u>"
+        }, {
+          type: 1,
+          text: '\u56e2\u4f60\u59b9\u592b\uff01\u5c31\u4e00\u7834\u7ec4\u4ef6<img src="20"/><img src="20"/>\u8fd8\u56e2\u961f\u5462\u6211\u53bb'
+        }, {
+          type: 2,
+          text: "\u3002\u3002\u3002"
+        }, {
+          type: 2,
+          text: '\u522b\u6233\u7a7f\u6211\u561b<img src="27"/><img src="27"/>'
+        }, {
+          type: 1,
+          text: '\u6211tm<img src="39"/><img src="39"/>'
+        }, {
+          type: 2,
+          text: '\u6211\u5e0c\u671b\u8fd9\u4e2a\u7ec4\u4ef6\u5927\u5bb6\u7528\u4e86\u4e4b\u540e\u4f1a\u89c9\u5f97<color=#cc6600>\u771f\u9999</color>\uff0c\u800c\u4e0d\u662f<color=#cc6600>\u771f\u81ed</color><img src="37"/><img src="37"/><img src="37"/>'
+        }, {
+          type: 1,
+          text: '\u6211\u8ddf\u4f60\u8bf4\u5c31\u4f60\u8fd9\u7834\u7ec4\u4ef6\u5403\u67a3\u836f\u4e38<img src="32"/><img src="32"/>'
+        }, {
+          type: 2,
+          text: '\u72d7\u5934\u4fdd\u547d<img src="58"/><img src="58"/><img src="58"/>'
+        }, {
+          type: 1,
+          text: '\u8d70\u4f60\uff01<img src="55"/><img src="55"/><img src="55"/>'
+        }, {
+          type: 2,
+          text: '\u518d\u89c1\u4e86\u60a8\u561e~<img src="29"/><img src="29"/><img src="29"/>'
+        } ];
+        this.list.calcCustomSize(this.data.length);
+        this.list.numItems = this.data.length;
+      },
+      onListRender: function onListRender(item, idx) {
+        var avatarNode = item.getChildByName("avatarNode");
+        var avatar = avatarNode.getComponentInChildren(cc.Sprite);
+        var timeNode = item.getChildByName("timeNode");
+        var time = timeNode.getComponentInChildren(cc.Label);
+        var chatBg = item.getChildByName("chatBg").getComponent(cc.Sprite);
+        var chatBgLayout = chatBg.node.getComponent(cc.Layout);
+        var richtext = chatBg.node.getComponentInChildren(cc.RichText);
+        var data = this.data[idx];
+        avatarNode.active = chatBg.node.active = 3 != data.type;
+        timeNode.active = 3 == data.type;
+        var h = void 0;
+        var minH = 80;
+        var offset = 43;
+        switch (data.type) {
+         case 1:
+          avatarNode.x = -170;
+          avatar.spriteFrame = this.avatar1SF;
+          chatBg.spriteFrame = this.bubble1SF;
+          richtext.node.x = -108;
+          richtext.string = data.text;
+          chatBgLayout.updateLayout();
+          h = chatBg.node.y + chatBg.node.height + offset;
+          item.height = h < minH ? minH : h;
+          break;
+
+         case 2:
+          avatarNode.x = 170;
+          avatar.spriteFrame = this.avatar2SF;
+          chatBg.spriteFrame = this.bubble2SF;
+          richtext.node.x = -122;
+          richtext.string = data.text;
+          chatBgLayout.updateLayout();
+          h = chatBg.node.y + chatBg.node.height + offset;
+          item.height = h < minH ? minH : h;
+          break;
+
+         case 3:
+          time.string = data.text;
+          item.height = 60;
+        }
+      }
+    });
+    cc._RF.pop();
+  }, {
+    List: "List"
+  } ],
   TestLack: [ function(require, module, exports) {
     "use strict";
     cc._RF.push(module, "94cd9mzTXdKF4KEA1q+QJff", "TestLack");
@@ -1544,4 +1840,4 @@ window.__require = function e(t, n, r) {
   }, {
     List: "List"
   } ]
-}, {}, [ "List", "ListItem", "Main", "TestLack", "TestPage" ]);
+}, {}, [ "List", "ListItem", "Main", "TestBag", "TestCustomSize", "TestLack", "TestPage" ]);

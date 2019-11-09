@@ -18,9 +18,9 @@ body, canvas, div {
 /* Remove spin of input type number */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    /* display: none; <- Crashes Chrome on hover */
-    -webkit-appearance: none;
-    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
 
 body {
@@ -88,19 +88,17 @@ p.footer {
   width: 100%;
   height: 100%;
   background: #171717 url(./splash.png) no-repeat center;
-  background-size: 40%;
+  background-size: 45%;
 }
 
 .progress-bar {
-    background-color: #1a1a1a;
     position: absolute;
-    left: 25%;
+    left: 27.5%;
     top: 80%;
-    height: 15px;
-    padding: 5px;
-    width: 50%;
-    /*margin: 0 -175px;         */
-    border-radius: 5px;
+    height: 3px;
+    padding: 2px;
+    width: 45%;
+    border-radius: 7px;
     box-shadow: 0 1px 5px #000 inset, 0 1px 0 #444;           
 }
 
@@ -108,9 +106,8 @@ p.footer {
     display: block;
     height: 100%;
     border-radius: 3px;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
-    transition: width .4s ease-in-out; 
-    background-color: #34c2e3;    
+    transition: width .4s ease-in-out;
+    background-color: #3dc5de;
 }
 
 .stripes span {
