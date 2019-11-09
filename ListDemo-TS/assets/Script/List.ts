@@ -90,7 +90,7 @@ export default class List extends cc.Component {
         if (val != null)
             this._virtual = val;
         if (!CC_DEV && this._numItems != 0) {
-            this._onScrolling(null);
+            this._onScrolling();
         }
     }
     get virtual() {
@@ -239,7 +239,7 @@ export default class List extends cc.Component {
 
         if (t._virtual) {
             t._resizeContent();
-            t._onScrolling(null);
+            t._onScrolling();
             if (!t.frameByFrameRenderNum && t.slideMode == SlideType.PAGE)
                 t.curPageNum = t.nearestListId;
         } else {
@@ -366,6 +366,7 @@ export default class List extends cc.Component {
         t.node.on('scroll-began', t._onScrollBegan, t, true);
         t.node.on('scroll-ended', t._onScrollEnded, t, true);
         t.node.on('scrolling', t._onScrolling, t, true);
+        t.node.on(cc.Node.EventType.SIZE_CHANGED, t._onSizeChanged, t);
     }
     //卸载事件
     _unregisterEvent() {
@@ -376,6 +377,7 @@ export default class List extends cc.Component {
         t.node.off('scroll-began', t._onScrollBegan, t, true);
         t.node.off('scroll-ended', t._onScrollEnded, t, true);
         t.node.off('scrolling', t._onScrolling, t, true);
+        t.node.off(cc.Node.EventType.SIZE_CHANGED, t._onSizeChanged, t);
     }
     //初始化各种..
     _init() {
@@ -616,7 +618,7 @@ export default class List extends cc.Component {
     }
 
     //滚动进行时...
-    _onScrolling(ev: cc.Event) {
+    _onScrolling(ev: cc.Event = null) {
         if (this.frameCount == null)
             this.frameCount = this._updateRate;
         if (!this._forceUpdate && (ev && ev.type != 'scroll-ended') && this.frameCount > 0) {
@@ -1060,7 +1062,7 @@ export default class List extends cc.Component {
                 ));
             }
         }
-        t._onScrolling(null);
+        t._onScrolling();
 
         if (t._slideMode == SlideType.ADHERING &&
             !t.adhering
@@ -1123,6 +1125,11 @@ export default class List extends cc.Component {
             }
         }
         this._scrollItem = null;
+    }
+    //当尺寸改变
+    _onSizeChanged() {
+        if (this.checkInited(false))
+            this._onScrolling();
     }
 
     _pageAdhere() {
@@ -1353,7 +1360,7 @@ export default class List extends cc.Component {
             }
         }
         t._forceUpdate = true;
-        t._onScrolling(null);
+        t._onScrolling();
     }
     /**
      * 更新指定的Item
@@ -1632,7 +1639,7 @@ export default class List extends cc.Component {
             }, timeInSecond + .1);
 
             if (timeInSecond <= 0) {
-                t._onScrolling(null);
+                t._onScrolling();
             }
         }
     }

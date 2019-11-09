@@ -309,6 +309,7 @@ cc.Class({
         t.node.on('scroll-began', t._onScrollBegan, t, true);
         t.node.on('scroll-ended', t._onScrollEnded, t, true);
         t.node.on('scrolling', t._onScrolling, t, true);
+        t.node.on(cc.Node.EventType.SIZE_CHANGED, t._onSizeChanged, t);
     },
     //卸载事件
     _unregisterEvent() {
@@ -319,6 +320,7 @@ cc.Class({
         t.node.off('scroll-began', t._onScrollBegan, t, true);
         t.node.off('scroll-ended', t._onScrollEnded, t, true);
         t.node.off('scrolling', t._onScrolling, t, true);
+        t.node.off(cc.Node.EventType.SIZE_CHANGED, t._onSizeChanged, t);
     },
     //初始化各种..
     _init() {
@@ -1068,7 +1070,11 @@ cc.Class({
         }
         this._scrollItem = null;
     },
-
+    //当尺寸改变
+    _onSizeChanged() {
+        if (this.checkInited(false))
+            this._onScrolling();
+    },
     _pageAdhere() {
         let t = this;
         if (t.elasticTop > 0 || t.elasticRight > 0 || t.elasticBottom > 0 || t.elasticLeft > 0)
