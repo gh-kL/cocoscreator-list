@@ -5,7 +5,8 @@
 在线DEMO：
 
 > https://gh-kl.github.io/cocoscreator-list/web-mobile/index.html
-
+> https://gh-kl.github.io/cocoscreator-list/web-mobile-page/index.html
+> https://gh-kl.github.io/cocoscreator-list/web-mobile-bag/index.html
 > https://gh-kl.github.io/cocoscreator-list/web-mobile-chat-list/index.html
 
 Cocos论坛帖子链接：
@@ -22,7 +23,7 @@ Cocos论坛帖子链接：
 * 动态删除Item项。
 * ...
 
-Last test by ccc_v2.1.2
+Last test by ccc_v2.2.0
 
 ## 使用说明
 
@@ -54,9 +55,14 @@ Last test by ccc_v2.1.2
 
 ### 2019/11/9
 
+示例项目升级至ccc_v2.2.0。
+
 * 修复`List`销毁时，`对象池中的Item`未执行销毁的BUG。
 * 修复`PAGE`模式下，滑动翻页可能会跳页异常的BUG。
 * 修复`模板Item`可能被误销毁的BUG。
+
+> * 新版本的ccc的cc.ScrollView，有个BUG，就是滑动时，惯性滚动到边缘没有回弹效果，这不是本组件的问题，等待官方更新修复。
+> * 这个组件我也是佛系更新，只要官方的新版本不魔改，一般来说都是向上兼容的。
 
 ### 2019/9/27
 
