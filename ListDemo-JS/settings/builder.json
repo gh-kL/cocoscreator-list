@@ -2,6 +2,7 @@
   "android-instant": {
     "REMOTE_SERVER_ROOT": "",
     "host": "",
+    "packageName": "org.cocos2d.ListDemo",
     "pathPattern": "",
     "recordPath": "",
     "scheme": "https",
@@ -15,7 +16,11 @@
     "subContext": ""
   },
   "encryptJs": true,
-  "excludeScenes": [],
+  "excludeScenes": [
+    "f69f7e79-f825-4f22-a409-71ca9fc1592f",
+    "b0376683-63b8-48e1-b23b-77af85567dbc",
+    "bf49412c-95a6-45e0-82af-da73fdebe821"
+  ],
   "fb-instant-games": {},
   "includeSDKBox": false,
   "inlineSpriteFrames": true,
@@ -35,9 +40,9 @@
     "orientation": "portrait",
     "zip": false
   },
-  "startScene": "b0376683-63b8-48e1-b23b-77af85567dbc",
-  "title": "ListDemo_TestCustomSize",
-  "webOrientation": "auto",
+  "startScene": "3156d91c-e3d5-48ba-9db7-b7a795c72578",
+  "title": "ListDemo_Main",
+  "webOrientation": "landscape",
   "wechatgame": {
     "REMOTE_SERVER_ROOT": "",
     "appid": "wx6ac3f5090a6b99c5",
@@ -46,5 +51,15 @@
     "subContext": ""
   },
   "xxteaKey": "c284d5cb-1447-4a",
-  "zipCompressJs": true
+  "zipCompressJs": true,
+  "android": {
+    "packageName": "org.cocos2d.ListDemo"
+  },
+  "ios": {
+    "packageName": "org.cocos2d.ListDemo"
+  },
+  "mac": {
+    "packageName": "org.cocos2d.ListDemo"
+  },
+  "win32": {}
 }

@@ -10,8 +10,8 @@ const TemplateType = cc.Enum({
 });
 const SlideType = cc.Enum({
     'NORMAL': 1, //普通
-    'ADHERING': 2, //粘附效果，将强制关闭滚动惯性
-    'PAGE': 3,   //页面，将强制关闭滚动惯性
+    'ADHERING': 2, //粘附模式，将强制关闭滚动惯性
+    'PAGE': 3,   //页面模式，将强制关闭滚动惯性
 });
 const SelectedType = cc.Enum({
     'NONE': 0,
@@ -243,6 +243,8 @@ cc.Class({
                 if (t._virtual) {
                     t._resizeContent();
                     t._onScrolling();
+                    if (!t.frameByFrameRenderNum && t.slideMode == SlideType.PAGE)
+                        t.curPageNum = t.nearestListId;
                 } else {
                     let layout = t.content.getComponent(cc.Layout);
                     if (layout) {
@@ -276,22 +278,32 @@ cc.Class({
         this._init();
     },
 
-    onEnable() {
-        if (!CC_EDITOR) {
-            this._registerEvent();
+    onDestroy() {
+        if (this._itemTmp)
+            this._itemTmp.destroy();
+        // let total = this._pool.size();
+        while (this._pool.size()) {
+            let node = this._pool.get();
+            node.destroy();
         }
+        // if (total)
+        //     cc.log('-----------------' + this.node.name + '<List> destroy node total num. =>', total);
+    },
+
+    onEnable() {
+        // if (!CC_EDITOR) 
+        this._registerEvent();
         this._init();
     },
 
     onDisable() {
-        if (!CC_EDITOR) {
-            this._unregisterEvent();
-        }
+        // if (!CC_EDITOR) 
+        this._unregisterEvent();
     },
     //注册事件
     _registerEvent() {
         let t = this;
-        t.node.on(cc.Node.EventType.TOUCH_START, this._onTouchStart, this, true);
+        t.node.on(cc.Node.EventType.TOUCH_START, t._onTouchStart, t, true);
         t.node.on('touch-up', t._onTouchUp, t, true);
         t.node.on(cc.Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
         t.node.on('scroll-began', t._onScrollBegan, t, true);
@@ -301,7 +313,7 @@ cc.Class({
     //卸载事件
     _unregisterEvent() {
         let t = this;
-        t.node.off(cc.Node.EventType.TOUCH_START, this._onTouchStart, this, true);
+        t.node.off(cc.Node.EventType.TOUCH_START, t._onTouchStart, t, true);
         t.node.off('touch-up', t._onTouchUp, t, true);
         t.node.off(cc.Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
         t.node.off('scroll-began', t._onScrollBegan, t, true);
@@ -315,17 +327,12 @@ cc.Class({
             return;
 
         t._scrollView = t.node.getComponent(cc.ScrollView);
-        if (!t._scrollView) {
-            cc.error(t.node.name + ' no assembly cc.ScrollView!');
-            return;
-        }
+
         t.content = t._scrollView.content;
         if (!t.content) {
             cc.error(t.node.name + "'s cc.ScrollView unset content!");
             return;
         }
-
-        t.initContentAnchor = t.content.getAnchorPoint();
 
         t._layout = t.content.getComponent(cc.Layout);
 
@@ -346,7 +353,7 @@ cc.Class({
         t._verticalDir = t._layout.verticalDirection; //垂直排列子节点的方向
         t._horizontalDir = t._layout.horizontalDirection; //水平排列子节点的方向
 
-        t.setTemplateItem(t.templateType == TemplateType.PREFAB ? t.tmpPrefab.data : t.tmpNode);
+        t.setTemplateItem(t.templateType == TemplateType.PREFAB ? cc.instantiate(t.tmpPrefab) : t.tmpNode);
 
         if (t._slideMode == SlideType.ADHERING || t._slideMode == SlideType.PAGE)//特定的滑动模式需要关闭惯性
             t._scrollView.inertia = false;
@@ -475,9 +482,9 @@ cc.Class({
      * @returns
      */
     checkInited(printLog) {
-        let pL = printLog ? printLog : true;
+        printLog = printLog == null ? true : printLog;
         if (!this._inited) {
-            if (pL) {
+            if (printLog) {
                 cc.error('List initialization not completed!');
             }
             return false;
@@ -928,6 +935,36 @@ cc.Class({
             }
         }
     },
+    //计算已存在的Item的位置
+    _calcExistItemPos(id) {
+        let item = this.getItemByListId(id);
+        if (!item)
+            return null;
+        let data = {
+            id: id,
+            x: item.x,
+            y: item.y,
+        }
+        if (this._sizeType) {
+            data.top = item.y + (item.height * (1 - item.anchorY));
+            data.bottom = item.y - (item.height * item.anchorY);
+        } else {
+            data.left = item.x - (item.width * item.anchorX);
+            data.right = item.x + (item.width * (1 - item.anchorX));
+        }
+        return data;
+    },
+    //获取Item位置
+    getItemPos(id) {
+        if (this._virtual)
+            return this._calcItemPos(id);
+        else {
+            if (this.frameByFrameRenderNum)
+                return this._calcItemPos(id);
+            else
+                return this._calcExistItemPos(id);
+        }
+    },
     //获取固定尺寸
     _getFixedSize(listId) {
         if (!this.customSize)
@@ -989,7 +1026,7 @@ cc.Class({
         let isMe = ev.eventPhase === cc.Event.AT_TARGET && ev.target === this.node;
         if (!isMe) {
             let itemNode = ev.target;
-            while (itemNode._listId == null || !itemNode.parent)
+            while (itemNode._listId == null && itemNode.parent)
                 itemNode = itemNode.parent;
             this._scrollItem = itemNode._listId != null ? itemNode : ev.target;;
         }
@@ -1065,6 +1102,8 @@ cc.Class({
     //粘附
     adhere() {
         let t = this;
+        if (!t.checkInited())
+            return;
         if (t.elasticTop > 0 || t.elasticRight > 0 || t.elasticBottom > 0 || t.elasticLeft > 0)
             return;
         t.adhering = true;
@@ -1098,6 +1137,8 @@ cc.Class({
                     this._delRedundantItem();
                     this._forceUpdate = false;
                     this._calcNearestItem();
+                    if (this.slideMode == SlideType.PAGE)
+                        this.curPageNum = this.nearestListId;
                 }
             } else {
                 this._updateCounter += this.frameByFrameRenderNum;
@@ -1112,6 +1153,8 @@ cc.Class({
             } else {
                 this._updateDone = true;
                 this._calcNearestItem();
+                if (this.slideMode == SlideType.PAGE)
+                    this.curPageNum = this.nearestListId;
             }
         }
     },
@@ -1221,6 +1264,8 @@ cc.Class({
      */
     setMultSelected(args, bool) {
         let t = this;
+        if (!t.checkInited())
+            return;
         if (!Array.isArray(args)) {
             args = [args];
         }
@@ -1255,6 +1300,8 @@ cc.Class({
      * @returns
      */
     updateItem(args) {
+        if (!this.checkInited())
+            return;
         if (!Array.isArray(args)) {
             args = [args];
         }
@@ -1270,6 +1317,8 @@ cc.Class({
      * 更新全部
      */
     updateAll() {
+        if (!this.checkInited())
+            return;
         this.numItems = this.numItems;
     },
     /**
@@ -1341,6 +1390,10 @@ cc.Class({
      */
     aniDelItem(listId, callFunc, aniType) {
         let t = this;
+
+        if (!t.checkInited())
+            return;
+
         let item = t.getItemByListId(listId);
         if (t._aniDelRuning || !t._virtual) {
             return;
@@ -1447,7 +1500,11 @@ cc.Class({
             listId = 0;
         else if (listId >= t._numItems)
             listId = t._numItems - 1;
-        let pos = t._virtual ? t._calcItemPos(listId) : t._calcExistItemPos(listId);
+
+        if (!t._virtual && t._layout && t._layout.enabled)
+            t._layout.updateLayout();
+
+        let pos = t.getItemPos(listId);
         let targetX, targetY;
 
         switch (t._alignCalcType) {
@@ -1523,20 +1580,21 @@ cc.Class({
      * 计算当前滚动窗最近的Item
      */
     _calcNearestItem() {
-        this.nearestListId = null;
+        let t = this;
+        t.nearestListId = null;
         let data, center;
 
-        if (this._virtual)
-            this._calcViewPos();
+        if (t._virtual)
+            t._calcViewPos();
 
         let vTop, vRight, vBottom, vLeft;
-        vTop = this.viewTop;
-        vRight = this.viewRight;
-        vBottom = this.viewBottom;
-        vLeft = this.viewLeft;
+        vTop = t.viewTop;
+        vRight = t.viewRight;
+        vBottom = t.viewBottom;
+        vLeft = t.viewLeft;
 
         let breakFor = false;
-        for (let n = 0; n < this.content.childrenCount && !breakFor; n += this._colLineNum) {
+        for (let n = 0; n < t.content.childrenCount && !breakFor; n += t._colLineNum) {
             data = this._virtual ? this.displayData[n] : this._calcExistItemPos(n);
             center = this._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
             switch (this._alignCalcType) {
@@ -1576,56 +1634,41 @@ cc.Class({
         }
         //判断最后一个Item。。。（哎，这些判断真心恶心，判断了前面的还要判断最后一个。。。一开始呢，就只有一个布局（单列布局），那时候代码才三百行，后来就想着完善啊，艹..这坑真深，现在这行数都一千五了= =||）
         data = this._virtual ? this.displayData[this.actualNumItems - 1] : this._calcExistItemPos(this._numItems - 1);
-        if (data && data.id == this._numItems - 1) {
-            center = this._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
-            switch (this._alignCalcType) {
+        if (data && data.id == t._numItems - 1) {
+            center = t._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
+            switch (t._alignCalcType) {
                 case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
                     if (vRight > center)
-                        this.nearestListId = data.id;
+                        t.nearestListId = data.id;
                     break;
                 case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
                     if (vLeft < center)
-                        this.nearestListId = data.id;
+                        t.nearestListId = data.id;
                     break;
                 case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
                     if (vBottom < center)
-                        this.nearestListId = data.id;
+                        t.nearestListId = data.id;
                     break;
                 case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
                     if (vTop > center)
-                        this.nearestListId = data.id;
+                        t.nearestListId = data.id;
                     break;
             }
         }
-        // cc.log('this.nearestListId =', this.nearestListId);
-    },
-    //计算已存在的Item的位置
-    _calcExistItemPos(id) {
-        let item = this.getItemByListId(id);
-        if (!item)
-            return null;
-        let data = {
-            id: id,
-            x: item.x,
-            y: item.y,
-        }
-        if (this._sizeType) {
-            data.top = item.y + (item.height * (1 - item.anchorY));
-            data.bottom = item.y - (item.height * item.anchorY);
-        } else {
-            data.left = item.x - (item.width * item.anchorX);
-            data.right = item.x + (item.width * (1 - item.anchorX));
-        }
-        return data;
+        // cc.log('t.nearestListId =', t.nearestListId);
     },
     //上一页
     prePage(timeInSecond) {
+        if (!this.checkInited())
+            return;
         if (timeInSecond == null)
             timeInSecond = .5;
         this.skipPage(this.curPageNum - 1, timeInSecond);
     },
     //下一页
     nextPage(timeInSecond) {
+        if (!this.checkInited())
+            return;
         if (timeInSecond == null)
             timeInSecond = .5;
         this.skipPage(this.curPageNum + 1, timeInSecond);
@@ -1633,6 +1676,8 @@ cc.Class({
     //跳转到第几页
     skipPage(pageNum, timeInSecond) {
         let t = this;
+        if (!t.checkInited())
+            return;
         if (t._slideMode != SlideType.PAGE)
             return cc.error('This function is not allowed to be called, Must SlideMode = PAGE!');
         if (pageNum < 0 || pageNum >= t._numItems)
@@ -1648,6 +1693,8 @@ cc.Class({
     //计算 CustomSize
     calcCustomSize(numItems) {
         let t = this;
+        if (!t.checkInited())
+            return;
         if (!t._itemTmp)
             return cc.error('Unset template item!');
         if (!t.renderEvent)

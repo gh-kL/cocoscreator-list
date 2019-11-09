@@ -84,41 +84,43 @@ cc.Class({
         },
         _btnCom: null,
         btnCom: {
+            visible: false,
             get: function () {
                 if (!this._btnCom)
                     this._btnCom = this.node.getComponent(cc.Button);
                 return this._btnCom;
             }
-        }
+        },
     },
 
     onLoad() {
-        //强行把文本组件转换给title，方便使用
+        //强行把文字组件转换给title...方便使用
         if (this.title) {
             let com = this.title.getComponent(cc.Label);
             if (!com)
                 com = this.title.getComponent(cc.RichText);
-            if (com)
-                this.title = com;
+            this.title = com;
         }
-        //如果没有按钮组件，selectedMode无效
+        //没有按钮组件的话，selectedFlag无效
         if (!this.btnCom)
             this.selectedMode == SelectedType.NONE;
         //有选择模式时，保存相应的东西
         if (this.selectedMode == SelectedType.SWITCH) {
             let com = this.selectedFlag.getComponent(cc.Sprite);
+            // if (!com)
+            //     cc.error('SelectedMode为"SWITCH"时，selectedFlag必须要有cc.Sprite组件！');
             this.selectedFlag = com;
             this._unselectedSpriteFrame = com.spriteFrame;
         }
     },
 
     _registerEvent() {
-        if (this._btnCom && this._list.selectedMode > 0 && !this.eventReg) {
+        if (this.btnCom && this._list.selectedMode > 0 && !this.eventReg) {
             let eh = new cc.Component.EventHandler();
             eh.target = this.node;
             eh.component = 'ListItem';
             eh.handler = 'onClickThis';
-            this._btnCom.clickEvents.unshift(eh);
+            this.btnCom.clickEvents.unshift(eh);
             this.eventReg = true;
         }
     },

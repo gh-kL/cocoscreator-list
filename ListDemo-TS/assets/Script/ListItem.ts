@@ -84,7 +84,7 @@ export default class ListItem extends cc.Component {
     public listId: number;
 
     onLoad() {
-        //如果没有按钮组件，selectedMode无效
+        //没有按钮组件的话，selectedFlag无效
         if (!this.btnCom)
             this.selectedMode == SelectedType.NONE;
         //有选择模式时，保存相应的东西
