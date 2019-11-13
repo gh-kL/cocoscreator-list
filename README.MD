@@ -25,7 +25,7 @@ Cocos论坛帖子链接：
 
 Last test by ccc_v2.2.0
 
-联系我：klk0@qq.com
+我的邮箱：klk0@qq.com
 
 ## 使用说明
 
