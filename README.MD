@@ -25,6 +25,8 @@ Cocos论坛帖子链接：
 
 Last test by ccc_v2.2.0
 
+联系我：klk0@qq.com
+
 ## 使用说明
 
 1. 在编辑器中，创建一个**ScrollView**（也就是**ScrollView->Mask->Content**这样层级结构的节点！）。
