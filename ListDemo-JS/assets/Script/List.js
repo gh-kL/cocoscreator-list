@@ -279,7 +279,7 @@ cc.Class({
     },
 
     onDestroy() {
-        if (this._itemTmp)
+        if (this._itemTmp && this._itemTmp.isValid)
             this._itemTmp.destroy();
         // let total = this._pool.size();
         while (this._pool.size()) {
@@ -291,13 +291,13 @@ cc.Class({
     },
 
     onEnable() {
-        // if (!CC_EDITOR) 
+        // if (!CC_EDITOR)
         this._registerEvent();
         this._init();
     },
 
     onDisable() {
-        // if (!CC_EDITOR) 
+        // if (!CC_EDITOR)
         this._unregisterEvent();
     },
     //注册事件
