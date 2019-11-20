@@ -53,6 +53,10 @@ Last test by ccc_v2.2.0
 
 ## 更新日志
 
+### 2019/11/21
+
+* 新增`LakeSlide` 属性。当该属性为 `true` ，Item数量不足以填满`Content`时，也可以滑动。（默认为`true`，与`LakeCenter`属性相斥）
+
 ### 2019/11/9
 
 示例项目升级至ccc_v2.2.0。
@@ -85,7 +89,7 @@ Last test by ccc_v2.2.0
 
 ### 2019/7/20
 
-* 新增 `LakeCenter` 属性。当该属性为 `true` ，Item数量过少时，会居中显示所有Item。（不支持 `GRID` 布局）
+* 新增 `LakeCenter` 属性。当该属性为 `true` ，Item数量不足以填满`Content`时，会居中显示所有Item。（不支持 `GRID` 布局）
 * 新增 `calcCustomSize` 接口，方便开发者计算 `CustomSize` 。（如果模板Item的结构较复杂，建议还是在外部自行计算）
 * 修复反方向布局，Item数量过少时，会向正方向对齐的BUG。
 

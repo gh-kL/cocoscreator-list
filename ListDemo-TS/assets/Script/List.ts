@@ -4,7 +4,6 @@
  * @doc 列表组件.
  * @end
  ******************************************/
-
 const { ccclass, property, disallowMultiple, menu, executionOrder, requireComponent } = cc._decorator;
 
 import ListItem from './ListItem';
@@ -97,13 +96,23 @@ export default class List extends cc.Component {
         return this._virtual;
     }
     @property({
-        tooltip: CC_DEV && 'Item数量过少时是否居中所有Item（不支持Grid布局）',
+        tooltip: CC_DEV && 'Item数量不足以填满Content时，是否居中显示Item（不支持Grid布局）',
         visible() { return this.virtual; }
     })
     public lackCenter: boolean = false;
+    @property({
+        tooltip: CC_DEV && 'Item数量不足以填满Content时，是否可滑动',
+        visible() {
+            let val: boolean = this.virtual && !this.lackCenter;
+            if (!val)
+                this.lackSlide = false;
+            return val;
+        }
+    })
+    public lackSlide: boolean = true;
     //刷新频率
     @property({ type: cc.Integer })
-    private _updateRate: number = 2;
+    private _updateRate: number = 0;
     @property({
         type: cc.Integer,
         range: [0, 6, 1],
@@ -323,7 +332,7 @@ export default class List extends cc.Component {
     private _beganPos: number;
     private _scrollPos: number;
 
-    private _lackSize: number;
+    private _lack: boolean;
     private _allItemSize: number;
     private _allItemSizeNoBorder: number;
 
@@ -594,26 +603,20 @@ export default class List extends cc.Component {
             layout.enabled = false;
 
         t._allItemSize = result;
+        t._lack = result < (t._sizeType ? t.node.height : t.node.width);
+        let slideOffset = ((!t._lack || !t.lackCenter) && t.lackSlide) ? 0 : .1;
 
-        let targetWH: number;
+        let targetWH = t._lack ? ((t._sizeType ? t.node.height : t.node.width) - slideOffset) : result;
+        if (targetWH < 0)
+            targetWH = 0;
+
         if (t._sizeType) {
-            //-0.1是为了避免content的size不会超出node.size 0.00000001这种情况
-            targetWH = result < t.node.height ? (t.node.height - .1) : result;
-            if (targetWH < 0)
-                targetWH = 0;
-            t._lackSize = t.lackCenter ? targetWH : null;
             t._allItemSizeNoBorder = t._allItemSize - t._topGap - t._bottomGap;
             t.content.height = targetWH;
         } else {
-            //-0.1是为了避免content的size不会超出node.size 0.00000001这种情况
-            targetWH = result < t.node.width ? (t.node.width - .1) : result;
-            if (targetWH < 0)
-                targetWH = 0;
-            t._lackSize = t.lackCenter ? targetWH : null;
             t._allItemSizeNoBorder = t._allItemSize - t._leftGap - t._rightGap;
             t.content.width = targetWH;
         }
-
         // cc.log('_resizeContent()  numItems =', this._numItems, '，content =', this.content);
     }
 
@@ -716,12 +719,12 @@ export default class List extends cc.Component {
                     curId = 0;
                 if (endId >= this._numItems)
                     endId = this._numItems - 1;
-                // cc.log(curId, endId);
                 for (; curId <= endId; curId++) {
                     this.displayData.push(this._calcItemPos(curId));
                 }
             }
             if (this.displayData.length <= 0 || !this._numItems) { //if none, delete all.
+                this._lastDisplayData = [];
                 this._delRedundantItem();
                 return;
             }
@@ -817,7 +820,7 @@ export default class List extends cc.Component {
                             width = this._itemSize.width;
                         }
                         right = left + width;
-                        if (this.lackCenter && this._lackSize >= 0) {
+                        if (this.lackCenter) {
                             let offset: number = (this.content.width / 2) - (this._allItemSizeNoBorder / 2);
                             left += offset;
                             right += offset;
@@ -841,7 +844,7 @@ export default class List extends cc.Component {
                             width = this._itemSize.width;
                         }
                         left = right - width;
-                        if (this.lackCenter && this._lackSize >= 0) {
+                        if (this.lackCenter) {
                             let offset: number = (this.content.width / 2) - (this._allItemSizeNoBorder / 2);
                             left -= offset;
                             right -= offset;
@@ -869,7 +872,7 @@ export default class List extends cc.Component {
                             height = this._itemSize.height;
                         }
                         bottom = top - height;
-                        if (this.lackCenter && this._lackSize >= 0) {
+                        if (this.lackCenter) {
                             let offset: number = (this.content.height / 2) - (this._allItemSizeNoBorder / 2);
                             top -= offset;
                             bottom -= offset;
@@ -893,7 +896,7 @@ export default class List extends cc.Component {
                             height = this._itemSize.height;
                         }
                         top = bottom + height;
-                        if (this.lackCenter && this._lackSize >= 0) {
+                        if (this.lackCenter) {
                             let offset: number = (this.content.height / 2) - (this._allItemSizeNoBorder / 2);
                             top += offset;
                             bottom += offset;

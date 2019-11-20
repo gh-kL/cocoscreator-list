@@ -108,12 +108,22 @@ cc.Class({
         },
         lackCenter: {
             default: false,
-            tooltip: CC_DEV && 'Item数量过少时是否居中所有Item（不支持Grid布局）',
+            tooltip: CC_DEV && 'Item数量不足以填满Content时，是否居中显示Item（不支持Grid布局）',
             visible: function () {
                 return this.virtual;
             }
         },
-        _updateRate: 2,
+        lackSlide: {
+            default: true,
+            tooltip: CC_DEV && 'Item数量不足以填满Content时，是否可滑动',
+            visible: function () {
+                let val = this.virtual && !this.lackCenter;
+                if (!val)
+                    this.lackSlide = false;
+                return val;
+            }
+        },
+        _updateRate: 0,
         updateRate: {
             type: cc.Integer,
             range: [0, 6, 1],
@@ -539,22 +549,17 @@ cc.Class({
             layout.enabled = false;
 
         t._allItemSize = result;
+        t._lack = result < (t._sizeType ? t.node.height : t.node.width);
+        let slideOffset = ((!t._lack || !t.lackCenter) && t.lackSlide) ? 0 : .1;
 
-        let targetWH;
+        let targetWH = t._lack ? ((t._sizeType ? t.node.height : t.node.width) - slideOffset) : result;
+        if (targetWH < 0)
+            targetWH = 0;
+
         if (t._sizeType) {
-            //-0.1是为了避免content的size不会超出node.size 0.00000001这种情况
-            targetWH = result < t.node.height ? (t.node.height - .1) : result;
-            if (targetWH < 0)
-                targetWH = 0;
-            t._lackSize = t.lackCenter ? targetWH : null;
             t._allItemSizeNoBorder = t._allItemSize - t._topGap - t._bottomGap;
             t.content.height = targetWH;
         } else {
-            //-0.1是为了避免content的size不会超出node.size 0.00000001这种情况
-            targetWH = result < t.node.width ? (t.node.width - .1) : result;
-            if (targetWH < 0)
-                targetWH = 0;
-            t._lackSize = t.lackCenter ? targetWH : null;
             t._allItemSizeNoBorder = t._allItemSize - t._leftGap - t._rightGap;
             t.content.width = targetWH;
         }
@@ -665,6 +670,7 @@ cc.Class({
                 }
             }
             if (this.displayData.length <= 0 || !this._numItems) { //if none, delete all.
+                this._lastDisplayData = [];
                 this._delRedundantItem();
                 return;
             }
@@ -760,7 +766,7 @@ cc.Class({
                             width = this._itemSize.width;
                         }
                         right = left + width;
-                        if (this.lackCenter && this._lackSize >= 0) {
+                        if (this.lackCenter) {
                             let offset = (this.content.width / 2) - (this._allItemSizeNoBorder / 2);
                             left += offset;
                             right += offset;
@@ -784,7 +790,7 @@ cc.Class({
                             width = this._itemSize.width;
                         }
                         left = right - width;
-                        if (this.lackCenter && this._lackSize >= 0) {
+                        if (this.lackCenter) {
                             let offset = (this.content.width / 2) - (this._allItemSizeNoBorder / 2);
                             left -= offset;
                             right -= offset;
@@ -813,7 +819,7 @@ cc.Class({
                             height = this._itemSize.height;
                         }
                         bottom = top - height;
-                        if (this.lackCenter && this._lackSize >= 0) {
+                        if (this.lackCenter) {
                             let offset = (this.content.height / 2) - (this._allItemSizeNoBorder / 2);
                             top -= offset;
                             bottom -= offset;
@@ -837,7 +843,7 @@ cc.Class({
                             height = this._itemSize.height;
                         }
                         top = bottom + height;
-                        if (this.lackCenter && this._lackSize >= 0) {
+                        if (this.lackCenter) {
                             let offset = (this.content.height / 2) - (this._allItemSizeNoBorder / 2);
                             top += offset;
                             bottom += offset;

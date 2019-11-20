@@ -180,7 +180,7 @@
       "array": [
         0,
         0,
-        290.9845275878906,
+        220.8364715576172,
         0,
         0,
         0,
@@ -979,6 +979,7 @@
     },
     "_virtual": true,
     "lackCenter": true,
+    "lackSlide": false,
     "_updateRate": 2,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -1760,6 +1761,7 @@
     },
     "_virtual": true,
     "lackCenter": true,
+    "lackSlide": false,
     "_updateRate": 2,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -1819,7 +1821,6 @@
     "listV": {
       "__id__": 41
     },
-    "listVasd": null,
     "_id": "0ac5Zxk51FBpbD+Gw2EQxK"
   }
 ]

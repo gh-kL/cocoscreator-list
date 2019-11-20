@@ -192,7 +192,7 @@
       "array": [
         0,
         0,
-        220.8364715576172,
+        385.66455078125,
         0,
         0,
         0,
@@ -1152,6 +1152,7 @@
     },
     "_virtual": true,
     "lackCenter": false,
+    "lackSlide": true,
     "_updateRate": 0,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -2060,6 +2061,7 @@
     },
     "_virtual": true,
     "lackCenter": false,
+    "lackSlide": true,
     "_updateRate": 0,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -2809,6 +2811,7 @@
     },
     "_virtual": true,
     "lackCenter": false,
+    "lackSlide": true,
     "_updateRate": 0,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -3558,6 +3561,7 @@
     },
     "_virtual": true,
     "lackCenter": false,
+    "lackSlide": true,
     "_updateRate": 0,
     "frameByFrameRenderNum": 0,
     "renderEvent": {

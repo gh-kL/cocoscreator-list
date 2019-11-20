@@ -201,7 +201,7 @@
       "array": [
         0,
         0,
-        220.8364715576172,
+        514.784423828125,
         0,
         0,
         0,
@@ -1161,6 +1161,7 @@
     "pageChangeEvent": null,
     "_virtual": true,
     "lackCenter": false,
+    "lackSlide": true,
     "_updateRate": 0,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -2050,6 +2051,7 @@
     "pageChangeEvent": null,
     "_virtual": true,
     "lackCenter": false,
+    "lackSlide": true,
     "_updateRate": 0,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -2792,6 +2794,7 @@
     "pageChangeEvent": null,
     "_virtual": true,
     "lackCenter": false,
+    "lackSlide": true,
     "_updateRate": 0,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
@@ -3534,6 +3537,7 @@
     "pageChangeEvent": null,
     "_virtual": true,
     "lackCenter": false,
+    "lackSlide": true,
     "_updateRate": 0,
     "frameByFrameRenderNum": 0,
     "renderEvent": {
