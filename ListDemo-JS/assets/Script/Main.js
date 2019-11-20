@@ -114,8 +114,8 @@ cc.Class({
                     17: 1000,
                 };
                 t.listV.customSize = heightData;
-                //设置了customSize后，要刷新（也就是重新设置numItems）
-                t.listV.numItems = t.data.length;
+                //设置了customSize后，要刷新
+                t.listV.updateAll();
                 break;
             case 'btn5':
                 //key=Id，val=Size
@@ -129,8 +129,8 @@ cc.Class({
                     15: 160,
                 };
                 t.listH.customSize = widthData;
-                //设置了customSize后，要刷新（也就是重新设置numItems）
-                t.listH.numItems = t.data.length;
+                //设置了customSize后，要刷新
+                t.listH.updateAll();
                 break;
             case 'btn6':
                 t.listV.scrollTo(parseInt(t.input.string), .5);

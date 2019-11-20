@@ -4,8 +4,6 @@
  * @doc 列表Item组件.
  * 说明：
  *      1、此组件须配合List组件使用。（配套的配套的..）
- * 注意：
- *      1、List设置了选择模式的话，要在本组件的节点上添加按钮组件，否则程序会自动取消List的选择模式。
  * @end
  ******************************************/
 const SelectedType = cc.Enum({
@@ -18,7 +16,8 @@ cc.Class({
     editor: {
         disallowMultiple: false,
         menu: '自定义组件/List Item',
-        executionOrder: -5001,  //先于List
+        requireComponent: cc.Button,    //ListItem必须配合cc.Button组件或是继承自cc.Button的组件使用。
+        executionOrder: -5001,          //先于List
     },
 
     extends: cc.Component,
@@ -116,13 +115,26 @@ cc.Class({
 
     _registerEvent() {
         if (this.btnCom && this._list.selectedMode > 0 && !this.eventReg) {
-            let eh = new cc.Component.EventHandler();
-            eh.target = this.node;
-            eh.component = 'ListItem';
-            eh.handler = 'onClickThis';
-            this.btnCom.clickEvents.unshift(eh);
+            this.btnCom.clickEvents.unshift(this.createEvt(this, 'onClickThis'));
             this.eventReg = true;
         }
+    },
+    /**
+     * 创建事件
+     * @param {cc.Component} component 组件脚本
+     * @param {string} handlerName 触发函数名称
+     * @param {cc.Node} node 组件所在node（不传的情况下取component.node）
+     * @returns cc.Component.EventHandler
+     */
+    createEvt(component, handlerName, node) {
+        if (!component.isValid)
+            return;//有些异步加载的，节点以及销毁了。
+        component.comName = component.comName || component.name.match(/\<(.*?)\>/g).pop().replace(/\<|>/g, '');
+        let evt = new cc.Component.EventHandler();
+        evt.target = node || component.node;
+        evt.component = component.comName;
+        evt.handler = handlerName;
+        return evt;
     },
 
     showAni(aniType, callFunc, del) {

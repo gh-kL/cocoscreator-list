@@ -25,6 +25,8 @@ Cocos论坛帖子链接：
 
 Last test by ccc_v2.2.0
 
+我的邮箱：klk0@qq.com
+
 ## 使用说明
 
 1. 在编辑器中，创建一个**ScrollView**（也就是**ScrollView->Mask->Content**这样层级结构的节点！）。
@@ -57,6 +59,10 @@ Last test by ccc_v2.2.0
 
 * 新增`LakeSlide` 属性。当该属性为 `true` ，Item数量不足以填满`Content`时，也可以滑动。（默认为`true`，与`LakeCenter`属性相斥）
 
+### 2019/11/18
+
+* 修复`ListItem`可能会丢失事件的BUG。
+
 ### 2019/11/9
 
 示例项目升级至ccc_v2.2.0。
@@ -66,7 +72,7 @@ Last test by ccc_v2.2.0
 * 修复`模板Item`可能被误销毁的BUG。
 * 修复当`List`节点的`Size`改变时，`List`未刷新的BUG。
 
-> * 新版本的ccc的cc.ScrollView，有个BUG，就是滑动时，惯性滚动到边缘没有回弹效果，这不是本组件的问题，等待官方更新修复。
+> * ccc_v2.2.0的cc.ScrollView有个BUG，就是滑动时，惯性滚动到边缘没有回弹效果，这不是本组件的问题，等待官方更新修复。
 > * 这个组件我也是佛系更新，只要官方的新版本不魔改，一般来说都是向上兼容的。
 
 ### 2019/9/27

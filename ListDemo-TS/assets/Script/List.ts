@@ -345,7 +345,7 @@ export default class List extends cc.Component {
     }
 
     onDestroy() {
-        if (this._itemTmp)
+        if (this._itemTmp && this._itemTmp.isValid)
             this._itemTmp.destroy();
         // let total = this._pool.size();
         while (this._pool.size()) {

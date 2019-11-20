@@ -4,11 +4,9 @@
  * @doc 列表Item组件.
  * 说明：
  *      1、此组件须配合List组件使用。（配套的配套的..）
- * 注意：
- *      1、List设置了选择模式的话，要在本组件的节点上添加按钮组件，否则程序会自动取消List的选择模式。
  * @end
  ******************************************/
-const { ccclass, property, disallowMultiple, menu, executionOrder } = cc._decorator;
+const { ccclass, property, disallowMultiple, menu, requireComponent, executionOrder } = cc._decorator;
 
 import List from './List';
 
@@ -21,7 +19,8 @@ enum SelectedType {
 @ccclass
 @disallowMultiple()
 @menu('自定义组件/List Item')
-@executionOrder(-5001)//先于List
+@requireComponent(cc.Button)    //ListItem必须配合cc.Button组件或是继承自cc.Button的组件使用。
+@executionOrder(-5001)          //先于List
 export default class ListItem extends cc.Component {
     //图标
     @property({ type: cc.Sprite, tooltip: CC_DEV && '图标' })
@@ -95,14 +94,27 @@ export default class ListItem extends cc.Component {
     }
 
     _registerEvent() {
-        if (this._btnCom && this.list.selectedMode > 0 && !this._eventReg) {
-            let eh: cc.Component.EventHandler = new cc.Component.EventHandler();
-            eh.target = this.node;
-            eh.component = 'ListItem';
-            eh.handler = 'onClickThis';
-            this._btnCom.clickEvents.unshift(eh);
+        if (this.btnCom && this.list.selectedMode > 0 && !this._eventReg) {
+            this.btnCom.clickEvents.unshift(this.createEvt(this, 'onClickThis'));
             this._eventReg = true;
         }
+    }
+    /**
+     * 创建事件
+     * @param {cc.Component} component 组件脚本
+     * @param {string} handlerName 触发函数名称
+     * @param {cc.Node} node 组件所在node（不传的情况下取component.node）
+     * @returns cc.Component.EventHandler
+     */
+    createEvt(component: cc.Component, handlerName: string, node: cc.Node = null) {
+        if (!component.isValid)
+            return;//有些异步加载的，节点以及销毁了。
+        component['comName'] = component['comName'] || component.name.match(/\<(.*?)\>/g).pop().replace(/\<|>/g, '');
+        let evt = new cc.Component.EventHandler();
+        evt.target = node || component.node;
+        evt.component = component['comName'];
+        evt.handler = handlerName;
+        return evt;
     }
 
     showAni(aniType: number, callFunc: Function, del: boolean) {
