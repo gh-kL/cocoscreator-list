@@ -57,7 +57,7 @@ Last test by ccc_v2.2.0
 
 ### 2019/11/21
 
-* 新增`LakeSlide` 属性。当该属性为 `true` ，Item数量不足以填满`Content`时，也可以滑动。（默认为`true`，与`LakeCenter`属性相斥）
+* 新增`LakeSlide` 属性。当该属性为 `true` ，Item数量不足以填满`Content`时，也可以滑动。（默认为`false`，与`LakeCenter`属性相斥）
 
 ### 2019/11/18
 
