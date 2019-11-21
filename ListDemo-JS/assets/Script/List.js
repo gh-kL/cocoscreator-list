@@ -114,7 +114,7 @@ cc.Class({
             }
         },
         lackSlide: {
-            default: true,
+            default: false,
             tooltip: CC_DEV && 'Item数量不足以填满Content时，是否可滑动',
             visible: function () {
                 let val = this.virtual && !this.lackCenter;
