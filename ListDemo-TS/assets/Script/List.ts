@@ -109,7 +109,7 @@ export default class List extends cc.Component {
             return val;
         }
     })
-    public lackSlide: boolean = true;
+    public lackSlide: boolean = false;
     //刷新频率
     @property({ type: cc.Integer })
     private _updateRate: number = 0;
