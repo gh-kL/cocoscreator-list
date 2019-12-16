@@ -40,7 +40,7 @@
     },
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float64Array",
+      "ctor": "Float32Array",
       "array": [
         0,
         0,
@@ -105,7 +105,7 @@
     },
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float64Array",
+      "ctor": "Float32Array",
       "array": [
         640,
         360,
@@ -167,7 +167,7 @@
     },
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float64Array",
+      "ctor": "Float32Array",
       "array": [
         0,
         0,
@@ -277,7 +277,7 @@
     },
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float64Array",
+      "ctor": "Float32Array",
       "array": [
         -635,
         0,
@@ -346,7 +346,7 @@
     },
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float64Array",
+      "ctor": "Float32Array",
       "array": [
         0,
         0,
@@ -415,7 +415,7 @@
     },
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float64Array",
+      "ctor": "Float32Array",
       "array": [
         0,
         0,
@@ -487,7 +487,7 @@
     },
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float64Array",
+      "ctor": "Float32Array",
       "array": [
         55,
         0,
@@ -552,7 +552,7 @@
     },
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float64Array",
+      "ctor": "Float32Array",
       "array": [
         0,
         17.972000122070312,
@@ -945,6 +945,7 @@
     "pageDistance": 0.3,
     "pageChangeEvent": null,
     "_virtual": true,
+    "cyclic": false,
     "lackCenter": false,
     "lackSlide": true,
     "_updateRate": 0,

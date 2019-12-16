@@ -95,11 +95,24 @@ export default class List extends cc.Component {
     get virtual() {
         return this._virtual;
     }
+    //是否为循环列表
+    @property({
+        tooltip: CC_DEV && '是否为循环列表',
+        visible() {
+            let val: boolean = this.virtual && this.slideMode == SlideType.NORMAL;
+            if (!val)
+                this.cyclic = false;
+            return val;
+        }
+    })
+    public cyclic: boolean = false;
+    //缺省居中
     @property({
         tooltip: CC_DEV && 'Item数量不足以填满Content时，是否居中显示Item（不支持Grid布局）',
         visible() { return this.virtual; }
     })
     public lackCenter: boolean = false;
+    //缺省可滑动
     @property({
         tooltip: CC_DEV && 'Item数量不足以填满Content时，是否可滑动',
         visible() {
@@ -228,9 +241,14 @@ export default class List extends cc.Component {
     private _alignCalcType: number;
     public content: cc.Node;
     private firstListId: number;
-    public actualNumItems: number;
+    public displayItemNum: number;
     private _updateDone: boolean = true;
-    private _updateCounter;
+    private _updateCounter: number;
+    public _actualNumItems: number;
+    private _cyclicNum: number;
+    private _cyclicPos1: number;
+    private _cyclicPos2: number;
+    //列表数量
     @property({
         serializable: false
     })
@@ -243,11 +261,14 @@ export default class List extends cc.Component {
             cc.error('numItems set the wrong::', val);
             return;
         }
-        t._numItems = val;
+        t._actualNumItems = t._numItems = val;
         t._forceUpdate = true;
 
         if (t._virtual) {
             t._resizeContent();
+            if (t.cyclic) {
+                t._numItems = t._cyclicNum * t._numItems;
+            }
             t._onScrolling();
             if (!t.frameByFrameRenderNum && t.slideMode == SlideType.PAGE)
                 t.curPageNum = t.nearestListId;
@@ -273,12 +294,12 @@ export default class List extends cc.Component {
                 for (let n: number = 0; n < val; n++) {
                     t._createOrUpdateItem2(n);
                 }
-                t.actualNumItems = val;
+                t.displayItemNum = val;
             }
         }
     }
     get numItems() {
-        return this._numItems;
+        return this._actualNumItems;
     }
 
     private _inited: boolean = false;
@@ -335,7 +356,7 @@ export default class List extends cc.Component {
 
     private _lack: boolean;
     private _allItemSize: number;
-    private _allItemSizeNoBorder: number;
+    private _allItemSizeNoEdge: number;
 
     private _scrollItem: any;//当前控制 ScrollView 滚动的 Item
 
@@ -431,10 +452,22 @@ export default class List extends cc.Component {
 
         t._lastDisplayData = []; //最后一次刷新的数据
         t.displayData = []; //当前数据
-        t._pool = new cc.NodePool(); //这是个池子..
-        t._forceUpdate = false;
-        t._updateCounter = 0;
-        t._updateDone = true;
+        t._pool = new cc.NodePool();    //这是个池子..
+        t._forceUpdate = false;         //是否强制更新
+        t._updateCounter = 0;           //当前分帧渲染帧数
+        t._updateDone = true;           //分帧渲染是否完成
+
+        t.curPageNum = 0;               //当前页数
+
+        if (t.cyclic || 0) {
+            t._scrollView._processAutoScrolling = this._processAutoScrolling.bind(t);
+            t._scrollView._startBounceBackIfNeeded = function () {
+                return false;
+            }
+            // t._scrollView._scrollChildren = function () {
+            //     return false;
+            // }
+        }
 
         switch (t._align) {
             case cc.Layout.Type.HORIZONTAL: {
@@ -488,6 +521,63 @@ export default class List extends cc.Component {
 
         t.content.removeAllChildren();
         t._inited = true;
+    }
+    /**
+     * 为了实现循环列表，必须覆写cc.ScrollView的某些函数
+     * @param {Number} dt
+     */
+    _processAutoScrolling(dt: number) {
+        // let isAutoScrollBrake = this._scrollView._isNecessaryAutoScrollBrake();
+        let brakingFactor: number = 1;
+        this._scrollView['_autoScrollAccumulatedTime'] += dt * (1 / brakingFactor);
+
+        let percentage: number = Math.min(1, this._scrollView['_autoScrollAccumulatedTime'] / this._scrollView['_autoScrollTotalTime']);
+        if (this._scrollView['_autoScrollAttenuate']) {
+            let time: number = percentage - 1;
+            percentage = time * time * time * time * time + 1;
+        }
+
+        let newPosition: any = this._scrollView['_autoScrollStartPosition'].add(this._scrollView['_autoScrollTargetDelta'].mul(percentage));
+        let EPSILON: number = this._scrollView['getScrollEndedEventTiming']();
+        let reachedEnd: boolean = Math.abs(percentage - 1) <= EPSILON;
+        // cc.log(reachedEnd, Math.abs(percentage - 1), EPSILON)
+
+        let fireEvent: boolean = Math.abs(percentage - 1) <= this._scrollView['getScrollEndedEventTiming']();
+        if (fireEvent && !this._scrollView['_isScrollEndedWithThresholdEventFired']) {
+            this._scrollView['_dispatchEvent']('scroll-ended-with-threshold');
+            this._scrollView['_isScrollEndedWithThresholdEventFired'] = true;
+        }
+
+        // if (this._scrollView.elastic && !reachedEnd) {
+        //     let brakeOffsetPosition = newPosition.sub(this._scrollView._autoScrollBrakingStartPosition);
+        //     if (isAutoScrollBrake) {
+        //         brakeOffsetPosition = brakeOffsetPosition.mul(brakingFactor);
+        //     }
+        //     newPosition = this._scrollView._autoScrollBrakingStartPosition.add(brakeOffsetPosition);
+        // } else {
+        //     let moveDelta = newPosition.sub(this._scrollView.getContentPosition());
+        //     let outOfBoundary = this._scrollView._getHowMuchOutOfBoundary(moveDelta);
+        //     if (!outOfBoundary.fuzzyEquals(cc.v2(0, 0), EPSILON)) {
+        //         newPosition = newPosition.add(outOfBoundary);
+        //         reachedEnd = true;
+        //     }
+        // }
+
+        if (reachedEnd) {
+            this._scrollView['_autoScrolling'] = false;
+        }
+
+        let deltaMove: any = newPosition.sub(this._scrollView.getContentPosition());
+        // cc.log(deltaMove)
+        this._scrollView['_moveContent'](this._scrollView['_clampDelta'](deltaMove), reachedEnd);
+        this._scrollView['_dispatchEvent']('scrolling');
+
+        // scollTo API controll move
+        if (!this._scrollView['_autoScrolling']) {
+            this._scrollView['_isBouncing'] = false;
+            this._scrollView['_scrolling'] = false;
+            this._scrollView['_dispatchEvent']('scroll-ended');
+        }
     }
     //设置模板Item
     setTemplateItem(item: any) {
@@ -608,21 +698,36 @@ export default class List extends cc.Component {
             layout.enabled = false;
 
         t._allItemSize = result;
-        t._lack = result < (t._sizeType ? t.node.height : t.node.width);
-        let slideOffset = ((!t._lack || !t.lackCenter) && t.lackSlide) ? 0 : .1;
+        t._allItemSizeNoEdge = t._allItemSize - (t._sizeType ? (t._topGap + t._bottomGap) : (t._leftGap + t._rightGap));
 
-        let targetWH = t._lack ? ((t._sizeType ? t.node.height : t.node.width) - slideOffset) : result;
+        if (t.cyclic) {
+            let totalSize: number = (t._sizeType ? t.node.height : t.node.width);
+
+            t._cyclicPos1 = 0;
+            totalSize -= t._cyclicPos1;
+            t._cyclicNum = Math.ceil(totalSize / t._allItemSizeNoEdge) + 1;
+            let spacing: number = t._sizeType ? t._lineGap : t._columnGap;
+            t._cyclicPos2 = t._cyclicPos1 + t._allItemSizeNoEdge + spacing;
+            t._cyclicAllItemSize = t._allItemSize + (t._allItemSizeNoEdge * (t._cyclicNum - 1)) + (spacing * (t._cyclicNum - 1));
+            t._cycilcAllItemSizeNoEdge = t._allItemSizeNoEdge * t._cyclicNum;
+            t._cycilcAllItemSizeNoEdge += spacing * (t._cyclicNum - 1);
+            // cc.log('_cyclicNum ->', t._cyclicNum, t._allItemSizeNoEdge, t._allItemSize, t._cyclicPos1, t._cyclicPos2);
+        }
+
+        t._lack = !t.cyclic && t._allItemSize < (t._sizeType ? t.node.height : t.node.width);
+        let slideOffset: number = ((!t._lack || !t.lackCenter) && t.lackSlide) ? 0 : .1;
+
+        let targetWH: number = t._lack ? ((t._sizeType ? t.node.height : t.node.width) - slideOffset) : (t.cyclic ? t._cyclicAllItemSize : t._allItemSize);
         if (targetWH < 0)
             targetWH = 0;
 
         if (t._sizeType) {
-            t._allItemSizeNoBorder = t._allItemSize - t._topGap - t._bottomGap;
             t.content.height = targetWH;
         } else {
-            t._allItemSizeNoBorder = t._allItemSize - t._leftGap - t._rightGap;
             t.content.width = targetWH;
         }
-        // cc.log('_resizeContent()  numItems =', this._numItems, '，content =', this.content);
+
+        // cc.log('_resizeContent()  numItems =', t._numItems, '，content =', t.content);
     }
 
     //滚动进行时...
@@ -637,6 +742,76 @@ export default class List extends cc.Component {
 
         if (this._aniDelRuning)
             return;
+
+        //循环列表处理
+        if (this.cyclic) {
+            let scrollPos: any = this.content.getPosition();
+            scrollPos = this._sizeType ? scrollPos.y : scrollPos.x;
+
+            let addVal = this._allItemSizeNoEdge + (this._sizeType ? this._lineGap : this._columnGap);
+            let add: any = this._sizeType ? cc.v2(0, addVal) : cc.v2(addVal, 0);
+
+            switch (this._alignCalcType) {
+                case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
+                    if (scrollPos > -this._cyclicPos1) {
+                        this.content.x = -this._cyclicPos2;
+                        if (this._scrollView.isAutoScrolling()) {
+                            this._scrollView['_autoScrollStartPosition'] = this._scrollView['_autoScrollStartPosition'].sub(add);
+                        }
+                        // if (this._beganPos) {
+                        //     this._beganPos += add;
+                        // }
+                    } else if (scrollPos < -this._cyclicPos2) {
+                        this.content.x = -this._cyclicPos1;
+                        if (this._scrollView.isAutoScrolling()) {
+                            this._scrollView['_autoScrollStartPosition'] = this._scrollView['_autoScrollStartPosition'].add(add);
+                        }
+                        // if (this._beganPos) {
+                        //     this._beganPos -= add;
+                        // }
+                    }
+                    break;
+                case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
+                    if (scrollPos < this._cyclicPos1) {
+                        this.content.x = this._cyclicPos2;
+                        if (this._scrollView.isAutoScrolling()) {
+                            this._scrollView['_autoScrollStartPosition'] = this._scrollView['_autoScrollStartPosition'].add(add);
+                        }
+                    } else if (scrollPos > this._cyclicPos2) {
+                        this.content.x = this._cyclicPos1;
+                        if (this._scrollView.isAutoScrolling()) {
+                            this._scrollView['_autoScrollStartPosition'] = this._scrollView['_autoScrollStartPosition'].sub(add);
+                        }
+                    }
+                    break;
+                case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
+                    if (scrollPos < this._cyclicPos1) {
+                        this.content.y = this._cyclicPos2;
+                        if (this._scrollView.isAutoScrolling()) {
+                            this._scrollView['_autoScrollStartPosition'] = this._scrollView['_autoScrollStartPosition'].add(add);
+                        }
+                    } else if (scrollPos > this._cyclicPos2) {
+                        this.content.y = this._cyclicPos1;
+                        if (this._scrollView.isAutoScrolling()) {
+                            this._scrollView['_autoScrollStartPosition'] = this._scrollView['_autoScrollStartPosition'].sub(add);
+                        }
+                    }
+                    break;
+                case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
+                    if (scrollPos > -this._cyclicPos1) {
+                        this.content.y = -this._cyclicPos2;
+                        if (this._scrollView.isAutoScrolling()) {
+                            this._scrollView['_autoScrollStartPosition'] = this._scrollView['_autoScrollStartPosition'].sub(add);
+                        }
+                    } else if (scrollPos < -this._cyclicPos2) {
+                        this.content.y = -this._cyclicPos1;
+                        if (this._scrollView.isAutoScrolling()) {
+                            this._scrollView['_autoScrollStartPosition'] = this._scrollView['_autoScrollStartPosition'].add(add);
+                        }
+                    }
+                    break;
+            }
+        }
 
         this._calcViewPos();
 
@@ -734,14 +909,14 @@ export default class List extends cc.Component {
                 return;
             }
             this.firstListId = this.displayData[0].id;
-            this.actualNumItems = this.displayData.length;
+            this.displayItemNum = this.displayData.length;
             let len: number = this._lastDisplayData.length;
             //判断数据是否与当前相同，如果相同，return。
             //因List的显示数据是有序的，所以只需要判断数组长度是否相等，以及头、尾两个元素是否相等即可。
             if (this._forceUpdate ||
-                this.actualNumItems != len ||
+                this.displayItemNum != len ||
                 this.firstListId != this._lastDisplayData[0] ||
-                this.displayData[this.actualNumItems - 1].id != this._lastDisplayData[len - 1]
+                this.displayData[this.displayItemNum - 1].id != this._lastDisplayData[len - 1]
             ) {
                 this._lastDisplayData = [];
                 if (this.frameByFrameRenderNum > 0) { //逐帧渲染
@@ -760,7 +935,7 @@ export default class List extends cc.Component {
                     // cc.log('List Display Data I::', this.displayData);
                 } else { //直接渲染
                     // cc.log('List Display Data II::', this.displayData);
-                    for (let c: number = 0; c < this.actualNumItems; c++) {
+                    for (let c: number = 0; c < this.displayItemNum; c++) {
                         this._createOrUpdateItem(this.displayData[c]);
                     }
                     this._delRedundantItem();
@@ -826,7 +1001,7 @@ export default class List extends cc.Component {
                         }
                         right = left + width;
                         if (this.lackCenter) {
-                            let offset: number = (this.content.width / 2) - (this._allItemSizeNoBorder / 2);
+                            let offset: number = (this.content.width / 2) - (this._allItemSizeNoEdge / 2);
                             left += offset;
                             right += offset;
                         }
@@ -850,7 +1025,7 @@ export default class List extends cc.Component {
                         }
                         left = right - width;
                         if (this.lackCenter) {
-                            let offset: number = (this.content.width / 2) - (this._allItemSizeNoBorder / 2);
+                            let offset: number = (this.content.width / 2) - (this._allItemSizeNoEdge / 2);
                             left -= offset;
                             right -= offset;
                         }
@@ -878,7 +1053,7 @@ export default class List extends cc.Component {
                         }
                         bottom = top - height;
                         if (this.lackCenter) {
-                            let offset: number = (this.content.height / 2) - (this._allItemSizeNoBorder / 2);
+                            let offset: number = (this.content.height / 2) - (this._allItemSizeNoEdge / 2);
                             top -= offset;
                             bottom -= offset;
                         }
@@ -902,7 +1077,7 @@ export default class List extends cc.Component {
                         }
                         top = bottom + height;
                         if (this.lackCenter) {
-                            let offset: number = (this.content.height / 2) - (this._allItemSizeNoBorder / 2);
+                            let offset: number = (this.content.height / 2) - (this._allItemSizeNoEdge / 2);
                             top += offset;
                             bottom += offset;
                         }
@@ -1142,7 +1317,7 @@ export default class List extends cc.Component {
 
     _pageAdhere() {
         let t = this;
-        if (t.elasticTop > 0 || t.elasticRight > 0 || t.elasticBottom > 0 || t.elasticLeft > 0)
+        if (!t.cyclic && (t.elasticTop > 0 || t.elasticRight > 0 || t.elasticBottom > 0 || t.elasticLeft > 0))
             return;
         let curPos = t._sizeType ? t.viewTop : t.viewLeft;
         let dis = (t._sizeType ? t.node.height : t.node.width) * t.pageDistance;
@@ -1152,17 +1327,21 @@ export default class List extends cc.Component {
             switch (t._alignCalcType) {
                 case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
                 case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                    if (t._beganPos > curPos)
+                    if (t._beganPos > curPos) {
                         t.prePage(timeInSecond);
-                    else
+                        // cc.log('_pageAdhere   PPPPPPPPPPPPPPP');
+                    } else {
                         t.nextPage(timeInSecond);
+                        // cc.log('_pageAdhere   NNNNNNNNNNNNNNN');
+                    }
                     break;
                 case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
                 case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
-                    if (t._beganPos < curPos)
+                    if (t._beganPos < curPos) {
                         t.prePage(timeInSecond);
-                    else
+                    } else {
                         t.nextPage(timeInSecond);
+                    }
                     break;
             }
         } else if (t.elasticTop <= 0 && t.elasticRight <= 0 && t.elasticBottom <= 0 && t.elasticLeft <= 0) {
@@ -1184,19 +1363,19 @@ export default class List extends cc.Component {
         t.scrollTo(t.nearestListId, timeInSecond, offset);
     }
     //Update..
-    update(dt) {
+    update(dt: number) {
         if (this.frameByFrameRenderNum <= 0 || this._updateDone)
             return;
         // cc.log(this.displayData.length, this._updateCounter, this.displayData[this._updateCounter]);
         if (this._virtual) {
-            let len: number = (this._updateCounter + this.frameByFrameRenderNum) > this.actualNumItems ? this.actualNumItems : (this._updateCounter + this.frameByFrameRenderNum);
+            let len: number = (this._updateCounter + this.frameByFrameRenderNum) > this.displayItemNum ? this.displayItemNum : (this._updateCounter + this.frameByFrameRenderNum);
             for (let n: number = this._updateCounter; n < len; n++) {
                 let data: any = this.displayData[n];
                 if (data)
                     this._createOrUpdateItem(data);
             }
 
-            if (this._updateCounter >= this.actualNumItems - 1) { //最后一个
+            if (this._updateCounter >= this.displayItemNum - 1) { //最后一个
                 if (this._doneAfterUpdate) {
                     this._updateCounter = 0;
                     this._updateDone = false;
@@ -1262,14 +1441,14 @@ export default class List extends cc.Component {
                 listItem._registerEvent();
             }
             if (this.renderEvent) {
-                cc.Component.EventHandler.emitEvents([this.renderEvent], item, data.id);
+                cc.Component.EventHandler.emitEvents([this.renderEvent], item, data.id % this._actualNumItems);
             }
         } else if (this._forceUpdate && this.renderEvent) { //强制更新
             item.setPosition(cc.v2(data.x, data.y));
             this._resetItemSize(item);
             // cc.log('ADD::', data.id, item);
             if (this.renderEvent) {
-                cc.Component.EventHandler.emitEvents([this.renderEvent], item, data.id);
+                cc.Component.EventHandler.emitEvents([this.renderEvent], item, data.id % this._actualNumItems);
             }
         }
         this._resetItemSize(item);
@@ -1395,7 +1574,7 @@ export default class List extends cc.Component {
             let listId: number = args[n];
             let item: any = this.getItemByListId(listId);
             if (item)
-                cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId);
+                cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId % this._actualNumItems);
         }
     }
     /**
@@ -1428,7 +1607,7 @@ export default class List extends cc.Component {
             item = this.content.children[n];
             isOutside = true;
             if (isOutside) {
-                for (let c: number = this.actualNumItems - 1; c >= 0; c--) {
+                for (let c: number = this.displayItemNum - 1; c >= 0; c--) {
                     if (!this.displayData[c])
                         continue;
                     let listId: number = this.displayData[c].id;
@@ -1476,14 +1655,14 @@ export default class List extends cc.Component {
     aniDelItem(listId: number, callFunc: Function, aniType: number) {
         let t: any = this;
 
-        if (!t.checkInited())
-            return;
+        if (!t.checkInited() || t.cyclic || !t._virtual)
+            return cc.error('This function is not allowed to be called!');
+
+        if (t._aniDelRuning)
+            return cc.error('Please wait for the current deletion to finish!');
 
         let item: any = t.getItemByListId(listId);
         let listItem: ListItem;
-        if (t._aniDelRuning || !t._virtual) {
-            return;
-        }
         if (!item) {
             callFunc(listId);
             return;
@@ -1718,7 +1897,7 @@ export default class List extends cc.Component {
             }
         }
         //判断最后一个Item。。。（哎，这些判断真心恶心，判断了前面的还要判断最后一个。。。一开始呢，就只有一个布局（单列布局），那时候代码才三百行，后来就想着完善啊，艹..这坑真深，现在这行数都一千五了= =||）
-        data = t._virtual ? t.displayData[t.actualNumItems - 1] : t._calcExistItemPos(t._numItems - 1);
+        data = t._virtual ? t.displayData[t.displayItemNum - 1] : t._calcExistItemPos(t._numItems - 1);
         if (data && data.id == t._numItems - 1) {
             center = t._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
             switch (t._alignCalcType) {
@@ -1744,12 +1923,14 @@ export default class List extends cc.Component {
     }
     //上一页
     prePage(timeInSecond: number = .5) {
+        // cc.log('👈');
         if (!this.checkInited())
             return;
         this.skipPage(this.curPageNum - 1, timeInSecond);
     }
     //下一页
     nextPage(timeInSecond: number = .5) {
+        // cc.log('👉');
         if (!this.checkInited())
             return;
         this.skipPage(this.curPageNum + 1, timeInSecond);
@@ -1765,6 +1946,7 @@ export default class List extends cc.Component {
             return;
         if (t.curPageNum == pageNum)
             return;
+        // cc.log(pageNum);
         t.curPageNum = pageNum;
         if (t.pageChangeEvent) {
             cc.Component.EventHandler.emitEvents([t.pageChangeEvent], pageNum);
