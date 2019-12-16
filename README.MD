@@ -17,6 +17,7 @@ Cocos论坛帖子链接：
 
 * 所有类型布局。（单列、单行、网格，甚至各种花式RIGHT_TO_LEFT、BOTTOM_TO_TOP）
 * 分帧渲染。
+* 循环列表。
 * 选择模式。（单选、多选）
 * 滑动模式。（普通、粘附、分页）
 * 自定义Item的宽/高。（用来做**聊天列表**再适合不过）
@@ -52,10 +53,11 @@ Last test by ccc_v2.2.0
 1. 本组件所依赖的**ScrollView节点**、**Mask节点**以及**Content节点**，这三个节点的**锚点**需要**按方向**去设置。比如**从顶到底单列排列**，就需要设置锚点为（0.5, 1）。如果是**从左到右网格排列**，就需要设置锚点为（0, 1）。始终将锚点设置到**首个Item**那一边。
 2. 理论上**设为虚拟列表后不可再设回普通列表**（即 `virtual` 属性）。
 3. SlideMode设为 `ADHERING（粘附）` 或 `PAGE（页面）` 后，组件将**强行屏蔽惯性滚动**。
+4. 设为`循环列表`时，`Content`的`cc.Layout`的`边缘距离（top/bottom/left/right）`要设置成与`spacingX/Y（间距）`一样。`（因为在循环列表中，边距=间距）`。
 
 ## 新功能预告
 
-* 循环列表
+* 循环列表`PAGE`版。
 
 ## 已知问题
 
@@ -69,6 +71,9 @@ Last test by ccc_v2.2.0
 
 * 适配`cc.Widget`。
 * 新增`TestWidget.scene`示例场景。
+* 新增`循环列表`功能，即`cyclic`属性。（目前仅支持单行/单列）
+> 设为循环列表时，Content的cc.Layout边缘距离（top/bottom/left/right）要设置成与spacingX/Y（间距）一样。（因为在循环列表中，边距=间距）。
+* 新增`TestCyclic.scene`示例场景。
 
 ### 2019/11/21
 
@@ -148,4 +153,3 @@ Last test by ccc_v2.2.0
 ### 2019/5/13
 
 * 新增带动画删除Item接口 `list.aniDelItem(id, callFunc, aniType)` ，因本组件毕竟还是数据驱动，所以请务必在callFunc中删除数据数组中相应下标的数据，然后手动更新该list（即 `list.numItems=Number` ）。
-
