@@ -114,7 +114,7 @@ cc.Class({
             }
         },
         lackSlide: {
-            default: true,
+            default: false,
             tooltip: CC_DEV && 'Item数量不足以填满Content时，是否可滑动',
             visible: function () {
                 let val = this.virtual && !this.lackCenter;
@@ -443,20 +443,24 @@ cc.Class({
         if (t._resizeMode == cc.Layout.ResizeMode.CHILDREN)
             t._itemSize = t._layout.cellSize;
         else
-            t._itemSize = new cc.size(t._itemTmp.width, t._itemTmp.height);
+            t._itemSize = new cc.size(item.width, item.height);
 
         //获取ListItem，如果没有就取消选择模式
-        let com = t._itemTmp.getComponent(ListItem);
+        let com = item.getComponent(ListItem);
         let remove = false;
         if (!com)
             remove = true;
         if (com) {
-            if (!com._btnCom && !t._itemTmp.getComponent(cc.Button)) {
+            if (!com._btnCom && !item.getComponent(cc.Button)) {
                 remove = true;
             }
         }
         if (remove) {
             t.selectedMode = SelectedType.NONE;
+        }
+        com = item.getComponent(cc.Widget);
+        if (com && com.enabled) {
+            t._needUpdateWidget = true;
         }
         if (t.selectedMode == SelectedType.MULT)
             t.multSelected = [];
@@ -1177,7 +1181,8 @@ cc.Class({
     _createOrUpdateItem(data) {
         let item = this.getItemByListId(data.id);
         if (!item) { //如果不存在
-            if (this._pool.size()) {
+            let canGet = this._pool.size() > 0;
+            if (canGet) {
                 item = this._pool.get();
                 // cc.log('从池中取出::   旧id =', item._listId, '，新id =', data.id, item);
             } else {
@@ -1188,6 +1193,11 @@ cc.Class({
             item.setPosition(new cc.v2(data.x, data.y));
             this._resetItemSize(item);
             this.content.addChild(item);
+            if (canGet && this._needUpdateWidget) {
+                let widget = item.getComponent(cc.Widget);
+                if (widget)
+                    widget.updateAlignment();
+            }
             item.setSiblingIndex(this.content.childrenCount - 1);
 
             let listItem = item.getComponent(ListItem);
@@ -1258,15 +1268,20 @@ cc.Class({
     },
     //仅虚拟列表用
     _resetItemSize(item) {
-        if (!this.customSize || !this.customSize[item._listId]) {
-            item.setContentSize(this._itemSize);
-            return;
+        let size;
+        if (this.customSize && this.customSize[item._listId]) {
+            size = this.customSize[item._listId];
+        } else {
+            if (this._colLineNum > 1)
+                item.setContentSize(this._itemSize);
+            else
+                size = this._sizeType ? this._itemSize.height : this._itemSize.width;
         }
-        let size = this.customSize[item._listId];
-        if (this._align == cc.Layout.Type.HORIZONTAL) {
-            item.width = size;
-        } else if (this._align == cc.Layout.Type.VERTICAL) {
-            item.height = size;
+        if (size) {
+            if (this._sizeType)
+                item.height = size;
+            else
+                item.width = size;
         }
     },
     /**

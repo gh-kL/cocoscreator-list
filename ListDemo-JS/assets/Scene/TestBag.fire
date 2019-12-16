@@ -39,12 +39,6 @@
       "x": 0,
       "y": 0
     },
-    "_scale": {
-      "__type__": "cc.Vec3",
-      "x": 0.29598524305555557,
-      "y": 0.29598524305555557,
-      "z": 1
-    },
     "_quat": {
       "__type__": "cc.Quat",
       "x": 0,
@@ -54,7 +48,23 @@
     },
     "groupIndex": 0,
     "autoReleaseAssets": false,
-    "_id": "76387f56-7712-481b-a2ec-defcb229d241"
+    "_id": "76387f56-7712-481b-a2ec-defcb229d241",
+    "_trs": {
+      "__type__": "TypedArray",
+      "ctor": "Float64Array",
+      "array": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.29598524305555557,
+        0.29598524305555557,
+        1
+      ]
+    }
   },
   {
     "__type__": "cc.Node",
@@ -116,7 +126,7 @@
     "_id": "7eTCaHKo1GbqyA2hupfpgz",
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float32Array",
+      "ctor": "Float64Array",
       "array": [
         640,
         360,
@@ -178,7 +188,7 @@
     "_id": "5ex/lwuVJCip+nTfKHZDAk",
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float32Array",
+      "ctor": "Float64Array",
       "array": [
         0,
         0,
@@ -272,7 +282,7 @@
     "_id": "9ca5InOYZI4J2yC2L1L18X",
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float32Array",
+      "ctor": "Float64Array",
       "array": [
         -168,
         0,
@@ -338,7 +348,7 @@
     "_id": "be4XLtwAZHD6nEB6eqgyvs",
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float32Array",
+      "ctor": "Float64Array",
       "array": [
         0,
         0,
@@ -404,7 +414,7 @@
     "_id": "33XC0Sc/BKnIJfS/JQLT4s",
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float32Array",
+      "ctor": "Float64Array",
       "array": [
         0,
         0,
@@ -466,7 +476,7 @@
     "_id": "f0bG+tDGhC/YuArTcBLB2Y",
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float32Array",
+      "ctor": "Float64Array",
       "array": [
         8,
         160,
@@ -712,7 +722,7 @@
     "_id": "c0C6o7X+RKmJTE2i99d2RY",
     "_trs": {
       "__type__": "TypedArray",
-      "ctor": "Float32Array",
+      "ctor": "Float64Array",
       "array": [
         0,
         -200,

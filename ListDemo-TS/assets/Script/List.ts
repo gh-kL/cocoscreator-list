@@ -109,7 +109,7 @@ export default class List extends cc.Component {
             return val;
         }
     })
-    public lackSlide: boolean = true;
+    public lackSlide: boolean = false;
     //刷新频率
     @property({ type: cc.Integer })
     private _updateRate: number = 0;
@@ -302,6 +302,7 @@ export default class List extends cc.Component {
     private _pool: cc.NodePool;
 
     private _itemTmp: any;
+    private _needUpdateWidget: boolean = false;
     private _itemSize: cc.Size;
     private _sizeType: boolean;
 
@@ -498,20 +499,24 @@ export default class List extends cc.Component {
         if (t._resizeMode == cc.Layout.ResizeMode.CHILDREN)
             t._itemSize = t._layout.cellSize;
         else
-            t._itemSize = cc.size(t._itemTmp.width, t._itemTmp.height);
+            t._itemSize = cc.size(item.width, item.height);
 
         //获取ListItem，如果没有就取消选择模式
-        let com = t._itemTmp.getComponent(ListItem);
+        let com = item.getComponent(ListItem);
         let remove = false;
         if (!com)
             remove = true;
         if (com) {
-            if (!com._btnCom && !t._itemTmp.getComponent(cc.Button)) {
+            if (!com._btnCom && !item.getComponent(cc.Button)) {
                 remove = true;
             }
         }
         if (remove) {
             t.selectedMode = SelectedType.NONE;
+        }
+        com = item.getComponent(cc.Widget);
+        if (com && com.enabled) {
+            t._needUpdateWidget = true;
         }
         if (t.selectedMode == SelectedType.MULT)
             t.multSelected = [];
@@ -1230,7 +1235,8 @@ export default class List extends cc.Component {
     _createOrUpdateItem(data: any) {
         let item: any = this.getItemByListId(data.id);
         if (!item) { //如果不存在
-            if (this._pool.size()) {
+            let canGet: boolean = this._pool.size() > 0;
+            if (canGet) {
                 item = this._pool.get();
                 // cc.log('从池中取出::   旧id =', item['_listId'], '，新id =', data.id, item);
             } else {
@@ -1241,6 +1247,11 @@ export default class List extends cc.Component {
             item.setPosition(cc.v2(data.x, data.y));
             this._resetItemSize(item);
             this.content.addChild(item);
+            if (canGet && this._needUpdateWidget) {
+                let widget: cc.Widget = item.getComponent(cc.Widget);
+                if (widget)
+                    widget.updateAlignment();
+            }
             item.setSiblingIndex(this.content.childrenCount - 1);
 
             let listItem: ListItem = item.getComponent(ListItem);
@@ -1316,16 +1327,20 @@ export default class List extends cc.Component {
     }
     //仅虚拟列表用
     _resetItemSize(item: any) {
-        let listItem: ListItem = item.getComponent(ListItem);
-        if (!this.customSize || !this.customSize[listItem.node['_listId']]) {
-            item.setContentSize(this._itemSize);
-            return;
+        let size: number;
+        if (this.customSize && this.customSize[item._listId]) {
+            size = this.customSize[item._listId];
+        } else {
+            if (this._colLineNum > 1)
+                item.setContentSize(this._itemSize);
+            else
+                size = this._sizeType ? this._itemSize.height : this._itemSize.width;
         }
-        let size: number = this.customSize[listItem.node['_listId']];
-        if (this._align == cc.Layout.Type.HORIZONTAL) {
-            item.width = size;
-        } else if (this._align == cc.Layout.Type.VERTICAL) {
-            item.height = size;
+        if (size) {
+            if (this._sizeType)
+                item.height = size;
+            else
+                item.width = size;
         }
     }
     /**

@@ -24,9 +24,9 @@ export default class TestPage extends cc.Component {
         }
         this.list.numItems = this.data.length;
     }
-    
+
     onListRender(item: cc.Node, idx: number) {
-        item.getComponent(ListItem).title.getComponent(cc.Label).string = this.data[idx] + '';
+        item.getComponentInChildren(cc.Label).string = this.data[idx] + '';
     }
 
     onListPageChange(pageNum: number) {
