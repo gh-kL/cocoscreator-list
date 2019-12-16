@@ -53,11 +53,15 @@ Last test by ccc_v2.2.0
 2. 理论上**设为虚拟列表后不可再设回普通列表**（即 `virtual` 属性）。
 3. SlideMode设为 `ADHERING（粘附）` 或 `PAGE（页面）` 后，组件将**强行屏蔽惯性滚动**。
 
+## 新功能预告
+
+* 循环列表
+
 ## 更新日志
 
 ### 2019/11/21
 
-* 新增`LakeSlide` 属性。当该属性为 `true` ，Item数量不足以填满`Content`时，也可以滑动。（默认为`true`，与`LakeCenter`属性相斥）
+* 新增`LakeSlide` 属性。当该属性为 `true` ，Item数量不足以填满`Content`时，也可以滑动。（默认为`false`，与`LakeCenter`属性相斥）
 
 ### 2019/11/18
 
