@@ -1597,7 +1597,7 @@ cc.Class({
             return cc.error('This function is not allowed to be called!');
 
         if (t._aniDelRuning)
-            return cc.error('Please wait for the current deletion to finish!');
+            return cc.warn('Please wait for the current deletion to finish!');
 
         let item = t.getItemByListId(listId);
         if (!item) {
