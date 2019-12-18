@@ -24,7 +24,7 @@ Cocos论坛帖子链接：
 * 动态删除Item项。
 * ...
 
-Last test by ccc_v2.2.0
+Last test by ccc_v2.2.1
 
 我的邮箱：klk0@qq.com
 
