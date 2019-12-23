@@ -213,7 +213,7 @@ cc.Class({
                             }
                         }
                         if (t.selectedEvent) {
-                            cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val, t._lastSelectedId);
+                            cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val % this._actualNumItems, t._lastSelectedId % this._actualNumItems);
                         }
                         break;
                     }
@@ -233,7 +233,7 @@ cc.Class({
                             t.multSelected.splice(sub, 1);
                         }
                         if (t.selectedEvent) {
-                            cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val, t._lastSelectedId, bool);
+                            cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val % this._actualNumItems, t._lastSelectedId % this._actualNumItems, bool);
                         }
                         break;
                     }
