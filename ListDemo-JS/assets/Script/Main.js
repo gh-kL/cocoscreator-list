@@ -24,7 +24,7 @@ cc.Class({
         info: cc.Label,
     },
 
-    onLoad: function () {
+    onLoad: function() {
         this.data = [];
         for (let n = 0; n < 999; n++) {
             this.data.push(n);
@@ -81,7 +81,7 @@ cc.Class({
     btnEvent(ev) {
         let name = ev.target.name;
         let t = this;
-        let callFunc = function (idx) {
+        let callFunc = function(idx) {
             if (idx != null) {
                 t.data.splice(idx, 1);
                 console.log('------删除完毕！', idx);
