@@ -60,6 +60,10 @@ cc.Class({
                 return bool;
             },
         },
+        adaptiveSize: {
+            default: false,
+            tooltip: CC_DEV && '自适应尺寸（宽或高）',
+        },
         _selected: false,
         selected: {
             visible: false,
@@ -113,11 +117,24 @@ cc.Class({
         }
     },
 
+    onDestroy() {
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onSizeChange, this);
+    },
+
     _registerEvent() {
-        if (this.btnCom && this._list.selectedMode > 0 && !this.eventReg) {
-            this.btnCom.clickEvents.unshift(this.createEvt(this, 'onClickThis'));
+        if (!this.eventReg) {
+            if (this.btnCom && this._list.selectedMode > 0) {
+                this.btnCom.clickEvents.unshift(this.createEvt(this, 'onClickThis'));
+            }
+            if (this.adaptiveSize) {
+                this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onSizeChange, this);
+            }
             this.eventReg = true;
         }
+    },
+
+    _onSizeChange() {
+        this._list._onItemAdaptive(this.node);
     },
     /**
      * 创建事件

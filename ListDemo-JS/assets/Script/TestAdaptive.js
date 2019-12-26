@@ -1,7 +1,7 @@
 /******************************************
  * @author kL <klk0@qq.com>
  * @date 2019/8/30
- * @doc TestCustomSize.
+ * @doc TestAdaptive.
  * @end
  ******************************************/
 const List = require('List');
@@ -200,7 +200,6 @@ cc.Class({
                 text: '再见了您嘞~<img src="29"/><img src="29"/><img src="29"/>'
             },
         ];
-        this.list.calcCustomSize(this.data.length);
         this.list.numItems = this.data.length;
     },
 

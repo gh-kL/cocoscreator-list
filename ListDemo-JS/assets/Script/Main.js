@@ -102,37 +102,6 @@ cc.Class({
                 t.listG.aniDelItem(1, callFunc);
                 break;
             case 'btn4':
-                //key=Id，val=Size
-                let heightData = {
-                    0: 300,
-                    5: 260,
-                    6: 300,
-                    10: 210,
-                    13: 100,
-                    14: 130,
-                    15: 160,
-                    17: 1000,
-                };
-                t.listV.customSize = heightData;
-                //设置了customSize后，要刷新
-                t.listV.updateAll();
-                break;
-            case 'btn5':
-                //key=Id，val=Size
-                let widthData = {
-                    0: 400,
-                    5: 260,
-                    6: 300,
-                    10: 210,
-                    13: 100,
-                    14: 130,
-                    15: 160,
-                };
-                t.listH.customSize = widthData;
-                //设置了customSize后，要刷新
-                t.listH.updateAll();
-                break;
-            case 'btn6':
                 t.listV.scrollTo(parseInt(t.input.string), .5);
                 t.listH.scrollTo(parseInt(t.input.string), .5);
                 t.listG.scrollTo(parseInt(t.input.string), .5);

@@ -593,7 +593,7 @@ cc.Class({
         let result;
         switch (t._align) {
             case cc.Layout.Type.HORIZONTAL: {
-                if (t.customSize) {
+                if (t._customSize) {
                     let fixed = t._getFixedSize();
                     result = t._leftGap + fixed.val + (t._itemSize.width * (t._numItems - fixed.count)) + (t._columnGap * (t._numItems - 1)) + t._rightGap;
                 } else {
@@ -602,7 +602,7 @@ cc.Class({
                 break;
             }
             case cc.Layout.Type.VERTICAL: {
-                if (t.customSize) {
+                if (t._customSize) {
                     let fixed = t._getFixedSize();
                     result = t._topGap + fixed.val + (t._itemSize.height * (t._numItems - fixed.count)) + (t._lineGap * (t._numItems - 1)) + t._bottomGap;
                 } else {
@@ -764,7 +764,7 @@ cc.Class({
             let curId = 0;
             let endId = this._numItems - 1;
 
-            if (this.customSize) {
+            if (this._customSize) {
                 let breakFor = false;
                 //如果该item的位置在可视区域内，就推入displayData
                 for (; curId <= endId && !breakFor; curId++) {
@@ -924,10 +924,10 @@ cc.Class({
             case cc.Layout.Type.HORIZONTAL:
                 switch (this._horizontalDir) {
                     case cc.Layout.HorizontalDirection.LEFT_TO_RIGHT: {
-                        if (this.customSize) {
+                        if (this._customSize) {
                             let fixed = this._getFixedSize(id);
                             left = this._leftGap + ((this._itemSize.width + this._columnGap) * (id - fixed.count)) + (fixed.val + (this._columnGap * fixed.count));
-                            let cs = this.customSize[id];
+                            let cs = this._customSize[id];
                             width = (cs > 0 ? cs : this._itemSize.width);
                         } else {
                             left = this._leftGap + ((this._itemSize.width + this._columnGap) * id);
@@ -948,10 +948,10 @@ cc.Class({
                         };
                     }
                     case cc.Layout.HorizontalDirection.RIGHT_TO_LEFT: {
-                        if (this.customSize) {
+                        if (this._customSize) {
                             let fixed = this._getFixedSize(id);
                             right = -this._rightGap - ((this._itemSize.width + this._columnGap) * (id - fixed.count)) - (fixed.val + (this._columnGap * fixed.count));
-                            let cs = this.customSize[id];
+                            let cs = this._customSize[id];
                             width = (cs > 0 ? cs : this._itemSize.width);
                         } else {
                             right = -this._rightGap - ((this._itemSize.width + this._columnGap) * id);
@@ -976,10 +976,10 @@ cc.Class({
             case cc.Layout.Type.VERTICAL: {
                 switch (this._verticalDir) {
                     case cc.Layout.VerticalDirection.TOP_TO_BOTTOM: {
-                        if (this.customSize) {
+                        if (this._customSize) {
                             let fixed = this._getFixedSize(id);
                             top = -this._topGap - ((this._itemSize.height + this._lineGap) * (id - fixed.count)) - (fixed.val + (this._lineGap * fixed.count));
-                            let cs = this.customSize[id];
+                            let cs = this._customSize[id];
                             height = (cs > 0 ? cs : this._itemSize.height);
                             bottom = top - height;
                         } else {
@@ -1008,10 +1008,10 @@ cc.Class({
                         };
                     }
                     case cc.Layout.VerticalDirection.BOTTOM_TO_TOP: {
-                        if (this.customSize) {
+                        if (this._customSize) {
                             let fixed = this._getFixedSize(id);
                             bottom = this._bottomGap + ((this._itemSize.height + this._lineGap) * (id - fixed.count)) + (fixed.val + (this._lineGap * fixed.count));
-                            let cs = this.customSize[id];
+                            let cs = this._customSize[id];
                             height = (cs > 0 ? cs : this._itemSize.height);
                         } else {
                             bottom = this._bottomGap + ((this._itemSize.height + this._lineGap) * id);
@@ -1150,15 +1150,15 @@ cc.Class({
     },
     //获取固定尺寸
     _getFixedSize(listId) {
-        if (!this.customSize)
+        if (!this._customSize)
             return null;
         if (listId == null)
             listId = this._numItems;
         let fixed = 0;
         let count = 0;
-        for (let id in this.customSize) {
+        for (let id in this._customSize) {
             if (parseInt(id) < listId) {
-                fixed += this.customSize[id];
+                fixed += this._customSize[id];
                 count++;
             }
         }
@@ -1255,6 +1255,29 @@ cc.Class({
     _onSizeChanged() {
         if (this.checkInited(false))
             this._onScrolling();
+    },
+    //当Item自适应
+    _onItemAdaptive(item) {
+        if (this.checkInited(false)) {
+            if (
+                (!this._sizeType && item.width != this._itemSize.width)
+                || (this._sizeType && item.height != this._itemSize.height)
+            ) {
+                if (!this._customSize)
+                    this._customSize = {};
+                let val = this._sizeType ? item.height : item.width;
+                if (this._customSize[item._listId] != val) {
+                    this._customSize[item._listId] = val;
+                    this._resizeContent();
+                    for (let n = this.content.childrenCount - 1; n >= 0; n--) {
+                        let child = this.content.children[n];
+                        if (child._listId < item._listId) {
+                            this._updateItemPos(child);
+                        }
+                    }
+                }
+            }
+        }
     },
     _pageAdhere() {
         let t = this;
@@ -1443,9 +1466,10 @@ cc.Class({
     },
     //仅虚拟列表用
     _resetItemSize(item) {
+        return;
         let size;
-        if (this.customSize && this.customSize[item._listId]) {
-            size = this.customSize[item._listId];
+        if (this._customSize && this._customSize[item._listId]) {
+            size = this._customSize[item._listId];
         } else {
             if (this._colLineNum > 1)
                 item.setContentSize(this._itemSize);
@@ -1458,6 +1482,15 @@ cc.Class({
             else
                 item.width = size;
         }
+    },
+    /**
+     * 更新Item位置
+     * @param {Number||Node} listIdOrItem
+     */
+    _updateItemPos(listIdOrItem) {
+        let item = isNaN(listIdOrItem) ? listIdOrItem : this.getItemByListId(listIdOrItem);
+        let pos = this.getItemPos(item._listId);
+        item.setPosition(pos.x, pos.y);
     },
     /**
      * 设置多选
@@ -1641,17 +1674,17 @@ cc.Class({
                         t.multSelected[n]--;
                 }
             }
-            if (t.customSize) {
-                if (t.customSize[listId])
-                    delete t.customSize[listId];
+            if (t._customSize) {
+                if (t._customSize[listId])
+                    delete t._customSize[listId];
                 let newCustomSize = {};
                 let size;
-                for (let id in t.customSize) {
-                    size = t.customSize[id];
+                for (let id in t._customSize) {
+                    size = t._customSize[id];
                     id = parseInt(id);
                     newCustomSize[id - (id >= listId ? 1 : 0)] = size;
                 }
-                t.customSize = newCustomSize;
+                t._customSize = newCustomSize;
             }
             //后面的Item向前怼的动效
             let sec = .2333;
@@ -1895,29 +1928,5 @@ cc.Class({
         }
         t.scrollTo(pageNum, timeInSecond);
     },
-    //计算 CustomSize
-    calcCustomSize(numItems) {
-        let t = this;
-        if (!t.checkInited())
-            return;
-        if (!t._itemTmp)
-            return cc.error('Unset template item!');
-        if (!t.renderEvent)
-            return cc.error('Unset Render-Event!');
-        t.customSize = {};
-        let temp = cc.instantiate(t._itemTmp);
-        t.content.addChild(temp);
-        for (let n = 0; n < numItems; n++) {
-            cc.Component.EventHandler.emitEvents([t.renderEvent], temp, n);
-            if (temp.height != t._itemSize.height || temp.width != t._itemSize.width) {
-                t.customSize[n] = t._sizeType ? temp.height : temp.width;
-            }
-        }
-        if (!Object.keys(t.customSize).length)
-            t.customSize = null;
-        temp.removeFromParent();
-        if (temp.destroy)
-            temp.destroy();
-        return t.customSize;
-    }
+
 });
