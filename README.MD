@@ -46,7 +46,6 @@ Last test by ccc_v2.2.1
 ## 小贴士
 
 1. 每一个 `Item-Node` 都会被赋值一个 `_listId` ，即该 `Item` 在 `List` 中的 `下标` 。假如你的 `Item` 是个 `按钮` ，在该 `按钮` 的 `回调事件` 中，通过 `event.currentTarget._listId` 就能取得该 `Item的下标` 了，这非常方便。（ `TS版` 比较特殊， 通过 `event.currentTarget['_listId']` 来获得。）
-2. 在**View**中设置 `list.customSize` 以达到**每个 Item 宽度或高度不一样**的**虚拟列表**效果，简直美滋滋！但这个会**耗费更多性能！仅支持虚拟列表！仅支持单列或单行**！
 
 ## 注意
 
@@ -66,9 +65,9 @@ Last test by ccc_v2.2.1
 
 ## 更新日志
 
-### 2019/12/26
+### 2019/12/26（目前只更了JS版，等TS版的小伙伴骚安勿躁）
 
-- 弃用手动计算`customSize`，现在要实现`动态宽/高`，请给`模板Item`挂载`ListItem组件`，并勾选 adaptiveSize 属性即可，全自动，再也不用算`customSize`了，惊不惊喜，意不意外。
+- 弃用手动计算`customSize`，现在要实现`动态宽/高`，请给`模板Item`挂载`ListItem组件`，并勾选 adaptiveSize 属性即可，全自动，再也不用算`customSize`了，使用方法请看示例项目中的`TestAdaptive`场景。惊不惊喜，意不意外。
 
 ### 2019/12/23
 
