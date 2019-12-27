@@ -16,7 +16,6 @@ cc.Class({
     editor: {
         disallowMultiple: false,
         menu: '自定义组件/List Item',
-        requireComponent: cc.Button,    //ListItem必须配合cc.Button组件或是继承自cc.Button的组件使用。
         executionOrder: -5001,          //先于List
     },
 
@@ -118,18 +117,20 @@ cc.Class({
     },
 
     onDestroy() {
-        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onSizeChange, this);
+        let t = this;
+        t.node.off(cc.Node.EventType.SIZE_CHANGED, t._onSizeChange, t);
     },
 
     _registerEvent() {
-        if (!this.eventReg) {
-            if (this.btnCom && this._list.selectedMode > 0) {
-                this.btnCom.clickEvents.unshift(this.createEvt(this, 'onClickThis'));
+        let t = this;
+        if (!t.eventReg) {
+            if (t.btnCom && t._list.selectedMode > 0) {
+                t.btnCom.clickEvents.unshift(t.createEvt(t, 'onClickThis'));
             }
-            if (this.adaptiveSize) {
-                this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onSizeChange, this);
+            if (t.adaptiveSize) {
+                t.node.on(cc.Node.EventType.SIZE_CHANGED, t._onSizeChange, t);
             }
-            this.eventReg = true;
+            t.eventReg = true;
         }
     },
 

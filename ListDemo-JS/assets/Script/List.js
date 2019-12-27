@@ -378,7 +378,7 @@ cc.Class({
         t._verticalDir = t._layout.verticalDirection; //垂直排列子节点的方向
         t._horizontalDir = t._layout.horizontalDirection; //水平排列子节点的方向
 
-        t.setTemplateItem(t.templateType == TemplateType.PREFAB ? cc.instantiate(t.tmpPrefab) : t.tmpNode);
+        t.setTemplateItem(cc.instantiate(t.templateType == TemplateType.PREFAB ? t.tmpPrefab : t.tmpNode));
 
         if (t._slideMode == SlideType.ADHERING || t._slideMode == SlideType.PAGE)//特定的滑动模式需要关闭惯性
             t._scrollView.inertia = false;
@@ -453,7 +453,12 @@ cc.Class({
                 break;
             }
         }
-        t.content.removeAllChildren();
+        // 清空 content
+        t.content.children.forEach(child => {
+            child.removeFromParent();
+            if (child.isValid)
+                child.destroy();
+        });
         t._inited = true;
     },
     /**
@@ -1269,16 +1274,20 @@ cc.Class({
                 if (this._customSize[item._listId] != val) {
                     this._customSize[item._listId] = val;
                     this._resizeContent();
-                    for (let n = this.content.childrenCount - 1; n >= 0; n--) {
-                        let child = this.content.children[n];
-                        if (child._listId < item._listId) {
-                            this._updateItemPos(child);
-                        }
+                    this.content.children.forEach(child => {
+                        this._updateItemPos(child);
+                    });
+                    // 如果当前正在运行 scrollTo，肯定会不准确，在这里做修正
+                    if (!isNaN(this._scrollToListId)) {
+                        this._scrollPos = null;
+                        this.unschedule(this._scrollToSo);
+                        this.scrollTo(this._scrollToListId, Math.max(0, this._scrollToEndTime - ((new Date()).getTime() / 1000)));
                     }
                 }
             }
         }
     },
+    //PAGE粘附
     _pageAdhere() {
         let t = this;
         if (!t.cyclic && (t.elasticTop > 0 || t.elasticRight > 0 || t.elasticBottom > 0 || t.elasticLeft > 0))
@@ -1387,7 +1396,10 @@ cc.Class({
                 item = cc.instantiate(this._itemTmp);
                 // cc.log('新建::', data.id, item);
             }
-            item._listId = data.id;
+            if (item._listId != data.id) {
+                item._listId = data.id;
+                item.setContentSize(this._itemSize);
+            }
             item.setPosition(new cc.v2(data.x, data.y));
             this._resetItemSize(item);
             this.content.addChild(item);
@@ -1735,7 +1747,7 @@ cc.Class({
             listId = 0;
         else if (listId >= t._numItems)
             listId = t._numItems - 1;
-
+        // 以防设置了numItems之后layout的尺寸还未更新
         if (!t._virtual && t._layout && t._layout.enabled)
             t._layout.updateLayout();
 
@@ -1784,15 +1796,22 @@ cc.Class({
         // cc.log(runScroll, t._scrollPos, viewPos, comparePos)
 
         t._scrollView.stopAutoScroll();
+
         if (runScroll) {
             t._scrollPos = comparePos;
+            t._scrollToListId = listId;
+            t._scrollToEndTime = ((new Date()).getTime() / 1000) + timeInSecond;
             t._scrollView.scrollToOffset(pos, timeInSecond);
             // cc.log(listId, t.content.width, t.content.getPosition(), pos);
-            t.scheduleOnce(() => {
+            t._scrollToSo = t.scheduleOnce(() => {
                 if (!t._adheringBarrier) {
                     t.adhering = t._adheringBarrier = false;
                 }
-                t._scrollPos = null;
+                t._scrollPos =
+                    t._scrollToListId =
+                    t._scrollToEndTime =
+                    t._scrollToSo =
+                    null;
                 //cc.log('2222222222', t._adheringBarrier)
                 if (overStress) {
                     // t.scrollToListId = listId;
@@ -1927,6 +1946,31 @@ cc.Class({
             cc.Component.EventHandler.emitEvents([t.pageChangeEvent], pageNum);
         }
         t.scrollTo(pageNum, timeInSecond);
+    },
+    //计算 CustomSize（这个函数还是保留吧，某些罕见的情况的确还是需要手动计算customSize的）
+    calcCustomSize(numItems) {
+        let t = this;
+        if (!t.checkInited())
+            return;
+        if (!t._itemTmp)
+            return cc.error('Unset template item!');
+        if (!t.renderEvent)
+            return cc.error('Unset Render-Event!');
+        t._customSize = {};
+        let temp = cc.instantiate(t._itemTmp);
+        t.content.addChild(temp);
+        for (let n = 0; n < numItems; n++) {
+            cc.Component.EventHandler.emitEvents([t.renderEvent], temp, n);
+            if (temp.height != t._itemSize.height || temp.width != t._itemSize.width) {
+                t._customSize[n] = t._sizeType ? temp.height : temp.width;
+            }
+        }
+        if (!Object.keys(t._customSize).length)
+            t._customSize = null;
+        temp.removeFromParent();
+        if (temp.destroy)
+            temp.destroy();
+        return t._customSize;
     },
 
 });

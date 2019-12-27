@@ -20,7 +20,7 @@ Cocos 论坛帖子链接：
 - 循环列表。
 - 选择模式。（单选、多选）
 - 滑动模式。（普通、粘附、分页）
-- 自定义 Item 的宽/高。（用来做**聊天列表**再适合不过）
+- 动态 Item 宽/高。（用来做**聊天列表**再适合不过）
 - 动态删除 Item 项。
 - ...
 
@@ -35,9 +35,9 @@ Last test by ccc_v2.2.1
 3. 设置**模板 Item**，选择 `TemplateType` ，可切换**模板类型**，请按需选择。
 4. 设置**滑动模式（ `SlideMode` ）**， `NORMAL=通常` ， `ADHERING=粘附` ， `PAGE=分页` ，三选一。
 5. 设置是否为**虚拟列表（ `Virtual` ）**，默认为 `true` ，意思是仅在可视范围内渲染 `Item` 。反之，如果为 `false` ，则会渲染所有数量的 Item，一般不推荐这么做，但凡事总有个万一，所以预留了。
-6. 可选设置**逐帧渲染（ `FrameByFrameRenderNum` ）**，该数量为**每帧渲染的数量**。
+6. （可选）设置**逐帧渲染（ `FrameByFrameRenderNum` ）**，该数量为**每帧渲染的数量**。
 7. 设置**渲染器（ `RenderEvent` ）**，在**View**中写一个函数，将该函数指向**RenderEvent**，运行时，设置 List 数量，Item 将会**通过该函数进行回调**，开发者在该函数中实现**Item 的刷新**。
-8. 可选设置**选择模式（ `SelectedMode` ）**，选择模式有 `SINGLE（单选）` 、 `MULT（多选）` 两种模式，须与 `ListItem` 组件搭配使用， `ListItem` 组件需要拖拽到**模板 Item**上。在**View**中写一个函数，将该函数指向 `SelectedEvent` ，运行时，当**选择变更**，将会通过该函数**回调**。
+8. （可选）设置**选择模式（ `SelectedMode` ）**，选择模式有 `SINGLE（单选）` 、 `MULT（多选）` 两种，须将`cc.Button`和`ListItem` 挂载到**模板 Item**上。在**View**中写一个函数，将该函数指向 `SelectedEvent` ，运行时，当**选择变更**，将会通过该函数**回调**。
 
 > 在**View**中，若是**单选**模式，用 `list.selectedId=Number` 来改变**当前选择**。若是**多选**模式，则调用 `list.setMultSelected(args, boolean)` 接口来设置多选数据。
 
@@ -46,6 +46,7 @@ Last test by ccc_v2.2.1
 ## 小贴士
 
 1. 每一个 `Item-Node` 都会被赋值一个 `_listId` ，即该 `Item` 在 `List` 中的 `下标` 。假如你的 `Item` 是个 `按钮` ，在该 `按钮` 的 `回调事件` 中，通过 `event.currentTarget._listId` 就能取得该 `Item的下标` 了，这非常方便。（ `TS版` 比较特殊， 通过 `event.currentTarget['_listId']` 来获得。）
+2. 如果是虚拟列表（即 `virtual`属性为`true`），勾选`ListItem`的`adaptiveSize`属性，能实现`动态Item宽/高`。
 
 ## 注意
 
@@ -65,9 +66,13 @@ Last test by ccc_v2.2.1
 
 ## 更新日志
 
-### 2019/12/26（目前只更了JS版，等TS版的小伙伴骚安勿躁）
+### 2019/12/27
 
-- 弃用手动计算`customSize`，现在要实现`动态宽/高`，请给`模板Item`挂载`ListItem组件`，并勾选 adaptiveSize 属性即可，全自动，再也不用算`customSize`了，使用方法请看示例项目中的`TestAdaptive`场景。惊不惊喜，意不意外。
+- 以后都不推荐在外部计算`customSize`或是手动调用`calcCustomSize`函数。
+  现在要实现`动态宽/高`，请给`模板Item`挂载`ListItem组件`，并勾选`adaptiveSize`属性即可，惊不惊喜，意不意外？使用方法请看`示例项目`中的`TestAdaptive`场景。
+  > 另外，`List.customSize`变量已更名为`_customSize`。`calcCustomSize`函数将会持续保留，某些特殊场景还是用得到的。
+- 解决`List`销毁时，有可能存在内存泄漏的 BUG。
+- List 初始化时会实例化一个`模板Item`缓存起来，并将原有引用的`模板Item`销毁。所以以后不支持两个`List`的`模板Item`引用同一个`Node`。（`Prefab`则没有这个限制）;
 
 ### 2019/12/23
 

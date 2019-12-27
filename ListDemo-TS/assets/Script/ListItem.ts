@@ -6,7 +6,7 @@
  *      1、此组件须配合List组件使用。（配套的配套的..）
  * @end
  ******************************************/
-const { ccclass, property, disallowMultiple, menu, requireComponent, executionOrder } = cc._decorator;
+const { ccclass, property, disallowMultiple, menu, executionOrder } = cc._decorator;
 
 import List from './List';
 
@@ -19,7 +19,6 @@ enum SelectedType {
 @ccclass
 @disallowMultiple()
 @menu('自定义组件/List Item')
-@requireComponent(cc.Button)    //ListItem必须配合cc.Button组件或是继承自cc.Button的组件使用。
 @executionOrder(-5001)          //先于List
 export default class ListItem extends cc.Component {
     //图标
@@ -48,6 +47,11 @@ export default class ListItem extends cc.Component {
     selectedSpriteFrame: cc.SpriteFrame = null;
     //未被选择的SpriteFrame
     _unselectedSpriteFrame: cc.SpriteFrame = null;
+    //自适应尺寸
+    @property({
+        tooltip: CC_DEV && '自适应尺寸（宽或高）',
+    })
+    adaptiveSize: boolean = false;
     //选择
     _selected: boolean = false;
     set selected(val: boolean) {
@@ -93,11 +97,26 @@ export default class ListItem extends cc.Component {
         }
     }
 
+    onDestroy() {
+        let t: any = this;
+        t.node.off(cc.Node.EventType.SIZE_CHANGED, t._onSizeChange, t);
+    }
+
     _registerEvent() {
-        if (this.btnCom && this.list.selectedMode > 0 && !this._eventReg) {
-            this.btnCom.clickEvents.unshift(this.createEvt(this, 'onClickThis'));
-            this._eventReg = true;
+        let t: any = this;
+        if (!t._eventReg) {
+            if (t.btnCom && t.list.selectedMode > 0) {
+                t.btnCom.clickEvents.unshift(t.createEvt(t, 'onClickThis'));
+            }
+            if (t.adaptiveSize) {
+                t.node.on(cc.Node.EventType.SIZE_CHANGED, t._onSizeChange, t);
+            }
+            t._eventReg = true;
         }
+    }
+
+    _onSizeChange() {
+        this.list._onItemAdaptive(this.node);
     }
     /**
      * 创建事件

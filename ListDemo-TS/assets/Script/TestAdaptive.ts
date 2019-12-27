@@ -1,7 +1,7 @@
 /******************************************
  * @author kL <klk0@qq.com>
  * @date 2019/8/30
- * @doc TestCustomSize.
+ * @doc TestAdaptive.
  * @end
  ******************************************/
 const { ccclass, property } = cc._decorator;
@@ -9,7 +9,7 @@ const { ccclass, property } = cc._decorator;
 import List from './List';
 
 @ccclass
-export default class TestCustomSize extends cc.Component {
+export default class TestAdaptive extends cc.Component {
     //列表
     @property(List)
     list: List = null;
@@ -207,7 +207,6 @@ export default class TestCustomSize extends cc.Component {
                 text: '再见了您嘞~<img src="29"/><img src="29"/><img src="29"/>'
             },
         ];
-        this.list.calcCustomSize(this.data.length);
         this.list.numItems = this.data.length;
     }
 

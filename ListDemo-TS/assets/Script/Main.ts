@@ -110,37 +110,6 @@ export default class Main extends cc.Component {
                 t.listG.aniDelItem(1, callFunc, null);
                 break;
             case 'btn4':
-                //key=Id，val=Size
-                let heightData: any = {
-                    0: 300,
-                    5: 260,
-                    6: 300,
-                    10: 210,
-                    13: 100,
-                    14: 130,
-                    15: 160,
-                    17: 1000,
-                };
-                t.listV.customSize = heightData;
-                //设置了customSize后，要刷新
-                t.listV.updateAll();
-                break;
-            case 'btn5':
-                //key=Id，val=Size
-                let widthData: any = {
-                    0: 400,
-                    5: 260,
-                    6: 300,
-                    10: 210,
-                    13: 100,
-                    14: 130,
-                    15: 160,
-                };
-                t.listH.customSize = widthData;
-                //设置了customSize后，要刷新
-                t.listH.updateAll();
-                break;
-            case 'btn6':
                 t.listV.scrollTo(parseInt(t.input.string), .5, null, false);
                 t.listH.scrollTo(parseInt(t.input.string), .5, null, false);
                 t.listG.scrollTo(parseInt(t.input.string), .5, null, false);
