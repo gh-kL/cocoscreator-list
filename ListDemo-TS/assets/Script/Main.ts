@@ -45,23 +45,11 @@ export default class Main extends cc.Component {
     //垂直列表渲染器
     onListVRender(item: cc.Node, idx: number) {
         item.getComponent(ListItem).title.getComponent(cc.Label).string = this.data[idx] + '';
-        let lab: cc.Node = item.getChildByName('label2');
-        let label2: cc.Label;
-        if (lab)
-            label2 = lab.getComponent(cc.Label);
-        if (label2)
-            label2.string = 'height=' + item.height;
         this.info.string = 'ListV当前渲染总数 = ' + this.listV.displayItemNum;
     }
     //水平列表渲染器
     onListHRender(item: cc.Node, idx: number) {
         item.getComponent(ListItem).title.getComponent(cc.Label).string = this.data[idx] + '';
-        let lab: cc.Node = item.getChildByName('label2');
-        let label2: cc.Label;
-        if (lab)
-            label2 = lab.getComponent(cc.Label);
-        if (label2)
-            label2.string = 'width=' + item.width;
         this.info.string = 'ListH当前渲染总数 = ' + this.listH.displayItemNum;
     }
     //网格列表渲染器

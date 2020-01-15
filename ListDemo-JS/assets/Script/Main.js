@@ -37,23 +37,11 @@ cc.Class({
     //垂直列表渲染器
     onListVRender(item, idx) {
         item.listItem.title.string = this.data[idx];
-        let lab = item.getChildByName('label2');
-        let label2;
-        if (lab)
-            label2 = lab.getComponent(cc.Label);
-        if (label2)
-            label2.string = 'height=' + item.height;
         this.info.string = 'ListV当前渲染总数 = ' + this.listV.displayItemNum;
     },
     //水平列表渲染器
     onListHRender(item, idx) {
         item.listItem.title.string = this.data[idx];
-        let lab = item.getChildByName('label2');
-        let label2;
-        if (lab)
-            label2 = lab.getComponent(cc.Label);
-        if (label2)
-            label2.string = 'width=' + item.width;
         this.info.string = 'ListH当前渲染总数 = ' + this.listH.displayItemNum;
     },
     //网格列表渲染器

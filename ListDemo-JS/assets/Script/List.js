@@ -213,7 +213,7 @@ cc.Class({
                             }
                         }
                         if (t.selectedEvent) {
-                            cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val % this._actualNumItems, t._lastSelectedId % this._actualNumItems);
+                            cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val % this._actualNumItems, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems));
                         }
                         break;
                     }
@@ -233,7 +233,7 @@ cc.Class({
                             t.multSelected.splice(sub, 1);
                         }
                         if (t.selectedEvent) {
-                            cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val % this._actualNumItems, t._lastSelectedId % this._actualNumItems, bool);
+                            cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val % this._actualNumItems, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems), bool);
                         }
                         break;
                     }
@@ -380,8 +380,13 @@ cc.Class({
 
         t.setTemplateItem(cc.instantiate(t.templateType == TemplateType.PREFAB ? t.tmpPrefab : t.tmpNode));
 
-        if (t._slideMode == SlideType.ADHERING || t._slideMode == SlideType.PAGE)//特定的滑动模式需要关闭惯性
+        // 特定的滑动模式处理
+        if (t._slideMode == SlideType.ADHERING || t._slideMode == SlideType.PAGE) {
             t._scrollView.inertia = false;
+            t._scrollView._onMouseWheel = function () {
+                return;
+            };
+        }
         if (!t.virtual)         // lackCenter 仅支持 Virtual 模式
             t.lackCenter = false;
 
@@ -399,9 +404,6 @@ cc.Class({
             t._scrollView._startBounceBackIfNeeded = function () {
                 return false;
             }
-            // t._scrollView._scrollChildren = function () {
-            //     return false;
-            // }
         }
 
         switch (t._align) {
@@ -1738,7 +1740,7 @@ cc.Class({
         let t = this;
         if (!t.checkInited())
             return;
-        t._scrollView.stopAutoScroll();
+        // t._scrollView.stopAutoScroll();
         if (timeInSecond == null)   //默认0.5
             timeInSecond = .5;
         else if (timeInSecond < 0)
@@ -1795,7 +1797,7 @@ cc.Class({
         let runScroll = Math.abs((t._scrollPos != null ? t._scrollPos : viewPos) - comparePos) > .5;
         // cc.log(runScroll, t._scrollPos, viewPos, comparePos)
 
-        t._scrollView.stopAutoScroll();
+        // t._scrollView.stopAutoScroll();
 
         if (runScroll) {
             t._scrollPos = comparePos;

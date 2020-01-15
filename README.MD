@@ -66,6 +66,13 @@ Last test by ccc_v2.2.1
 
 ## 更新日志
 
+### 2020/1/15
+
+示例项目升级至 ccc_v2.2.2。
+
+- 修复连续调用两次`scrollTo`可能会卡住的 BUG。
+- 修复`Selected Event`报错。
+
 ### 2019/12/27
 
 - 以后都不推荐在外部计算`customSize`或是手动调用`calcCustomSize`函数。
