@@ -203,7 +203,7 @@ export default class List extends cc.Component {
                     }
                 }
                 if (t.selectedEvent) {
-                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems));
+                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, t._selectedId, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems));
                 }
                 break;
             }
@@ -224,8 +224,7 @@ export default class List extends cc.Component {
                     t.multSelected.splice(sub, 1);
                 }
                 if (t.selectedEvent) {
-                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems), bool);
-                }
+                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, t._selectedId, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems), bool);                }
                 break;
             }
         }
