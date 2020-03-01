@@ -203,7 +203,7 @@ export default class List extends cc.Component {
                     }
                 }
                 if (t.selectedEvent) {
-                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, t._selectedId, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems));
+                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems));
                 }
                 break;
             }
@@ -224,7 +224,7 @@ export default class List extends cc.Component {
                     t.multSelected.splice(sub, 1);
                 }
                 if (t.selectedEvent) {
-                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, t._selectedId, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems), bool);
+                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems), bool);
                 }
                 break;
             }
@@ -262,7 +262,7 @@ export default class List extends cc.Component {
             return;
         }
         t._actualNumItems = t._numItems = val;
-		t._forceUpdate = true;
+        t._forceUpdate = true;
 
         if (t._virtual) {
             t._resizeContent();
@@ -383,13 +383,13 @@ export default class List extends cc.Component {
     }
 
     onEnable() {
-        // if (!CC_EDITOR)
+        // if (!CC_EDITOR) 
         this._registerEvent();
         this._init();
     }
 
     onDisable() {
-        // if (!CC_EDITOR)
+        // if (!CC_EDITOR) 
         this._unregisterEvent();
     }
     //注册事件
@@ -915,12 +915,12 @@ export default class List extends cc.Component {
                 for (; curId <= endId; curId++) {
                     this.displayData.push(this._calcItemPos(curId));
                 }
-			}
+            }
             if (this.displayData.length <= 0 || !this._numItems) { //if none, delete all.
                 this._lastDisplayData = [];
                 this._delRedundantItem();
                 return;
-			}
+            }
             this.firstListId = this.displayData[0].id;
             this.displayItemNum = this.displayData.length;
             let len: number = this._lastDisplayData.length;
@@ -1700,7 +1700,7 @@ export default class List extends cc.Component {
             item.destroy();
         item = null;
     }
-    /**
+    /** 
      * 动效删除Item（此方法只适用于虚拟列表，即_virtual=true）
      * 一定要在回调函数里重新设置新的numItems进行刷新，毕竟本List是靠数据驱动的。
      */
