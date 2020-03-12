@@ -66,6 +66,15 @@ Last test by ccc_v2.2.1
 
 ## 更新日志
 
+### 2020/3/12
+
+示例项目升级至 ccc_v2.3.1。
+
+- 修改了`模板Item`的销毁机制，现在支持同一个`View`下，多个`List`的`模板Item`引用同一个`Node`。
+- 修复使用`自适应宽/高（AdaptiveSize）`时，可能显示不完全的 Bug。
+- 优化`分帧加载（FrameByFrameRenderNum）`时，滚动时刷新频率过高的问题。（感谢Cocos论坛用户@lifeiying）
+- 优化`选择模式（SelectedMode）`的使用习惯。现在允许将`按钮组件`挂载到`模板Item`下的子节点上，当然，这样用的话，需要自行添加`模板Item的ListItem的onClickThis`到该`按钮组件`上。
+
 ### 2020/1/15
 
 示例项目升级至 ccc_v2.2.2。

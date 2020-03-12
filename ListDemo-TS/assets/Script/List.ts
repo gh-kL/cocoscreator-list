@@ -371,15 +371,18 @@ export default class List extends cc.Component {
     }
 
     onDestroy() {
-        if (this._itemTmp && this._itemTmp.isValid)
-            this._itemTmp.destroy();
-        // let total = this._pool.size();
-        while (this._pool.size()) {
-            let node = this._pool.get();
+        let t: any = this;
+        if (t._itemTmp && t._itemTmp.isValid)
+            t._itemTmp.destroy();
+        if (t.tmpNode && t.tmpNode.isValid)
+            t.tmpNode.destroy();
+        // let total = t._pool.size();
+        while (t._pool.size()) {
+            let node = t._pool.get();
             node.destroy();
         }
         // if (total)
-        //     cc.log('-----------------' + this.node.name + '<List> destroy node total num. =>', total);
+        //     cc.log('-----------------' + t.node.name + '<List> destroy node total num. =>', total);
     }
 
     onEnable() {
@@ -528,11 +531,12 @@ export default class List extends cc.Component {
             }
         }
         // 清空 content
-        t.content.children.forEach((child: cc.Node) => {
-            child.removeFromParent();
-            if (child != t.tmpNode && child.isValid)
-                child.destroy();
-        });
+        // t.content.children.forEach((child: cc.Node) => {
+        //     child.removeFromParent();
+        //     if (child != t.tmpNode && child.isValid)
+        //         child.destroy();
+        // });
+        t.content.removeAllChildren();
         t._inited = true;
     }
     /**
@@ -609,11 +613,11 @@ export default class List extends cc.Component {
         let remove = false;
         if (!com)
             remove = true;
-        if (com) {
-            if (!com._btnCom && !item.getComponent(cc.Button)) {
-                remove = true;
-            }
-        }
+        // if (com) {
+        //     if (!com._btnCom && !item.getComponent(cc.Button)) {
+        //         remove = true;
+        //     }
+        // }
         if (remove) {
             t.selectedMode = SelectedType.NONE;
         }
@@ -916,23 +920,31 @@ export default class List extends cc.Component {
                     this.displayData.push(this._calcItemPos(curId));
                 }
             }
+            this._delRedundantItem();
             if (this.displayData.length <= 0 || !this._numItems) { //if none, delete all.
                 this._lastDisplayData = [];
-                this._delRedundantItem();
                 return;
             }
             this.firstListId = this.displayData[0].id;
             this.displayItemNum = this.displayData.length;
+
             let len: number = this._lastDisplayData.length;
-            //判断数据是否与当前相同，如果相同，return。
-            //因List的显示数据是有序的，所以只需要判断数组长度是否相等，以及头、尾两个元素是否相等即可。
-            if (this._forceUpdate ||
-                this.displayItemNum != len ||
-                this.firstListId != this._lastDisplayData[0] ||
-                this.displayData[this.displayItemNum - 1].id != this._lastDisplayData[len - 1]
-            ) {
-                this._lastDisplayData = [];
-                if (this.frameByFrameRenderNum > 0) { //逐帧渲染
+
+            let haveDataChange: boolean = this.displayItemNum != len;
+            if (haveDataChange) {
+                // 如果是逐帧渲染，需要排序
+                if (this.frameByFrameRenderNum > 0) {
+                    this._lastDisplayData.sort((a, b) => { return a - b });
+                }
+                // 因List的显示数据是有序的，所以只需要判断数组长度是否相等，以及头、尾两个元素是否相等即可。
+                haveDataChange = this.firstListId != this._lastDisplayData[0] || this.displayData[this.displayItemNum - 1].id != this._lastDisplayData[len - 1];
+            }
+
+            if (this._forceUpdate || haveDataChange) {    //如果是强制更新
+                if (this.frameByFrameRenderNum > 0) {
+                    // if (this._updateDone) {
+                    // this._lastDisplayData = [];
+                    //逐帧渲染
                     if (this._numItems > 0) {
                         if (!this._updateDone) {
                             this._doneAfterUpdate = true;
@@ -941,17 +953,17 @@ export default class List extends cc.Component {
                         }
                         this._updateDone = false;
                     } else {
-                        this._delRedundantItem();
                         this._updateCounter = 0;
                         this._updateDone = true;
                     }
-                    // cc.log('List Display Data I::', this.displayData);
-                } else { //直接渲染
+                    // }
+                } else {
+                    //直接渲染
+                    this._lastDisplayData = [];
                     // cc.log('List Display Data II::', this.displayData);
-                    for (let c: number = 0; c < this.displayItemNum; c++) {
+                    for (let c = 0; c < this.displayItemNum; c++) {
                         this._createOrUpdateItem(this.displayData[c]);
                     }
-                    this._delRedundantItem();
                     this._forceUpdate = false;
                 }
             }
@@ -1340,9 +1352,10 @@ export default class List extends cc.Component {
                 if (this._customSize[item._listId] != val) {
                     this._customSize[item._listId] = val;
                     this._resizeContent();
-                    this.content.children.forEach((child: cc.Node) => {
-                        this._updateItemPos(child);
-                    });
+                    // this.content.children.forEach((child: cc.Node) => {
+                    //     this._updateItemPos(child);
+                    // });
+                    this.updateAll();
                     // 如果当前正在运行 scrollTo，肯定会不准确，在这里做修正
                     if (!isNaN(this._scrollToListId)) {
                         this._scrollPos = null;
@@ -1402,7 +1415,7 @@ export default class List extends cc.Component {
         t.scrollTo(t.nearestListId, timeInSecond, offset);
     }
     //Update..
-    update(dt: number) {
+    update() {
         if (this.frameByFrameRenderNum <= 0 || this._updateDone)
             return;
         // cc.log(this.displayData.length, this._updateCounter, this.displayData[this._updateCounter]);
@@ -1410,16 +1423,17 @@ export default class List extends cc.Component {
             let len: number = (this._updateCounter + this.frameByFrameRenderNum) > this.displayItemNum ? this.displayItemNum : (this._updateCounter + this.frameByFrameRenderNum);
             for (let n: number = this._updateCounter; n < len; n++) {
                 let data: any = this.displayData[n];
-                if (data)
+                if (data) {
                     this._createOrUpdateItem(data);
+                }
             }
 
             if (this._updateCounter >= this.displayItemNum - 1) { //最后一个
                 if (this._doneAfterUpdate) {
                     this._updateCounter = 0;
                     this._updateDone = false;
-                    if (!this._scrollView.isScrolling())
-                        this._doneAfterUpdate = false;
+                    // if (!this._scrollView.isScrolling())
+                    this._doneAfterUpdate = false;
                 } else {
                     this._updateDone = true;
                     this._delRedundantItem();
@@ -1536,12 +1550,13 @@ export default class List extends cc.Component {
         if (!listItem)
             return;
         if (this.selectedMode > SelectedType.NONE) {
+            let item: any = listItem.node;
             switch (this.selectedMode) {
                 case SelectedType.SINGLE:
-                    listItem.selected = this.selectedId == listItem.node['_listId'];
+                    listItem.selected = this.selectedId == item._listId;
                     break;
                 case SelectedType.MULT:
-                    listItem.selected = this.multSelected.indexOf(listItem.node['_listId']) >= 0;
+                    listItem.selected = this.multSelected.indexOf(item._listId) >= 0;
                     break;
             }
         }
@@ -1570,8 +1585,8 @@ export default class List extends cc.Component {
      * @param {Number||Node} listIdOrItem
      */
     _updateItemPos(listIdOrItem: any) {
-        let item: cc.Node = isNaN(listIdOrItem) ? listIdOrItem : this.getItemByListId(listIdOrItem);
-        let pos: any = this.getItemPos(item['_listId']);
+        let item: any = isNaN(listIdOrItem) ? listIdOrItem : this.getItemByListId(listIdOrItem);
+        let pos: any = this.getItemPos(item._listId);
         item.setPosition(pos.x, pos.y);
     }
     /**
@@ -1644,8 +1659,9 @@ export default class List extends cc.Component {
      */
     getItemByListId(listId: number) {
         for (let n: number = this.content.childrenCount - 1; n >= 0; n--) {
-            if (this.content.children[n]['_listId'] == listId)
-                return this.content.children[n];
+            let item: any = this.content.children[n];
+            if (item._listId == listId)
+                return item;
         }
     }
     /**
@@ -1653,23 +1669,11 @@ export default class List extends cc.Component {
      * @returns
      */
     _getOutsideItem() {
-        let item: any, isOutside: boolean;
+        let item: any;
         let result: any[] = [];
         for (let n: number = this.content.childrenCount - 1; n >= 0; n--) {
             item = this.content.children[n];
-            isOutside = true;
-            if (isOutside) {
-                for (let c: number = this.displayItemNum - 1; c >= 0; c--) {
-                    if (!this.displayData[c])
-                        continue;
-                    let listId: number = this.displayData[c].id;
-                    if (item['_listId'] == listId) {
-                        isOutside = false;
-                        break;
-                    }
-                }
-            }
-            if (isOutside) {
+            if (!this.displayData.find(d => d.id == item._listId)) {
                 result.push(item);
             }
         }
@@ -1680,10 +1684,16 @@ export default class List extends cc.Component {
         if (this._virtual) {
             let arr: any[] = this._getOutsideItem();
             for (let n: number = arr.length - 1; n >= 0; n--) {
-                let item = arr[n];
-                if (this._scrollItem && item['_listId'] == this._scrollItem['_listId'])
+                let item: any = arr[n];
+                if (this._scrollItem && item._listId == this._scrollItem._listId)
                     continue;
                 this._pool.put(item);
+                for (let m: number = this._lastDisplayData.length - 1; m >= 0; m--) {
+                    if (this._lastDisplayData[m] == item._listId) {
+                        this._lastDisplayData.splice(m, 1);
+                        break;
+                    }
+                }
             }
             // cc.log('存入::', str, '    pool.length =', this._pool.length);
         } else {

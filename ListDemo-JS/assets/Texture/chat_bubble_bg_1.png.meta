@@ -1,5 +1,5 @@
 {
-  "ver": "2.3.3",
+  "ver": "2.3.4",
   "uuid": "5ccdb2a1-715e-4315-90cf-d13ed7c30d6a",
   "type": "sprite",
   "wrapMode": "clamp",
@@ -7,6 +7,8 @@
   "premultiplyAlpha": false,
   "genMipmaps": false,
   "packable": true,
+  "width": 72,
+  "height": 41,
   "platformSettings": {},
   "subMetas": {
     "chat_bubble_bg_1": {

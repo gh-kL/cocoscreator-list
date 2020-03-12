@@ -302,15 +302,18 @@ cc.Class({
     },
 
     onDestroy() {
-        if (this._itemTmp && this._itemTmp.isValid)
-            this._itemTmp.destroy();
-        // let total = this._pool.size();
-        while (this._pool.size()) {
-            let node = this._pool.get();
+        let t = this;
+        if (t._itemTmp && t._itemTmp.isValid)
+            t._itemTmp.destroy();
+        if (t.tmpNode && t.tmpNode.isValid)
+            t.tmpNode.destroy();
+        // let total = t._pool.size();
+        while (t._pool.size()) {
+            let node = t._pool.get();
             node.destroy();
         }
         // if (total)
-        //     cc.log('-----------------' + this.node.name + '<List> destroy node total num. =>', total);
+        //     cc.log('-----------------' + t.node.name + '<List> destroy node total num. =>', total);
     },
 
     onEnable() {
@@ -456,11 +459,12 @@ cc.Class({
             }
         }
         // 清空 content
-        t.content.children.forEach(child => {
-            child.removeFromParent();
-            if (child.isValid)
-                child.destroy();
-        });
+        // t.content.children.forEach(child => {
+        //     child.removeFromParent();
+        //     if (child.isValid)
+        //         child.destroy();
+        // });
+        t.content.removeAllChildren();
         t._inited = true;
     },
     /**
@@ -537,11 +541,11 @@ cc.Class({
         let remove = false;
         if (!com)
             remove = true;
-        if (com) {
-            if (!com._btnCom && !item.getComponent(cc.Button)) {
-                remove = true;
-            }
-        }
+        // if (com) {
+        //     if (!com._btnCom && !item.getComponent(cc.Button)) {
+        //         remove = true;
+        //     }
+        // }
         if (remove) {
             t.selectedMode = SelectedType.NONE;
         }
@@ -844,23 +848,30 @@ cc.Class({
                     this.displayData.push(this._calcItemPos(curId));
                 }
             }
+            this._delRedundantItem();
             if (this.displayData.length <= 0 || !this._numItems) { //if none, delete all.
                 this._lastDisplayData = [];
-                this._delRedundantItem();
                 return;
             }
             this.firstListId = this.displayData[0].id;
             this.displayItemNum = this.displayData.length;
+
             let len = this._lastDisplayData.length;
-            //判断数据是否与当前相同，如果相同，return。
-            //因List的显示数据是有序的，所以只需要判断数组长度是否相等，以及头、尾两个元素是否相等即可。
-            if (this._forceUpdate ||
-                this.displayItemNum != len ||
-                this.firstListId != this._lastDisplayData[0] ||
-                this.displayData[this.displayItemNum - 1].id != this._lastDisplayData[len - 1]
-            ) {
-                this._lastDisplayData = [];
-                if (this.frameByFrameRenderNum > 0) { //逐帧渲染
+            let haveDataChange = this.displayItemNum != len;
+            if (haveDataChange) {
+                // 如果是逐帧渲染，需要排序
+                if (this.frameByFrameRenderNum > 0) {
+                    this._lastDisplayData.sort((a, b) => { return a - b });
+                }
+                // 因List的显示数据是有序的，所以只需要判断数组长度是否相等，以及头、尾两个元素是否相等即可。
+                haveDataChange = this.firstListId != this._lastDisplayData[0] || this.displayData[this.displayItemNum - 1].id != this._lastDisplayData[len - 1];
+            }
+
+            if (this._forceUpdate || haveDataChange) {    //如果是强制更新
+                if (this.frameByFrameRenderNum > 0) {
+                    // if (this._updateDone) {
+                    // this._lastDisplayData = [];
+                    //逐帧渲染
                     if (this._numItems > 0) {
                         if (!this._updateDone) {
                             this._doneAfterUpdate = true;
@@ -869,17 +880,17 @@ cc.Class({
                         }
                         this._updateDone = false;
                     } else {
-                        this._delRedundantItem();
                         this._updateCounter = 0;
                         this._updateDone = true;
                     }
-                    // cc.log('List Display Data I::', this.displayData);
-                } else { //直接渲染
+                    // }
+                } else {
+                    //直接渲染
+                    this._lastDisplayData = [];
                     // cc.log('List Display Data II::', this.displayData);
                     for (let c = 0; c < this.displayItemNum; c++) {
                         this._createOrUpdateItem(this.displayData[c]);
                     }
-                    this._delRedundantItem();
                     this._forceUpdate = false;
                 }
             }
@@ -1276,9 +1287,10 @@ cc.Class({
                 if (this._customSize[item._listId] != val) {
                     this._customSize[item._listId] = val;
                     this._resizeContent();
-                    this.content.children.forEach(child => {
-                        this._updateItemPos(child);
-                    });
+                    // this.content.children.forEach(child => {
+                    //     this._updateItemPos(child);
+                    // });
+                    this.updateAll();
                     // 如果当前正在运行 scrollTo，肯定会不准确，在这里做修正
                     if (!isNaN(this._scrollToListId)) {
                         this._scrollPos = null;
@@ -1347,16 +1359,18 @@ cc.Class({
             let len = (this._updateCounter + this.frameByFrameRenderNum) > this.displayItemNum ? this.displayItemNum : (this._updateCounter + this.frameByFrameRenderNum);
             for (let n = this._updateCounter; n < len; n++) {
                 let data = this.displayData[n];
-                if (data)
+                if (data) {
+                    // cc.log(data.id);
                     this._createOrUpdateItem(data);
+                }
             }
 
             if (this._updateCounter >= this.displayItemNum - 1) { //最后一个
                 if (this._doneAfterUpdate) {
                     this._updateCounter = 0;
                     this._updateDone = false;
-                    if (!this._scrollView.isScrolling())
-                        this._doneAfterUpdate = false;
+                    // if (!this._scrollView.isScrolling())  
+                    this._doneAfterUpdate = false;
                 } else {
                     this._updateDone = true;
                     this._delRedundantItem();
@@ -1424,7 +1438,7 @@ cc.Class({
         } else if (this._forceUpdate && this.renderEvent) { //强制更新
             item.setPosition(new cc.v2(data.x, data.y));
             this._resetItemSize(item);
-            // cc.log('ADD::', data.id, item);
+            // cc.log('ADD::', data.id);
             if (this.renderEvent) {
                 cc.Component.EventHandler.emitEvents([this.renderEvent], item, data.id % this._actualNumItems);
             }
@@ -1586,23 +1600,11 @@ cc.Class({
      * @returns
      */
     _getOutsideItem() {
-        let item, isOutside;
+        let item;
         let result = [];
         for (let n = this.content.childrenCount - 1; n >= 0; n--) {
             item = this.content.children[n];
-            isOutside = true;
-            if (isOutside) {
-                for (let c = this.displayItemNum - 1; c >= 0; c--) {
-                    if (!this.displayData[c])
-                        continue;
-                    let listId = this.displayData[c].id;
-                    if (item._listId == listId) {
-                        isOutside = false;
-                        break;
-                    }
-                }
-            }
-            if (isOutside) {
+            if (!this.displayData.find(d => d.id == item._listId)) {
                 result.push(item);
             }
         }
@@ -1614,9 +1616,16 @@ cc.Class({
             let arr = this._getOutsideItem();
             for (let n = arr.length - 1; n >= 0; n--) {
                 let item = arr[n];
+                // 加这一句是为了防止拖动时被卡住...
                 if (this._scrollItem && item._listId == this._scrollItem._listId)
                     continue;
                 this._pool.put(item);
+                for (let m = this._lastDisplayData.length - 1; m >= 0; m--) {
+                    if (this._lastDisplayData[m] == item._listId) {
+                        this._lastDisplayData.splice(m, 1);
+                        break;
+                    }
+                }
             }
             // cc.log('存入::', str, '    pool.length =', this._pool.length);
         } else {
