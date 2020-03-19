@@ -98,20 +98,18 @@ export default class ListItem extends cc.Component {
     }
 
     onDestroy() {
-        let t: any = this;
-        t.node.off(cc.Node.EventType.SIZE_CHANGED, t._onSizeChange, t);
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onSizeChange, this);
     }
 
     _registerEvent() {
-        let t: any = this;
-        if (!t._eventReg) {
-            if (t.btnCom && t.list.selectedMode > 0) {
-                t.btnCom.clickEvents.unshift(t.createEvt(t, 'onClickThis'));
+        if (!this._eventReg) {
+            if (this.btnCom && this.list.selectedMode > 0) {
+                this.btnCom.clickEvents.unshift(this.createEvt(this, 'onClickThis'));
             }
-            if (t.adaptiveSize) {
-                t.node.on(cc.Node.EventType.SIZE_CHANGED, t._onSizeChange, t);
+            if (this.adaptiveSize) {
+                this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onSizeChange, this);
             }
-            t._eventReg = true;
+            this._eventReg = true;
         }
     }
 

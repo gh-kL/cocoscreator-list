@@ -249,4 +249,13 @@ cc.Class({
         }
     },
 
+    btnPlusEv(ev, data) {
+        let times = +data || 1;
+        for (let n = 0; n < times; n++) {
+            this.data.push(this.data[Math.round(Math.random() * (this.data.length - 1))]);
+            this.list.numItems = this.data.length;
+        }
+        this.list.scrollTo(this.data.length - 1);
+    },
+
 });

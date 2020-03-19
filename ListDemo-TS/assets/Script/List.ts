@@ -1341,30 +1341,30 @@ export default class List extends cc.Component {
     }
     //当Item自适应
     _onItemAdaptive(item) {
-        if (this.checkInited(false)) {
-            if (
-                (!this._sizeType && item.width != this._itemSize.width)
-                || (this._sizeType && item.height != this._itemSize.height)
-            ) {
-                if (!this._customSize)
-                    this._customSize = {};
-                let val = this._sizeType ? item.height : item.width;
-                if (this._customSize[item._listId] != val) {
-                    this._customSize[item._listId] = val;
-                    this._resizeContent();
-                    // this.content.children.forEach((child: cc.Node) => {
-                    //     this._updateItemPos(child);
-                    // });
-                    this.updateAll();
-                    // 如果当前正在运行 scrollTo，肯定会不准确，在这里做修正
-                    if (!isNaN(this._scrollToListId)) {
-                        this._scrollPos = null;
-                        this.unschedule(this._scrollToSo);
-                        this.scrollTo(this._scrollToListId, Math.max(0, this._scrollToEndTime - ((new Date()).getTime() / 1000)));
-                    }
+        // if (this.checkInited(false)) {
+        if (
+            (!this._sizeType && item.width != this._itemSize.width)
+            || (this._sizeType && item.height != this._itemSize.height)
+        ) {
+            if (!this._customSize)
+                this._customSize = {};
+            let val = this._sizeType ? item.height : item.width;
+            if (this._customSize[item._listId] != val) {
+                this._customSize[item._listId] = val;
+                this._resizeContent();
+                // this.content.children.forEach((child: cc.Node) => {
+                //     this._updateItemPos(child);
+                // });
+                this.updateAll();
+                // 如果当前正在运行 scrollTo，肯定会不准确，在这里做修正
+                if (this._scrollToListId != null) {
+                    this._scrollPos = null;
+                    this.unschedule(this._scrollToSo);
+                    this.scrollTo(this._scrollToListId, Math.max(0, this._scrollToEndTime - ((new Date()).getTime() / 1000)));
                 }
             }
         }
+        // }
     }
     //PAGE粘附
     _pageAdhere() {

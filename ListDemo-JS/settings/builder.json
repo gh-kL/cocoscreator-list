@@ -1,14 +1,15 @@
 {
-  "title": "ListDemo-JS",
+  "title": "ListDemo-Cyclic",
   "packageName": "",
-  "startScene": "3156d91c-e3d5-48ba-9db7-b7a795c72578",
+  "startScene": "613928f1-e88d-4f4b-9cae-d409d22fb7fc",
   "excludeScenes": [
-    "b0376683-63b8-48e1-b23b-77af85567dbc",
-    "76387f56-7712-481b-a2ec-defcb229d241",
-    "613928f1-e88d-4f4b-9cae-d409d22fb7fc",
     "f69f7e79-f825-4f22-a409-71ca9fc1592f",
+    "d10df436-8fc4-4655-bb0a-195694815023",
+    "f4c57900-ea24-477c-bc18-048b807d8953",
+    "b0376683-63b8-48e1-b23b-77af85567dbc",
+    "3156d91c-e3d5-48ba-9db7-b7a795c72578",
     "bf49412c-95a6-45e0-82af-da73fdebe821",
-    "d10df436-8fc4-4655-bb0a-195694815023"
+    "76387f56-7712-481b-a2ec-defcb229d241"
   ],
   "includeSDKBox": false,
   "orientation": {

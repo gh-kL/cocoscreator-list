@@ -66,13 +66,19 @@ Last test by ccc_v2.2.1
 
 ## 更新日志
 
+### 2020/3/19
+
+示例项目升级至 ccc_v2.3.2。（CocosDashboard 真香）
+
+- 修复`自适应宽/高（AdaptiveSize）`时，调用`List.scrollTo(...)`可能会乱跳的 BUG。（感谢`幻 <791937096@qq.com>`）
+
 ### 2020/3/12
 
 示例项目升级至 ccc_v2.3.1。
 
 - 修改了`模板Item`的销毁机制，现在支持同一个`View`下，多个`List`的`模板Item`引用同一个`Node`。
-- 修复使用`自适应宽/高（AdaptiveSize）`时，可能显示不完全的 Bug。（感谢Cocos论坛用户`@icicic`）
-- 优化`分帧加载（FrameByFrameRenderNum）`时，滚动时刷新频率过高的问题。（感谢Cocos论坛用户`@lifeiying`）
+- 修复使用`自适应宽/高（AdaptiveSize）`时，可能显示不完全的 Bug。（感谢 Cocos 论坛用户`@icicic`）
+- 优化`分帧加载（FrameByFrameRenderNum）`时，滚动时刷新频率过高的问题。（感谢 Cocos 论坛用户`@lifeiying`）
 - 优化`选择模式（SelectedMode）`的使用习惯。现在允许将`按钮组件`挂载到`模板Item`下的子节点上，当然，这样用的话，需要自行添加`模板Item的ListItem的onClickThis`到该`按钮组件的Click Events`上。
 
 ### 2020/1/15
@@ -85,7 +91,7 @@ Last test by ccc_v2.2.1
 ### 2019/12/27
 
 - 以后都不推荐在外部计算`customSize`或是手动调用`calcCustomSize`函数。
-  现在要实现`动态宽/高`，请给`模板Item`挂载`ListItem组件`，并勾选`adaptiveSize`属性即可，惊不惊喜，意不意外？使用方法请看`示例项目`中的`TestAdaptive`场景。（感谢Cocos论坛用户`@bluesn`给出的建议）
+  现在要实现`动态宽/高`，请给`模板Item`挂载`ListItem组件`，并勾选`adaptiveSize`属性即可，惊不惊喜，意不意外？使用方法请看`示例项目`中的`TestAdaptive`场景。（感谢 Cocos 论坛用户`@bluesn`给出的建议）
   > 另外，`List.customSize`变量已更名为`_customSize`。`calcCustomSize`函数将会持续保留，某些特殊场景还是用得到的。
 - 解决`List`销毁时，有可能存在内存泄漏的 BUG。
 - List 初始化时会实例化一个`模板Item`缓存起来，并将原有引用的`模板Item`销毁。所以以后不支持两个`List`的`模板Item`引用同一个`Node`。（`Prefab`则没有这个限制）;
@@ -99,7 +105,7 @@ Last test by ccc_v2.2.1
 
 示例项目升级至 ccc_v2.2.1。
 
-- 适配`cc.Widget`。（感谢Cocos论坛用户`@ckcfcc`）
+- 适配`cc.Widget`。（感谢 Cocos 论坛用户`@ckcfcc`）
 - 新增`TestWidget.scene`示例场景。
 - 新增`循环列表`功能，即`cyclic`属性。（目前仅支持单行/单列）
   > 设为循环列表时，Content 的 cc.Layout 边缘距离（top/bottom/left/right）要设置成与 spacingX/Y（间距）一样。（因为在循环列表中，边距=间距）。

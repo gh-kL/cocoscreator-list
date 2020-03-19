@@ -256,4 +256,13 @@ export default class TestAdaptive extends cc.Component {
         }
     }
 
+    btnPlusEv(ev: any, data: any) {
+        let times: number = +data || 1;
+        for (let n: number = 0; n < times; n++) {
+            this.data.push(this.data[Math.round(Math.random() * (this.data.length - 1))]);
+            this.list.numItems = this.data.length;
+        }
+        this.list.scrollTo(this.data.length - 1);
+    }
+
 }
