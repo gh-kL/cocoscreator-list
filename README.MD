@@ -70,7 +70,7 @@ Last test by ccc_v2.2.1
 
 示例项目升级至 ccc_v2.3.2。（CocosDashboard 真香）
 
-- 修复`自适应宽/高（AdaptiveSize）`时，调用`List.scrollTo(...)`可能会乱跳的 BUG。（感谢`幻 <791937096@qq.com>`）
+- 修复`自适应宽/高（AdaptiveSize）`时，调用`List.scrollTo(...)`可能会乱跳的 BUG。（感谢`幻 <*****7096@qq.com>`）
 
 ### 2020/3/12
 
