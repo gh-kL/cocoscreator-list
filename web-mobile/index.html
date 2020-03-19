@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Cocos Creator | ListDemo_Main</title>
+  <title>Cocos Creator | ListDemo</title>
 
   <!--http://www.html5rocks.com/en/mobile/mobifying/-->
   <meta name="viewport"
@@ -27,8 +27,8 @@
   <meta name="360-fullscreen" content="true"/>
   
   <!-- force screen orientation on some browser -->
-  <meta name="screen-orientation" content="landscape"/>
-  <meta name="x5-orientation" content="landscape">
+  <meta name="screen-orientation" content=""/>
+  <meta name="x5-orientation" content="">
 
   <!--fix fireball/issues/3568 -->
   <!--<meta name="browsermode" content="application">-->
@@ -49,7 +49,7 @@
   </div>
 
 <script src="src/settings.js" charset="utf-8"></script>
-
+<script src="vconsole.min.js"></script>
 <script src="main.js" charset="utf-8"></script>
 
 <script type="text/javascript">
@@ -59,20 +59,31 @@
         window.vConsole = new VConsole();
     }
 
+    var debug = window._CCSettings.debug;
     var splash = document.getElementById('splash');
     splash.style.display = 'block';
 
-    var cocos2d = document.createElement('script');
-    cocos2d.async = true;
-    cocos2d.src = window._CCSettings.debug ? 'cocos2d-js.js' : 'cocos2d-js-min.js';
+    function loadScript (moduleName, cb) {
+      function scriptLoaded () {
+          document.body.removeChild(domScript);
+          domScript.removeEventListener('load', scriptLoaded, false);
+          cb && cb();
+      };
+      var domScript = document.createElement('script');
+      domScript.async = true;
+      domScript.src = moduleName;
+      domScript.addEventListener('load', scriptLoaded, false);
+      document.body.appendChild(domScript);
+    }
 
-    var engineLoaded = function () {
-        document.body.removeChild(cocos2d);
-        cocos2d.removeEventListener('load', engineLoaded, false);
+    loadScript(debug ? 'cocos2d-js.js' : 'cocos2d-js-min.js', function () {
+      if (CC_PHYSICS_BUILTIN || CC_PHYSICS_CANNON) {
+        loadScript(debug ? 'physics.js' : 'physics-min.js', window.boot);
+      }
+      else {
         window.boot();
-    };
-    cocos2d.addEventListener('load', engineLoaded, false);
-    document.body.appendChild(cocos2d);
+      }
+    });
 })();
 </script>
 </body>

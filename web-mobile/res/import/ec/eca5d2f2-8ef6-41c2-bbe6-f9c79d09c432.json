@@ -4,8 +4,11 @@
   "_effectAsset": {
     "__uuid__": "28dPjdQWxEQIG3VVl1Qm6T"
   },
-  "_defines": {
-    "USE_TEXTURE": true
-  },
-  "_props": {}
+  "_techniqueData": {
+    "0": {
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
 }

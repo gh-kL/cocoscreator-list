@@ -23,14 +23,14 @@
     ],
     "shaders": [
       {
-        "hash": 2380943059,
+        "hash": 2075641479,
         "glsl3": {
-          "vert": "\nprecision highp float;\n\nin vec3 a_position;\n\nvoid main () {\n  gl_Position = vec4(a_position, 1);\n}\n\n",
-          "frag": "\nprecision highp float;\n\nvoid main () {\n  gl_FragColor = vec4(1.0);\n}\n\n"
+          "vert": "\nprecision highp float;\nin vec3 a_position;\nvoid main () {\n  gl_Position = vec4(a_position, 1);\n}",
+          "frag": "\nprecision highp float;\nvoid main () {\n  gl_FragColor = vec4(1.0);\n}"
         },
         "glsl1": {
-          "vert": "\nprecision highp float;\n\nattribute vec3 a_position;\n\nvoid main () {\n  gl_Position = vec4(a_position, 1);\n}\n\n",
-          "frag": "\nprecision highp float;\n\nvoid main () {\n  gl_FragColor = vec4(1.0);\n}\n\n"
+          "vert": "\nprecision highp float;\nattribute vec3 a_position;\nvoid main () {\n  gl_Position = vec4(a_position, 1);\n}",
+          "frag": "\nprecision highp float;\nvoid main () {\n  gl_FragColor = vec4(1.0);\n}"
         },
         "builtins": {
           "globals": {
@@ -45,7 +45,7 @@
         "defines": [],
         "blocks": [],
         "samplers": [],
-        "dependencies": {},
+        "record": null,
         "name": "builtin-clear-stencil|vs|fs"
       }
     ]
@@ -56,7 +56,6 @@
     "_effectAsset": {
       "__uuid__": "c0BAyVxX9JzZy8EjFrc9DU"
     },
-    "_defines": {},
-    "_props": {}
+    "_techniqueData": {}
   }
 ]

@@ -23,12 +23,12 @@ window._CCSettings = {
                 "effects/builtin-2d-sprite.effect",
                 "cc.EffectAsset"
             ],
-            c0BAyVxX9JzZy8EjFrc9DU: [
-                "effects/builtin-clear-stencil.effect",
+            "2afAA24LNP4YmYiaVLiivs": [
+                "effects/builtin-3d-trail.effect",
                 "cc.EffectAsset"
             ],
-            "796vrvt+9F2Zw/WR3INvx6": [
-                "effects/builtin-unlit-transparent.effect",
+            c0BAyVxX9JzZy8EjFrc9DU: [
+                "effects/builtin-clear-stencil.effect",
                 "cc.EffectAsset"
             ],
             "6dkeWRTOBGXICfYQ7JUBnG": [
@@ -51,6 +51,10 @@ window._CCSettings = {
                 "materials/builtin-2d-sprite.mtl",
                 "cc.Material"
             ],
+            "46bU+b5fROqIXVPG6aZWWK": [
+                "materials/builtin-3d-trail.mtl",
+                "cc.Material"
+            ],
             cffgu4qBxEqa150o1DmRAy: [
                 "materials/builtin-clear-stencil.mtl",
                 "cc.Material"
@@ -66,23 +70,9 @@ window._CCSettings = {
         {
             url: "db://assets/Scene/Main.fire",
             uuid: "31Vtkc49VIup23t6eVxyV4"
-        },
-        {
-            url: "db://assets/Scene/TestBag.fire",
-            uuid: "76OH9WdxJIG6Ls3vyyKdJB"
         }
     ],
     packedAssets: {
-        "06d89f968": [
-            "02delMVqdBD70a/HSD99FK",
-            "13/ZeDi4ZJIqxWxtOShzoX",
-            "5cqXjf2bROFpdTWL+5HNZh",
-            "71VhFCTINJM6/Ky3oX9nBT",
-            "81j9XeZSRCb5y179hjnCX8",
-            "b4P/PCArtIdIH38t6mlw8Y",
-            "d8HsitJHxOYqo801xBk8ev",
-            "e8Ueib+qJEhL6mXAHdnwbi"
-        ],
         "079499991": [
             "2aKWBXJHxKHLvrBUi2yYZQ",
             "6dkeWRTOBGXICfYQ7JUBnG"
@@ -91,11 +81,18 @@ window._CCSettings = {
             "14TDKXr2NJ6LjvHPops74o",
             "3ae7efMv1CLq2ilvUY/tQi"
         ],
-        "0845fe5ce": [
-            "06UkJKytFF9bkdQmgVQ4wk",
-            "76OH9WdxJIG6Ls3vyyKdJB",
-            "9bvaMerUlDyary99mJa6xp",
-            "bfR7oKnVxCJqP5/4pnZPXL"
+        "0966e2fc4": [
+            "02delMVqdBD70a/HSD99FK",
+            "5cqXjf2bROFpdTWL+5HNZh",
+            "71VhFCTINJM6/Ky3oX9nBT",
+            "81j9XeZSRCb5y179hjnCX8",
+            "b4P/PCArtIdIH38t6mlw8Y",
+            "d8HsitJHxOYqo801xBk8ev",
+            "e8Ueib+qJEhL6mXAHdnwbi"
+        ],
+        "0a5cba09d": [
+            "2afAA24LNP4YmYiaVLiivs",
+            "46bU+b5fROqIXVPG6aZWWK"
         ],
         "0bd3506f8": [
             "29FYIk+N1GYaeWH/q1NxQO",
@@ -116,7 +113,7 @@ window._CCSettings = {
         ]
     },
     md5AssetsMap: {},
-    orientation: "landscape",
+    orientation: "",
     debug: true,
     subpackages: {}
 };
