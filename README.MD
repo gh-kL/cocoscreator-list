@@ -8,6 +8,7 @@
 [页面模式示例](https://gh-kl.github.io/cocoscreator-list/web-mobile-page/index.html "页面模式示例")
 [背包示例](https://gh-kl.github.io/cocoscreator-list/web-mobile-bag/index.html "背包示例")
 [聊天列表示例](https://gh-kl.github.io/cocoscreator-list/web-mobile-chat-list/index.html "聊天列表示例")
+[循环列表示例](https://gh-kl.github.io/cocoscreator-list/web-mobile-cyclic/index.html "聊天列表示例")
 
 Cocos 论坛帖子链接：
 
