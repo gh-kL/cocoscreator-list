@@ -1037,7 +1037,7 @@
     "_N$horizontalAlign": 0,
     "_N$fontSize": 20,
     "_N$font": null,
-    "_N$cacheMode": 0,
+    "_N$cacheMode": 2,
     "_N$maxWidth": 230,
     "_N$lineHeight": 25,
     "_N$imageAtlas": {
@@ -2611,7 +2611,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 382,
-      "height": 277.8
+      "height": 457.8
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2661,8 +2661,8 @@
       }
     ],
     "_useOriginalSize": false,
-    "_string": "本例中的对话内容都是富文本。\n\nCocos Creator目前对富文本的优化不是很到位，尤其是单个富文本字数较多的时候，会出现明显卡顿。\n\n其实我只是想说，如果卡顿了的话，这锅我不背... →_→",
-    "_N$string": "本例中的对话内容都是富文本。\n\nCocos Creator目前对富文本的优化不是很到位，尤其是单个富文本字数较多的时候，会出现明显卡顿。\n\n其实我只是想说，如果卡顿了的话，这锅我不背... →_→",
+    "_string": "本例中的对话内容都是富文本。\n\nCocos Creator目前对富文本的优化不是很到位，尤其是单个富文本字数较多的时候，会出现明显卡顿。\n\n其实我只是想说，如果卡顿了的话，这锅我不背... →_→\n\n  --------我是分割线--------\n\n自ccc2.3.x版本起，cc.RichText新增了缓存模式。将Cache Mode设为CHAR能有效解决卡顿的问题。",
+    "_N$string": "本例中的对话内容都是富文本。\n\nCocos Creator目前对富文本的优化不是很到位，尤其是单个富文本字数较多的时候，会出现明显卡顿。\n\n其实我只是想说，如果卡顿了的话，这锅我不背... →_→\n\n  --------我是分割线--------\n\n自ccc2.3.x版本起，cc.RichText新增了缓存模式。将Cache Mode设为CHAR能有效解决卡顿的问题。",
     "_fontSize": 25,
     "_lineHeight": 30,
     "_enableWrapText": true,
