@@ -203,7 +203,7 @@ export default class List extends cc.Component {
                     }
                 }
                 if (t.selectedEvent) {
-                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems));
+                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val % this._actualNumItems, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems));
                 }
                 break;
             }
@@ -224,7 +224,7 @@ export default class List extends cc.Component {
                     t.multSelected.splice(sub, 1);
                 }
                 if (t.selectedEvent) {
-                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems), bool);
+                    cc.Component.EventHandler.emitEvents([t.selectedEvent], item, val % this._actualNumItems, t._lastSelectedId == null ? null : (t._lastSelectedId % this._actualNumItems), bool);
                 }
                 break;
             }
@@ -1929,40 +1929,42 @@ export default class List extends cc.Component {
         let breakFor: boolean = false;
         for (let n = 0; n < t.content.childrenCount && !breakFor; n += t._colLineNum) {
             data = t._virtual ? t.displayData[n] : t._calcExistItemPos(n);
-            center = t._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
-            switch (t._alignCalcType) {
-                case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
-                    if (data.right >= vLeft) {
-                        t.nearestListId = data.id;
-                        if (vLeft > center)
-                            t.nearestListId += t._colLineNum;
-                        breakFor = true;
-                    }
-                    break;
-                case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
-                    if (data.left <= vRight) {
-                        t.nearestListId = data.id;
-                        if (vRight < center)
-                            t.nearestListId += t._colLineNum;
-                        breakFor = true;
-                    }
-                    break;
-                case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
-                    if (data.bottom <= vTop) {
-                        t.nearestListId = data.id;
-                        if (vTop < center)
-                            t.nearestListId += t._colLineNum;
-                        breakFor = true;
-                    }
-                    break;
-                case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                    if (data.top >= vBottom) {
-                        t.nearestListId = data.id;
-                        if (vBottom > center)
-                            t.nearestListId += t._colLineNum;
-                        breakFor = true;
-                    }
-                    break;
+            if (data) {
+                center = t._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
+                switch (t._alignCalcType) {
+                    case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
+                        if (data.right >= vLeft) {
+                            t.nearestListId = data.id;
+                            if (vLeft > center)
+                                t.nearestListId += t._colLineNum;
+                            breakFor = true;
+                        }
+                        break;
+                    case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
+                        if (data.left <= vRight) {
+                            t.nearestListId = data.id;
+                            if (vRight < center)
+                                t.nearestListId += t._colLineNum;
+                            breakFor = true;
+                        }
+                        break;
+                    case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
+                        if (data.bottom <= vTop) {
+                            t.nearestListId = data.id;
+                            if (vTop < center)
+                                t.nearestListId += t._colLineNum;
+                            breakFor = true;
+                        }
+                        break;
+                    case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
+                        if (data.top >= vBottom) {
+                            t.nearestListId = data.id;
+                            if (vBottom > center)
+                                t.nearestListId += t._colLineNum;
+                            breakFor = true;
+                        }
+                        break;
+                }
             }
         }
         //判断最后一个Item。。。（哎，这些判断真心恶心，判断了前面的还要判断最后一个。。。一开始呢，就只有一个布局（单列布局），那时候代码才三百行，后来就想着完善啊，艹..这坑真深，现在这行数都一千五了= =||）

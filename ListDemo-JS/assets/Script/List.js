@@ -1861,40 +1861,42 @@ cc.Class({
         let breakFor = false;
         for (let n = 0; n < t.content.childrenCount && !breakFor; n += t._colLineNum) {
             data = this._virtual ? this.displayData[n] : this._calcExistItemPos(n);
-            center = this._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
-            switch (this._alignCalcType) {
-                case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
-                    if (data.right >= vLeft) {
-                        this.nearestListId = data.id;
-                        if (vLeft > center)
-                            this.nearestListId += this._colLineNum;
-                        breakFor = true;
-                    }
-                    break;
-                case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
-                    if (data.left <= vRight) {
-                        this.nearestListId = data.id;
-                        if (vRight < center)
-                            this.nearestListId += this._colLineNum;
-                        breakFor = true;
-                    }
-                    break;
-                case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
-                    if (data.bottom <= vTop) {
-                        this.nearestListId = data.id;
-                        if (vTop < center)
-                            this.nearestListId += this._colLineNum;
-                        breakFor = true;
-                    }
-                    break;
-                case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                    if (data.top >= vBottom) {
-                        this.nearestListId = data.id;
-                        if (vBottom > center)
-                            this.nearestListId += this._colLineNum;
-                        breakFor = true;
-                    }
-                    break;
+            if (data) {
+                center = this._sizeType ? ((data.top + data.bottom) / 2) : (center = (data.left + data.right) / 2);
+                switch (this._alignCalcType) {
+                    case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
+                        if (data.right >= vLeft) {
+                            this.nearestListId = data.id;
+                            if (vLeft > center)
+                                this.nearestListId += this._colLineNum;
+                            breakFor = true;
+                        }
+                        break;
+                    case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
+                        if (data.left <= vRight) {
+                            this.nearestListId = data.id;
+                            if (vRight < center)
+                                this.nearestListId += this._colLineNum;
+                            breakFor = true;
+                        }
+                        break;
+                    case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
+                        if (data.bottom <= vTop) {
+                            this.nearestListId = data.id;
+                            if (vTop < center)
+                                this.nearestListId += this._colLineNum;
+                            breakFor = true;
+                        }
+                        break;
+                    case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
+                        if (data.top >= vBottom) {
+                            this.nearestListId = data.id;
+                            if (vBottom > center)
+                                this.nearestListId += this._colLineNum;
+                            breakFor = true;
+                        }
+                        break;
+                }
             }
         }
         //判断最后一个Item。。。（哎，这些判断真心恶心，判断了前面的还要判断最后一个。。。一开始呢，就只有一个布局（单列布局），那时候代码才三百行，后来就想着完善啊，艹..这坑真深，现在这行数都一千五了= =||）
