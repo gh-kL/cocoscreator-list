@@ -35,5 +35,6 @@
       "enable": false
     }
   },
-  "start-scene": "current"
+  "start-scene": "current",
+  "migrate-history": []
 }

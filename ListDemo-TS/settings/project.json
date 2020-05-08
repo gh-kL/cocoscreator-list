@@ -35,5 +35,6 @@
     "audience": {
       "enable": false
     }
-  }
+  },
+  "migrate-history": []
 }

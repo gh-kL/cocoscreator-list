@@ -65,11 +65,149 @@ Last test by ccc_v2.2.1
 
 - `PAGE`模式下，目前是靠`pageDistance`变量来控制`翻页响应距离`，如果滚动窗口很小，玩家拖动时一次性能拖（翻）1 页以上，那就会存在问题。
 
+## 属性（properties）
+
+#### templateType
+
+模板 Item 类型，分别有 Node 和 Prefab 两种类型可选。
+
+| meta | description       |
+| ---- | ----------------- |
+| 类型 | List.TemplateType |
+
+#### tmpNode
+
+模板 Item 节点。
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Node        |
+
+#### tmpPrefab
+
+模板 Item 预制体。
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Prefab      |
+
+#### slideMode
+
+滑动模式。分别有 3 种滑动模式：普通、粘附、页面。
+
+| meta | description    |
+| ---- | -------------- |
+| 类型 | List.SlideType |
+
+#### pageDistance
+
+翻页作用距离。（仅滑动模式为`页面`时有效）
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Number      |
+
+#### pageChangeEvent
+
+翻页响应事件。
+
+| meta | description            |
+| ---- | ---------------------- |
+| 类型 | Component.EventHandler |
+
+#### virtual
+
+是否为虚拟列表。
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Boolean     |
+
+#### cyclic
+
+是否为循环列表。
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Boolean     |
+
+#### lackCenter
+
+是否在 Item 数量不足以填满 Content 时，居中显示 Item（不支持 Grid 布局）。
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Boolean     |
+
+#### lackSlide
+
+是否在 Item 数量不足以填满 Content 时，可滑动列表。
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Boolean     |
+
+#### updateRate
+
+刷新频率（值越大刷新频率越低、性能越高）。
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Number      |
+
+#### frameByFrameRenderNum
+
+分帧渲染时，每帧渲染的 Item 数量（<=0 时则关闭分帧渲染）。
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Number      |
+
+#### renderEvent
+
+渲染事件。
+
+| meta | description            |
+| ---- | ---------------------- |
+| 类型 | Component.EventHandler |
+
+#### selectedMode
+
+选择模式。分别有 2 种选择模式：单选、多选。
+
+| meta | description       |
+| ---- | ----------------- |
+| 类型 | List.SelectedType |
+
+#### selectedEvent
+
+选择响应事件。
+
+| meta | description            |
+| ---- | ---------------------- |
+| 类型 | Component.EventHandler |
+
+#### selectedId
+
+当前选择索引，可通过设置此属性变更选择。
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Number      |
+
+#### numItems
+
+Item 总数，设置此属性后，List 会调用 renderEvent 以渲染 Item。
+
+| meta | description |
+| ---- | ----------- |
+| 类型 | Number      |
+
 ## 更新日志
 
 ### 2020/3/24
 
-- 修复TS版`单选/多选`时，缺少参数的BUG。（感谢 Cocos 论坛用户`@455073646`）
+- 修复 TS 版`单选/多选`时，缺少参数的 BUG。（感谢 Cocos 论坛用户`@455073646`）
 
 ### 2020/3/19
 

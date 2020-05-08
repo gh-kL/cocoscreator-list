@@ -1658,10 +1658,12 @@ export default class List extends cc.Component {
      * @returns
      */
     getItemByListId(listId: number) {
-        for (let n: number = this.content.childrenCount - 1; n >= 0; n--) {
-            let item: any = this.content.children[n];
-            if (item._listId == listId)
-                return item;
+        if (this.content) {
+            for (let n: number = this.content.childrenCount - 1; n >= 0; n--) {
+                let item: any = this.content.children[n];
+                if (item._listId == listId)
+                    return item;
+            }
         }
     }
     /**

@@ -1276,7 +1276,6 @@ cc.Class({
     },
     //当Item自适应
     _onItemAdaptive(item) {
-        // if (this.checkInited(false)) {
         if (
             (!this._sizeType && item.width != this._itemSize.width)
             || (this._sizeType && item.height != this._itemSize.height)
@@ -1299,6 +1298,12 @@ cc.Class({
                 }
             }
         }
+        // else {
+        //     if (this._customSize) {
+        //         delete this._customSize[item._listId];
+        //     }
+        //     this.updateAll();
+        //     this._delRedundantItem();
         // }
     },
     //PAGE粘附
@@ -1590,9 +1595,11 @@ cc.Class({
      * @returns
      */
     getItemByListId(listId) {
-        for (let n = this.content.childrenCount - 1; n >= 0; n--) {
-            if (this.content.children[n]._listId == listId)
-                return this.content.children[n];
+        if (this.content) {
+            for (let n = this.content.childrenCount - 1; n >= 0; n--) {
+                if (this.content.children[n]._listId == listId)
+                    return this.content.children[n];
+            }
         }
     },
     /**
