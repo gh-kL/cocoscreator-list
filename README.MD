@@ -25,7 +25,7 @@ Cocos 论坛帖子链接：
 - 动态删除 Item 项。
 - ...
 
-Last test by ccc_v2.2.1
+Last test by ccc_v2.3.3
 
 我的邮箱：klk0@qq.com
 
@@ -202,6 +202,60 @@ Item 总数，设置此属性后，List 会调用 renderEvent 以渲染 Item。
 | meta | description |
 | ---- | ----------- |
 | 类型 | Number      |
+
+## 方法（method）
+
+> 可供开发者调用的方法都在下面，具体参数就不写了，去看源码吧 (￣ ▽ ￣)"。
+
+#### setTemplateItem
+
+设置模板 Item。
+
+#### checkInited
+
+检查是否已初始化。
+
+#### adhere
+
+粘附到最近的一个 Item。
+
+#### setMultSelected
+
+设置多选数据。
+
+#### updateItem
+
+更新单个 Item。
+
+#### updateAll
+
+更新全部 Item。
+
+#### getItemByListId
+
+根据索引获取 Item。（虚拟列表有可能无法获取到 Item，因为 Item 可能并未出现在视口内）
+
+#### aniDelItem
+
+动销删除单个 Item。（使用方法可参考示例项目）
+
+#### scrollTo
+
+滚动到指定索引 Item 处。
+
+#### prePage
+
+上一页。（仅滑动模式为 `PAGE` 时可用）
+
+#### nextPage
+
+下一页。（仅滑动模式为 `PAGE` 时可用）
+
+#### skipPage
+
+跳转至指定页。（仅滑动模式为 `PAGE` 时可用）
+
+---
 
 ## 更新日志
 
