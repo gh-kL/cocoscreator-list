@@ -2,7 +2,7 @@
 
 这是一个基于**Cocos Creator**写的**虚拟列表**组件。本组件是配合 Cocos Creator 本身的**滚动窗结构**去写的，所以在编辑器中操作会很方便，**所见即所得**。
 
-在线 DEMO：
+在线 DEMO（请科学上网）：
 
 [主示例](https://gh-kl.github.io/cocoscreator-list/web-mobile/index.html "主DEMO")
 [页面模式示例](https://gh-kl.github.io/cocoscreator-list/web-mobile-page/index.html "页面模式示例")
