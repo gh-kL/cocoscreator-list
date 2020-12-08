@@ -35,7 +35,7 @@ export default class ListItem extends cc.Component {
     selectedMode: SelectedType = SelectedType.NONE;
     //被选标志
     @property({
-        type: cc.Node, tooltip: CC_DEV && '被选标志',
+        type: cc.Node, tooltip: CC_DEV && '被选标识',
         visible() { return this.selectedMode > SelectedType.NONE }
     })
     selectedFlag: cc.Node = null;
@@ -64,8 +64,9 @@ export default class ListItem extends cc.Component {
                 break;
             case SelectedType.SWITCH:
                 let sp: cc.Sprite = this.selectedFlag.getComponent(cc.Sprite);
-                if (sp)
+                if (sp) {
                     sp.spriteFrame = val ? this.selectedSpriteFrame : this._unselectedSpriteFrame;
+                }
                 break;
         }
     }
@@ -135,53 +136,49 @@ export default class ListItem extends cc.Component {
     }
 
     showAni(aniType: number, callFunc: Function, del: boolean) {
-        let acts: any[];
+        let t: any = this;
+        let tween: cc.Tween;
         switch (aniType) {
             case 0: //向上消失
-                acts = [
-                    cc.scaleTo(.2, .7),
-                    cc.moveBy(.3, 0, this.node.height * 2),
-                ];
+                tween = cc.tween(t.node)
+                    .to(.2, { scale: .7 })
+                    .by(.3, { y: t.node.height * 2 });
                 break;
             case 1: //向右消失
-                acts = [
-                    cc.scaleTo(.2, .7),
-                    cc.moveBy(.3, this.node.width * 2, 0),
-                ];
+                tween = cc.tween(t.node)
+                    .to(.2, { scale: .7 })
+                    .by(.3, { x: t.node.width * 2 });
                 break;
             case 2: //向下消失
-                acts = [
-                    cc.scaleTo(.2, .7),
-                    cc.moveBy(.3, 0, this.node.height * -2),
-                ];
+                tween = cc.tween(t.node)
+                    .to(.2, { scale: .7 })
+                    .by(.3, { y: t.node.height * -2 });
                 break;
             case 3: //向左消失
-                acts = [
-                    cc.scaleTo(.2, .7),
-                    cc.moveBy(.3, this.node.width * -2, 0),
-                ];
+                tween = cc.tween(t.node)
+                    .to(.2, { scale: .7 })
+                    .by(.3, { x: t.node.width * -2 });
                 break;
             default: //默认：缩小消失
-                acts = [
-                    cc.scaleTo(.3, .1),
-                ];
+                tween = cc.tween(t.node)
+                    .to(.3, { scale: .1 });
                 break;
         }
         if (callFunc || del) {
-            acts.push(cc.callFunc(() => {
+            tween.call(() => {
                 if (del) {
-                    this.list._delSingleItem(this.node);
-                    for (let n: number = this.list.displayData.length - 1; n >= 0; n--) {
-                        if (this.list.displayData[n].id == this.listId) {
-                            this.list.displayData.splice(n, 1);
+                    t.list._delSingleItem(t.node);
+                    for (let n: number = t.list.displayData.length - 1; n >= 0; n--) {
+                        if (t.list.displayData[n].id == t.listId) {
+                            t.list.displayData.splice(n, 1);
                             break;
                         }
                     }
                 }
                 callFunc();
-            }));
+            });
         }
-        this.node.runAction(cc.sequence(acts));
+        tween.start();
     }
 
     onClickThis() {

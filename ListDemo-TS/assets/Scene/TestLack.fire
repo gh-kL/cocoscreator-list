@@ -49,8 +49,8 @@
         0,
         0,
         1,
-        0.3765221684758573,
-        0.3765221684758573,
+        1,
+        1,
         1
       ]
     },
@@ -177,7 +177,7 @@
       "array": [
         0,
         0,
-        511.8210144042969,
+        500.86037961995646,
         0,
         0,
         0,
@@ -233,6 +233,7 @@
       "height": 1
     },
     "_renderStages": 1,
+    "_alignWithScreen": true,
     "_id": "99x2WQ81pJzZi6QOyauyaP"
   },
   {
@@ -586,7 +587,8 @@
         "__uuid__": "eca5d2f2-8ef6-41c2-bbe6-f9c79d09c432"
       }
     ],
-    "_useOriginalSize": false,
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
     "_string": "0",
     "_N$string": "0",
     "_fontSize": 20,
@@ -596,6 +598,8 @@
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_batchAsBitmap": false,
+    "_styleFlags": 0,
+    "_underlineHeight": 0,
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
@@ -672,6 +676,8 @@
       "__id__": 8
     },
     "_enabled": true,
+    "_normalMaterial": null,
+    "_grayMaterial": null,
     "duration": 0.1,
     "zoomScale": 0.95,
     "clickEvents": [],
@@ -747,7 +753,6 @@
     },
     "_resize": 1,
     "_N$layoutType": 1,
-    "_N$padding": 0,
     "_N$cellSize": {
       "__type__": "cc.Size",
       "width": 40,
@@ -860,6 +865,7 @@
       "__id__": 19
     },
     "_virtual": true,
+    "cyclic": false,
     "lackCenter": true,
     "lackSlide": false,
     "_updateRate": 2,
@@ -1253,7 +1259,8 @@
         "__uuid__": "eca5d2f2-8ef6-41c2-bbe6-f9c79d09c432"
       }
     ],
-    "_useOriginalSize": false,
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
     "_string": "0",
     "_N$string": "0",
     "_fontSize": 20,
@@ -1263,6 +1270,8 @@
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_batchAsBitmap": false,
+    "_styleFlags": 0,
+    "_underlineHeight": 0,
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
@@ -1339,6 +1348,8 @@
       "__id__": 25
     },
     "_enabled": true,
+    "_normalMaterial": null,
+    "_grayMaterial": null,
     "duration": 0.1,
     "zoomScale": 0.95,
     "clickEvents": [],
@@ -1414,7 +1425,6 @@
     },
     "_resize": 1,
     "_N$layoutType": 2,
-    "_N$padding": 0,
     "_N$cellSize": {
       "__type__": "cc.Size",
       "width": 40,
@@ -1527,6 +1537,7 @@
       "__id__": 36
     },
     "_virtual": true,
+    "cyclic": false,
     "lackCenter": true,
     "lackSlide": false,
     "_updateRate": 2,
@@ -1614,6 +1625,7 @@
     "_isAbsHorizontalCenter": true,
     "_isAbsVerticalCenter": true,
     "_originalWidth": 0,
-    "_originalHeight": 0
+    "_originalHeight": 0,
+    "_id": "5dyhICGE5GHa95hcku9LNs"
   }
 ]

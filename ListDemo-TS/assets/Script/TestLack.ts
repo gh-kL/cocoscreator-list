@@ -7,7 +7,6 @@
 const { ccclass, property } = cc._decorator;
 
 import List from './List';
-import ListItem from './ListItem';
 
 @ccclass
 export default class TestLack extends cc.Component {

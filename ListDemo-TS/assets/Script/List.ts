@@ -99,7 +99,7 @@ export default class List extends cc.Component {
     @property({
         tooltip: CC_DEV && '是否为循环列表',
         visible() {
-            let val: boolean = this.virtual && this.slideMode == SlideType.NORMAL;
+            let val: boolean = /*this.virtual &&*/ this.slideMode == SlideType.NORMAL;
             if (!val)
                 this.cyclic = false;
             return val;
@@ -273,6 +273,10 @@ export default class List extends cc.Component {
             if (!t.frameByFrameRenderNum && t.slideMode == SlideType.PAGE)
                 t.curPageNum = t.nearestListId;
         } else {
+            if (t.cyclic) {
+                t._resizeContent();
+                t._numItems = t._cyclicNum * t._numItems;
+            }
             let layout: cc.Layout = t.content.getComponent(cc.Layout);
             if (layout) {
                 layout.enabled = true;
@@ -291,10 +295,10 @@ export default class List extends cc.Component {
                     t._updateDone = false;
                 }
             } else {
-                for (let n: number = 0; n < val; n++) {
+                for (let n: number = 0; n < t._numItems; n++) {
                     t._createOrUpdateItem2(n);
                 }
-                t.displayItemNum = val;
+                t.displayItemNum = t._numItems;
             }
         }
     }
@@ -331,6 +335,10 @@ export default class List extends cc.Component {
 
     private frameCount: number;
     private _aniDelRuning: boolean = false;
+    private _aniDelCB: Function;
+    private _aniDelItem: any;
+    private _aniDelBeforePos: cc.Vec2;
+    private _aniDelBeforeScale: number;
     private viewTop: number;
     private viewRight: number;
     private viewBottom: number;
@@ -353,6 +361,7 @@ export default class List extends cc.Component {
     public curPageNum: number = 0;
     private _beganPos: number;
     private _scrollPos: number;
+    private curScrollIsTouch: boolean;//当前滑动是否为手动
 
     private _scrollToListId: number;
     private _scrollToEndTime: number;
@@ -372,23 +381,36 @@ export default class List extends cc.Component {
 
     onDestroy() {
         let t: any = this;
-        if (t._itemTmp && t._itemTmp.isValid)
+        if (cc.isValid(t._itemTmp))
             t._itemTmp.destroy();
-        if (t.tmpNode && t.tmpNode.isValid)
+        if (cc.isValid(t.tmpNode))
             t.tmpNode.destroy();
-        // let total = t._pool.size();
-        while (t._pool.size()) {
-            let node = t._pool.get();
-            node.destroy();
-        }
-        // if (total)
-        //     cc.log('-----------------' + t.node.name + '<List> destroy node total num. =>', total);
+        t._pool && t._pool.clear();
     }
 
     onEnable() {
         // if (!CC_EDITOR) 
         this._registerEvent();
         this._init();
+        // 处理重新显示后，有可能上一次的动画移除还未播放完毕，导致动画卡住的问题
+        if (this._aniDelRuning) {
+            this._aniDelRuning = false;
+            if (this._aniDelItem) {
+                if (this._aniDelBeforePos) {
+                    this._aniDelItem.position = this._aniDelBeforePos;
+                    delete this._aniDelBeforePos;
+                }
+                if (this._aniDelBeforeScale) {
+                    this._aniDelItem.scale = this._aniDelBeforeScale;
+                    delete this._aniDelBeforeScale;
+                }
+                delete this._aniDelItem;
+            }
+            if (this._aniDelCB) {
+                this._aniDelCB();
+                delete this._aniDelCB;
+            }
+        }
     }
 
     onDisable() {
@@ -893,20 +915,20 @@ export default class List extends cc.Component {
                 let hh: number = this._itemSize.height + this._lineGap;
                 switch (this._alignCalcType) {
                     case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
-                        curId = (vLeft + this._leftGap) / ww;
-                        endId = (vRight + this._rightGap) / ww;
+                        curId = (vLeft - this._leftGap) / ww;
+                        endId = (vRight - this._leftGap) / ww;
                         break;
                     case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
                         curId = (-vRight - this._rightGap) / ww;
-                        endId = (-vLeft - this._leftGap) / ww;
+                        endId = (-vLeft - this._rightGap) / ww;
                         break;
                     case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
                         curId = (-vTop - this._topGap) / hh;
-                        endId = (-vBottom - this._bottomGap) / hh;
+                        endId = (-vBottom - this._topGap) / hh;
                         break;
                     case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                        curId = (vBottom + this._bottomGap) / hh;
-                        endId = (vTop + this._topGap) / hh;
+                        curId = (vBottom - this._bottomGap) / hh;
+                        endId = (vTop - this._bottomGap) / hh;
                         break;
                 }
                 curId = Math.floor(curId) * this._colLineNum;
@@ -1024,12 +1046,12 @@ export default class List extends cc.Component {
                             left = this._leftGap + ((this._itemSize.width + this._columnGap) * id);
                             width = this._itemSize.width;
                         }
-                        right = left + width;
                         if (this.lackCenter) {
+                            left -= this._leftGap;
                             let offset: number = (this.content.width / 2) - (this._allItemSizeNoEdge / 2);
                             left += offset;
-                            right += offset;
                         }
+                        right = left + width;
                         return {
                             id: id,
                             left: left,
@@ -1048,12 +1070,12 @@ export default class List extends cc.Component {
                             right = -this._rightGap - ((this._itemSize.width + this._columnGap) * id);
                             width = this._itemSize.width;
                         }
-                        left = right - width;
                         if (this.lackCenter) {
+                            right += this._rightGap;
                             let offset: number = (this.content.width / 2) - (this._allItemSizeNoEdge / 2);
-                            left -= offset;
                             right -= offset;
                         }
+                        left = right - width;
                         return {
                             id: id,
                             right: right,
@@ -1076,12 +1098,12 @@ export default class List extends cc.Component {
                             top = -this._topGap - ((this._itemSize.height + this._lineGap) * id);
                             height = this._itemSize.height;
                         }
-                        bottom = top - height;
                         if (this.lackCenter) {
+                            top += this._topGap;
                             let offset: number = (this.content.height / 2) - (this._allItemSizeNoEdge / 2);
                             top -= offset;
-                            bottom -= offset;
                         }
+                        bottom = top - height;
                         return {
                             id: id,
                             top: top,
@@ -1100,12 +1122,12 @@ export default class List extends cc.Component {
                             bottom = this._bottomGap + ((this._itemSize.height + this._lineGap) * id);
                             height = this._itemSize.height;
                         }
-                        top = bottom + height;
                         if (this.lackCenter) {
+                            bottom -= this._bottomGap;
                             let offset: number = (this.content.height / 2) - (this._allItemSizeNoEdge / 2);
-                            top += offset;
                             bottom += offset;
                         }
+                        top = bottom + height;
                         return {
                             id: id,
                             top: top,
@@ -1257,17 +1279,15 @@ export default class List extends cc.Component {
     //滚动结束时..
     _onScrollEnded() {
         let t: any = this;
+        t.curScrollIsTouch = false;
         if (t.scrollToListId != null) {
             let item: any = t.getItemByListId(t.scrollToListId);
             t.scrollToListId = null;
             if (item) {
-                item.runAction(cc.sequence(
-                    cc.scaleTo(.1, 1.06),
-                    cc.scaleTo(.1, 1),
-                    //new cc.callFunc(function (runNode) {
-
-                    // })
-                ));
+                cc.tween(item)
+                    .to(.1, { scale: 1.06 })
+                    .to(.1, { scale: 1 })
+                    .start();
             }
         }
         t._onScrolling();
@@ -1278,7 +1298,7 @@ export default class List extends cc.Component {
             //cc.log(t.adhering, t._scrollView.isAutoScrolling(), t._scrollView.isScrolling());
             t.adhere();
         } else if (t._slideMode == SlideType.PAGE) {
-            if (t._beganPos != null) {
+            if (t._beganPos != null && t.curScrollIsTouch) {
                 this._pageAdhere();
             } else {
                 t.adhere();
@@ -1289,6 +1309,7 @@ export default class List extends cc.Component {
     _onTouchStart(ev, captureListeners) {
         if (this._scrollView['_hasNestedViewGroup'](ev, captureListeners))
             return;
+        this.curScrollIsTouch = true;
         let isMe = ev.eventPhase === cc.Event.AT_TARGET && ev.target === this.node;
         if (!isMe) {
             let itemNode: any = ev.target;
@@ -1475,6 +1496,10 @@ export default class List extends cc.Component {
                 item = cc.instantiate(this._itemTmp);
                 // cc.log('新建::', data.id, item);
             }
+            if (!canGet || !cc.isValid(item)) {
+                item = cc.instantiate(this._itemTmp);
+                canGet = false;
+            }
             if (item._listId != data.id) {
                 item._listId = data.id;
                 item.setContentSize(this._itemSize);
@@ -1530,14 +1555,14 @@ export default class List extends cc.Component {
                 listItem._registerEvent();
             }
             if (this.renderEvent) {
-                cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId);
+                cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId % this._actualNumItems);
             }
         } else if (this._forceUpdate && this.renderEvent) { //强制更新
             item._listId = listId;
             if (listItem)
                 listItem.listId = listId;
             if (this.renderEvent) {
-                cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId);
+                cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId % this._actualNumItems);
             }
         }
         this._updateListItem(listItem);
@@ -1627,6 +1652,21 @@ export default class List extends cc.Component {
         t._onScrolling();
     }
     /**
+     * 获取多选数据
+     * @returns
+     */
+    getMultSelected() {
+        return this.multSelected;
+    }
+    /**
+     * 多选是否有选择
+     * @param {number} listId 索引
+     * @returns
+     */
+    hasMultSelected(listId: number) {
+        return this.multSelected && this.multSelected.indexOf(listId) >= 0;
+    }
+    /**
      * 更新指定的Item
      * @param {Array} args 单个listId，或者数组
      * @returns
@@ -1689,6 +1729,7 @@ export default class List extends cc.Component {
                 let item: any = arr[n];
                 if (this._scrollItem && item._listId == this._scrollItem._listId)
                     continue;
+                item.isCached = true;
                 this._pool.put(item);
                 for (let m: number = this._lastDisplayData.length - 1; m >= 0; m--) {
                     if (this._lastDisplayData[m] == item._listId) {
@@ -1722,6 +1763,9 @@ export default class List extends cc.Component {
         if (!t.checkInited() || t.cyclic || !t._virtual)
             return cc.error('This function is not allowed to be called!');
 
+        if (!callFunc)
+            return cc.error('CallFunc are not allowed to be NULL, You need to delete the corresponding index in the data array in the CallFunc!');
+
         if (t._aniDelRuning)
             return cc.warn('Please wait for the current deletion to finish!');
 
@@ -1734,6 +1778,10 @@ export default class List extends cc.Component {
             listItem = item.getComponent(ListItem);
         }
         t._aniDelRuning = true;
+        t._aniDelCB = callFunc;
+        t._aniDelItem = item;
+        t._aniDelBeforePos = item.position;
+        t._aniDelBeforeScale = item.scale;
         let curLastId: number = t.displayData[t.displayData.length - 1].id;
         let resetSelectedId: boolean = listItem.selected;
         listItem.showAni(aniType, () => {
@@ -1783,30 +1831,28 @@ export default class List extends cc.Component {
             }
             //后面的Item向前怼的动效
             let sec: number = .2333;
-            let acts: any[], haveCB: boolean;
+            let tween: cc.Tween, haveCB: boolean;
             for (let n: number = newId != null ? newId : curLastId; n >= listId + 1; n--) {
                 item = t.getItemByListId(n);
                 if (item) {
                     let posData: any = t._calcItemPos(n - 1);
-                    acts = [
-                        cc.moveTo(sec, cc.v2(posData.x, posData.y)),
-                    ];
+                    tween = cc.tween(item)
+                        .to(sec, { position: cc.v2(posData.x, posData.y) });
                     if (n <= listId + 1) {
                         haveCB = true;
-                        acts.push(cc.callFunc(() => {
+                        tween.call(() => {
                             t._aniDelRuning = false;
                             callFunc(listId);
-                        }));
+                            delete t._aniDelCB;
+                        });
                     }
-                    if (acts.length > 1)
-                        item.runAction(cc.sequence(acts));
-                    else
-                        item.runAction(acts[0]);
+                    tween.start();
                 }
             }
             if (!haveCB) {
                 t._aniDelRuning = false;
                 callFunc(listId);
+                t._aniDelCB = null;
             }
         }, true);
     }
@@ -1835,6 +1881,9 @@ export default class List extends cc.Component {
             t._layout.updateLayout();
 
         let pos = t.getItemPos(listId);
+        if (!pos) {
+            return CC_DEV && cc.error('pos is null', listId);
+        }
         let targetX: number, targetY: number;
 
         switch (t._alignCalcType) {
@@ -1898,10 +1947,10 @@ export default class List extends cc.Component {
                     // t.scrollToListId = listId;
                     let item = t.getItemByListId(listId);
                     if (item) {
-                        item.runAction(cc.sequence(
-                            cc.scaleTo(.1, 1.05),
-                            cc.scaleTo(.1, 1),
-                        ));
+                        cc.tween(item)
+                            .to(.1, { scale: 1.05 })
+                            .to(.1, { scale: 1 })
+                            .start();
                     }
                 }
             }, timeInSecond + .1);

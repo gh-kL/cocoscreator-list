@@ -11,7 +11,8 @@
   "excluded-modules": [
     "3D Physics/cannon.js",
     "3D Physics/Builtin",
-    "3D Particle"
+    "3D Particle",
+    "SafeArea"
   ],
   "last-module-event-record-time": 0,
   "design-resolution-width": 960,
@@ -36,5 +37,7 @@
       "enable": false
     }
   },
-  "migrate-history": []
+  "migrate-history": [
+    "cloud-function"
+  ]
 }

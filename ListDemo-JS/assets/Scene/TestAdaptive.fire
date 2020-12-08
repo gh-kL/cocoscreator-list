@@ -181,7 +181,7 @@
       "array": [
         0,
         0,
-        220.83647796503186,
+        277.1281292110204,
         0,
         0,
         0,
@@ -620,7 +620,8 @@
     },
     "_enabled": true,
     "_materials": [],
-    "_useOriginalSize": false,
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
     "_string": "00:00",
     "_N$string": "00:00",
     "_fontSize": 17,
@@ -682,7 +683,6 @@
     },
     "_resize": 1,
     "_N$layoutType": 1,
-    "_N$padding": 0,
     "_N$cellSize": {
       "__type__": "cc.Size",
       "width": 40,
@@ -925,7 +925,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 260,
-      "height": 45.5
+      "height": 39.5
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -999,7 +999,7 @@
       "ctor": "Float64Array",
       "array": [
         -108,
-        -7,
+        -1,
         0,
         0,
         0,
@@ -1089,11 +1089,10 @@
     "_layoutSize": {
       "__type__": "cc.Size",
       "width": 260,
-      "height": 45.5
+      "height": 39.5
     },
     "_resize": 1,
     "_N$layoutType": 2,
-    "_N$padding": 0,
     "_N$cellSize": {
       "__type__": "cc.Size",
       "width": 40,
@@ -1102,7 +1101,7 @@
     "_N$startAxis": 0,
     "_N$paddingLeft": 0,
     "_N$paddingRight": 0,
-    "_N$paddingTop": 7,
+    "_N$paddingTop": 1,
     "_N$paddingBottom": 7,
     "_N$spacingX": 0,
     "_N$spacingY": 0,
@@ -1144,7 +1143,6 @@
     },
     "_resize": 1,
     "_N$layoutType": 2,
-    "_N$padding": 0,
     "_N$cellSize": {
       "__type__": "cc.Size",
       "width": 40,
@@ -1597,7 +1595,8 @@
         "__uuid__": "eca5d2f2-8ef6-41c2-bbe6-f9c79d09c432"
       }
     ],
-    "_useOriginalSize": false,
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
     "_string": "+10",
     "_N$string": "+10",
     "_fontSize": 20,
@@ -1983,7 +1982,8 @@
         "__uuid__": "eca5d2f2-8ef6-41c2-bbe6-f9c79d09c432"
       }
     ],
-    "_useOriginalSize": false,
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
     "_string": "+3",
     "_N$string": "+3",
     "_fontSize": 20,
@@ -2369,7 +2369,8 @@
         "__uuid__": "eca5d2f2-8ef6-41c2-bbe6-f9c79d09c432"
       }
     ],
-    "_useOriginalSize": false,
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
     "_string": "+1",
     "_N$string": "+1",
     "_fontSize": 20,
@@ -2560,7 +2561,6 @@
     },
     "_resize": 1,
     "_N$layoutType": 2,
-    "_N$padding": 0,
     "_N$cellSize": {
       "__type__": "cc.Size",
       "width": 40,
@@ -2653,7 +2653,8 @@
         "__uuid__": "eca5d2f2-8ef6-41c2-bbe6-f9c79d09c432"
       }
     ],
-    "_useOriginalSize": false,
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
     "_string": "本例中的对话内容都是富文本。\n\nCocos Creator目前对富文本的优化不是很到位，尤其是单个富文本字数较多的时候，会出现明显卡顿。\n\n其实我只是想说，如果卡顿了的话，这锅我不背... →_→\n\n  --------我是分割线--------\n\n自ccc2.3.x版本起，cc.RichText新增了缓存模式。将Cache Mode设为CHAR能有效解决卡顿的问题。",
     "_N$string": "本例中的对话内容都是富文本。\n\nCocos Creator目前对富文本的优化不是很到位，尤其是单个富文本字数较多的时候，会出现明显卡顿。\n\n其实我只是想说，如果卡顿了的话，这锅我不背... →_→\n\n  --------我是分割线--------\n\n自ccc2.3.x版本起，cc.RichText新增了缓存模式。将Cache Mode设为CHAR能有效解决卡顿的问题。",
     "_fontSize": 25,

@@ -110,7 +110,7 @@ cc.Class({
             default: false,
             tooltip: CC_DEV && '是否为循环列表',
             visible: function () {
-                let val = this.virtual && this.slideMode == SlideType.NORMAL;
+                let val = /*this.virtual &&*/ this.slideMode == SlideType.NORMAL;
                 if (!val)
                     this.cyclic = false;
                 return val;
@@ -269,6 +269,10 @@ cc.Class({
                     if (!t.frameByFrameRenderNum && t.slideMode == SlideType.PAGE)
                         t.curPageNum = t.nearestListId;
                 } else {
+                    if (t.cyclic) {
+                        t._resizeContent();
+                        t._numItems = t._cyclicNum * t._numItems;
+                    }
                     let layout = t.content.getComponent(cc.Layout);
                     if (layout) {
                         layout.enabled = true;
@@ -287,10 +291,10 @@ cc.Class({
                             t._updateDone = false;
                         }
                     } else {
-                        for (let n = 0; n < val; n++) {
+                        for (let n = 0; n < t._numItems; n++) {
                             t._createOrUpdateItem2(n);
                         }
-                        t.displayItemNum = val;
+                        t.displayItemNum = t._numItems;
                     }
                 }
             }
@@ -303,23 +307,36 @@ cc.Class({
 
     onDestroy() {
         let t = this;
-        if (t._itemTmp && t._itemTmp.isValid)
+        if (cc.isValid(t._itemTmp))
             t._itemTmp.destroy();
-        if (t.tmpNode && t.tmpNode.isValid)
+        if (cc.isValid(t.tmpNode))
             t.tmpNode.destroy();
-        // let total = t._pool.size();
-        while (t._pool.size()) {
-            let node = t._pool.get();
-            node.destroy();
-        }
-        // if (total)
-        //     cc.log('-----------------' + t.node.name + '<List> destroy node total num. =>', total);
+        t._pool && t._pool.clear();
     },
 
     onEnable() {
         // if (!CC_EDITOR)
         this._registerEvent();
         this._init();
+        // 处理重新显示后，有可能上一次的动画移除还未播放完毕，导致动画卡住的问题
+        if (this._aniDelRuning) {
+            this._aniDelRuning = false;
+            if (this._aniDelItem) {
+                if (this._aniDelBeforePos) {
+                    this._aniDelItem.position = this._aniDelBeforePos;
+                    delete this._aniDelBeforePos;
+                }
+                if (this._aniDelBeforeScale) {
+                    this._aniDelItem.scale = this._aniDelBeforeScale;
+                    delete this._aniDelBeforeScale;
+                }
+                delete this._aniDelItem;
+            }
+            if (this._aniDelCB) {
+                this._aniDelCB();
+                delete this._aniDelCB;
+            }
+        }
     },
 
     onDisable() {
@@ -820,20 +837,20 @@ cc.Class({
                 let hh = this._itemSize.height + this._lineGap;
                 switch (this._alignCalcType) {
                     case 1://单行HORIZONTAL（LEFT_TO_RIGHT）、网格VERTICAL（LEFT_TO_RIGHT）
-                        curId = (vLeft + this._leftGap) / ww;
-                        endId = (vRight + this._rightGap) / ww;
+                        curId = (vLeft - this._leftGap) / ww;
+                        endId = (vRight - this._leftGap) / ww;
                         break;
                     case 2://单行HORIZONTAL（RIGHT_TO_LEFT）、网格VERTICAL（RIGHT_TO_LEFT）
                         curId = (-vRight - this._rightGap) / ww;
-                        endId = (-vLeft - this._leftGap) / ww;
+                        endId = (-vLeft - this._rightGap) / ww;
                         break;
                     case 3://单列VERTICAL（TOP_TO_BOTTOM）、网格HORIZONTAL（TOP_TO_BOTTOM）
                         curId = (-vTop - this._topGap) / hh;
-                        endId = (-vBottom - this._bottomGap) / hh;
+                        endId = (-vBottom - this._topGap) / hh;
                         break;
                     case 4://单列VERTICAL（BOTTOM_TO_TOP）、网格HORIZONTAL（BOTTOM_TO_TOP）
-                        curId = (vBottom + this._bottomGap) / hh;
-                        endId = (vTop + this._topGap) / hh;
+                        curId = (vBottom - this._bottomGap) / hh;
+                        endId = (vTop - this._bottomGap) / hh;
                         break;
                 }
                 curId = Math.floor(curId) * this._colLineNum;
@@ -843,7 +860,6 @@ cc.Class({
                     curId = 0;
                 if (endId >= this._numItems)
                     endId = this._numItems - 1;
-                // cc.log(curId, endId);
                 for (; curId <= endId; curId++) {
                     this.displayData.push(this._calcItemPos(curId));
                 }
@@ -875,6 +891,7 @@ cc.Class({
                     if (this._numItems > 0) {
                         if (!this._updateDone) {
                             this._doneAfterUpdate = true;
+
                         } else {
                             this._updateCounter = 0;
                         }
@@ -951,12 +968,12 @@ cc.Class({
                             left = this._leftGap + ((this._itemSize.width + this._columnGap) * id);
                             width = this._itemSize.width;
                         }
-                        right = left + width;
                         if (this.lackCenter) {
+                            left -= this._leftGap;
                             let offset = (this.content.width / 2) - (this._allItemSizeNoEdge / 2);
                             left += offset;
-                            right += offset;
                         }
+                        right = left + width;
                         return {
                             id: id,
                             left: left,
@@ -975,12 +992,12 @@ cc.Class({
                             right = -this._rightGap - ((this._itemSize.width + this._columnGap) * id);
                             width = this._itemSize.width;
                         }
-                        left = right - width;
                         if (this.lackCenter) {
+                            right += this._rightGap;
                             let offset = (this.content.width / 2) - (this._allItemSizeNoEdge / 2);
-                            left -= offset;
                             right -= offset;
                         }
+                        left = right - width;
                         return {
                             id: id,
                             right: right,
@@ -1004,19 +1021,12 @@ cc.Class({
                             top = -this._topGap - ((this._itemSize.height + this._lineGap) * id);
                             height = this._itemSize.height;
                         }
-                        bottom = top - height;
                         if (this.lackCenter) {
+                            top += this._topGap;
                             let offset = (this.content.height / 2) - (this._allItemSizeNoEdge / 2);
                             top -= offset;
-                            bottom -= offset;
                         }
-                        // cc.log({
-                        //     id: id,
-                        //     top: top,
-                        //     bottom: bottom,
-                        //     x: this._itemTmp.x,
-                        //     y: bottom + (this._itemTmp.anchorY * height),
-                        // });
+                        bottom = top - height;
                         return {
                             id: id,
                             top: top,
@@ -1035,12 +1045,12 @@ cc.Class({
                             bottom = this._bottomGap + ((this._itemSize.height + this._lineGap) * id);
                             height = this._itemSize.height;
                         }
-                        top = bottom + height;
                         if (this.lackCenter) {
+                            bottom -= this._bottomGap;
                             let offset = (this.content.height / 2) - (this._allItemSizeNoEdge / 2);
-                            top += offset;
                             bottom += offset;
                         }
+                        top = bottom + height;
                         return {
                             id: id,
                             top: top,
@@ -1192,17 +1202,15 @@ cc.Class({
     //滚动结束时..
     _onScrollEnded() {
         let t = this;
+        t.curScrollIsTouch = false;
         if (t.scrollToListId != null) {
             let item = t.getItemByListId(t.scrollToListId);
             t.scrollToListId = null;
             if (item) {
-                item.runAction(new cc.sequence(
-                    new cc.scaleTo(.1, 1.06),
-                    new cc.scaleTo(.1, 1),
-                    //new cc.callFunc(function (runNode) {
-
-                    // })
-                ));
+                cc.tween(item)
+                    .to(.1, { scale: 1.06 })
+                    .to(.1, { scale: 1 })
+                    .start();
             }
         }
         t._onScrolling();
@@ -1213,7 +1221,7 @@ cc.Class({
             //cc.log(t.adhering, t._scrollView.isAutoScrolling(), t._scrollView.isScrolling());
             t.adhere();
         } else if (t._slideMode == SlideType.PAGE) {
-            if (t._beganPos != null) {
+            if (t._beganPos != null && t.curScrollIsTouch) {
                 this._pageAdhere();
             } else {
                 t.adhere();
@@ -1224,12 +1232,13 @@ cc.Class({
     _onTouchStart(ev, captureListeners) {
         if (this._scrollView._hasNestedViewGroup(ev, captureListeners))
             return;
+        this.curScrollIsTouch = true;
         let isMe = ev.eventPhase === cc.Event.AT_TARGET && ev.target === this.node;
         if (!isMe) {
             let itemNode = ev.target;
             while (itemNode._listId == null && itemNode.parent)
                 itemNode = itemNode.parent;
-            this._scrollItem = itemNode._listId != null ? itemNode : ev.target;;
+            this._scrollItem = itemNode._listId != null ? itemNode : ev.target;
         }
     },
     //触摸抬起时..
@@ -1361,6 +1370,7 @@ cc.Class({
             return;
         // cc.log(this.displayData.length, this._updateCounter, this.displayData[this._updateCounter]);
         if (this._virtual) {
+            // let len = Math.min(this._updateCounter + this.frameByFrameRenderNum,this.displayItemNum)
             let len = (this._updateCounter + this.frameByFrameRenderNum) > this.displayItemNum ? this.displayItemNum : (this._updateCounter + this.frameByFrameRenderNum);
             for (let n = this._updateCounter; n < len; n++) {
                 let data = this.displayData[n];
@@ -1369,8 +1379,13 @@ cc.Class({
                     this._createOrUpdateItem(data);
                 }
             }
-
             if (this._updateCounter >= this.displayItemNum - 1) { //最后一个
+                // this._updateDone = true;
+                // this._delRedundantItem();
+                // this._forceUpdate = false;
+                // this._calcNearestItem();
+                // if (this.slideMode == SlideType.PAGE)
+                //     this.curPageNum = this.nearestListId;
                 if (this._doneAfterUpdate) {
                     this._updateCounter = 0;
                     this._updateDone = false;
@@ -1387,6 +1402,7 @@ cc.Class({
             } else {
                 this._updateCounter += this.frameByFrameRenderNum;
             }
+
         } else {
             if (this._updateCounter < this._numItems) {
                 let len = (this._updateCounter + this.frameByFrameRenderNum) > this._numItems ? this._numItems : (this._updateCounter + this.frameByFrameRenderNum);
@@ -1416,6 +1432,10 @@ cc.Class({
             } else {
                 item = cc.instantiate(this._itemTmp);
                 // cc.log('新建::', data.id, item);
+            }
+            if (!canGet || !cc.isValid(item)) {
+                item = cc.instantiate(this._itemTmp);
+                canGet = false;
             }
             if (item._listId != data.id) {
                 item._listId = data.id;
@@ -1469,12 +1489,12 @@ cc.Class({
                 listItem._registerEvent();
             }
             if (this.renderEvent) {
-                cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId);
+                cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId % this._actualNumItems);
             }
         } else if (this._forceUpdate && this.renderEvent) { //强制更新
             item._listId = listId;
             if (this.renderEvent) {
-                cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId);
+                cc.Component.EventHandler.emitEvents([this.renderEvent], item, listId % this._actualNumItems);
             }
         }
         this._updateListItem(item.listItem);
@@ -1563,6 +1583,21 @@ cc.Class({
         t._onScrolling();
     },
     /**
+     * 获取多选数据
+     * @returns
+     */
+    getMultSelected() {
+        return this.multSelected;
+    },
+    /**
+     * 多选是否有选择
+     * @param {number} listId 索引
+     * @returns
+     */
+    hasMultSelected(listId) {
+        return this.multSelected && this.multSelected.indexOf(listId) >= 0;
+    },
+    /**
      * 更新指定的Item
      * @param {Array} args 单个listId，或者数组
      * @returns
@@ -1626,6 +1661,7 @@ cc.Class({
                 // 加这一句是为了防止拖动时被卡住...
                 if (this._scrollItem && item._listId == this._scrollItem._listId)
                     continue;
+                item.isCached = true;
                 this._pool.put(item);
                 for (let m = this._lastDisplayData.length - 1; m >= 0; m--) {
                     if (this._lastDisplayData[m] == item._listId) {
@@ -1659,8 +1695,12 @@ cc.Class({
         if (!t.checkInited() || t.cyclic || !t._virtual)
             return cc.error('This function is not allowed to be called!');
 
+        if (!callFunc)
+            return cc.error('CallFunc are not allowed to be NULL, You need to delete the corresponding index in the data array in the CallFunc!');
+
         if (t._aniDelRuning)
             return cc.warn('Please wait for the current deletion to finish!');
+
 
         let item = t.getItemByListId(listId);
         if (!item) {
@@ -1668,6 +1708,10 @@ cc.Class({
             return;
         }
         t._aniDelRuning = true;
+        t._aniDelCB = callFunc;
+        t._aniDelItem = item;
+        t._aniDelBeforePos = item.position;
+        t._aniDelBeforeScale = item.scale;
         let curLastId = t.displayData[t.displayData.length - 1].id;
         let resetSelectedId = item.listItem.selected;
         item.listItem.showAni(aniType, () => {
@@ -1718,30 +1762,29 @@ cc.Class({
             }
             //后面的Item向前怼的动效
             let sec = .2333;
-            let acts, haveCB;
+            let tween, haveCB;
             for (let n = newId != null ? newId : curLastId; n >= listId + 1; n--) {
                 item = t.getItemByListId(n);
                 if (item) {
                     let posData = t._calcItemPos(n - 1);
-                    acts = [
-                        new cc.moveTo(sec, new cc.v2(posData.x, posData.y)),
-                    ];
+                    tween = cc.tween(item)
+                        .to(sec, { position: cc.v2(posData.x, posData.y) });
+
                     if (n <= listId + 1) {
                         haveCB = true;
-                        acts.push(new cc.CallFunc(() => {
+                        tween.call(() => {
                             t._aniDelRuning = false;
                             callFunc(listId);
-                        }));
+                            delete t._aniDelCB;
+                        });
                     }
-                    if (acts.length > 1)
-                        item.runAction(new cc.Sequence(acts));
-                    else
-                        item.runAction(acts[0]);
+                    tween.start();
                 }
             }
             if (!haveCB) {
                 t._aniDelRuning = false;
                 callFunc(listId);
+                delete t._aniDelCB;
             }
         }, true);
     },
@@ -1770,6 +1813,9 @@ cc.Class({
             t._layout.updateLayout();
 
         let pos = t.getItemPos(listId);
+        if (!pos) {
+            return CC_DEV && cc.error('pos is null', listId);
+        }
         let targetX, targetY;
 
         switch (t._alignCalcType) {
@@ -1835,10 +1881,10 @@ cc.Class({
                     // t.scrollToListId = listId;
                     let item = t.getItemByListId(listId);
                     if (item) {
-                        item.runAction(new cc.sequence(
-                            new cc.scaleTo(.1, 1.05),
-                            new cc.scaleTo(.1, 1),
-                        ));
+                        cc.tween(item)
+                            .to(.1, { scale: 1.05 })
+                            .to(.1, { scale: 1 })
+                            .start();
                     }
                 }
             }, timeInSecond + .1);

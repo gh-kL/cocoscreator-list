@@ -78,7 +78,6 @@ cc.Class({
                         this.selectedFlag.active = val;
                         break;
                     case SelectedType.SWITCH:
-                        // this.selectedFlag.node.active = true;
                         this.selectedFlag.spriteFrame = val ? this.selectedSpriteFrame : this._unselectedSpriteFrame;
                         break;
                 }
@@ -109,8 +108,6 @@ cc.Class({
         //有选择模式时，保存相应的东西
         if (this.selectedMode == SelectedType.SWITCH) {
             let com = this.selectedFlag.getComponent(cc.Sprite);
-            // if (!com)
-            //     cc.error('SelectedMode为"SWITCH"时，selectedFlag必须要有cc.Sprite组件！');
             this.selectedFlag = com;
             this._unselectedSpriteFrame = com.spriteFrame;
         }
@@ -154,57 +151,52 @@ cc.Class({
     },
 
     showAni(aniType, callFunc, del) {
-        let acts;
+        let t = this;
+        let tween;
         switch (aniType) {
             case 0: //向上消失
-                acts = [
-                    new cc.scaleTo(.2, .7),
-                    new cc.moveBy(.3, 0, this.node.height * 2),
-                ];
+                tween = cc.tween(t.node)
+                    .to(.2, { scale: .7 })
+                    .by(.3, { y: t.node.height * 2 });
                 break;
             case 1: //向右消失
-                acts = [
-                    new cc.scaleTo(.2, .7),
-                    new cc.moveBy(.3, this.node.width * 2, 0),
-                ];
+                tween = cc.tween(t.node)
+                    .to(.2, { scale: .7 })
+                    .by(.3, { x: t.node.width * 2 });
                 break;
             case 2: //向下消失
-                acts = [
-                    new cc.scaleTo(.2, .7),
-                    new cc.moveBy(.3, 0, this.node.height * -2),
-                ];
+                tween = cc.tween(t.node)
+                    .to(.2, { scale: .7 })
+                    .by(.3, { y: t.node.height * -2 });
                 break;
             case 3: //向左消失
-                acts = [
-                    new cc.scaleTo(.2, .7),
-                    new cc.moveBy(.3, this.node.width * -2, 0),
-                ];
+                tween = cc.tween(t.node)
+                    .to(.2, { scale: .7 })
+                    .by(.3, { x: t.node.width * -2 });
                 break;
             default: //默认：缩小消失
-                acts = [
-                    new cc.scaleTo(.3, .1),
-                ];
+                tween = cc.tween(t.node)
+                    .to(.3, { scale: .1 });
                 break;
         }
         if (callFunc || del) {
-            acts.push(new cc.CallFunc(() => {
+            tween.call(() => {
                 if (del) {
-                    this._list._delSingleItem(this.node);
-                    for (let n = this._list.displayData.length - 1; n >= 0; n--) {
-                        if (this._list.displayData[n].listId == this.node._listId) {
-                            this._list.displayData.splice(n, 1);
+                    t._list._delSingleItem(t.node);
+                    for (let n = t._list.displayData.length - 1; n >= 0; n--) {
+                        if (t._list.displayData[n].listId == t.node._listId) {
+                            t._list.displayData.splice(n, 1);
                             break;
                         }
                     }
                 }
                 callFunc();
-            }));
+            });
         }
-        this.node.runAction(new cc.Sequence(acts));
+        tween.start();
     },
 
     onClickThis() {
-        // if (this._list.selectedMode == 1)
         this._list.selectedId = this.node._listId;
     },
 
