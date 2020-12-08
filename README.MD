@@ -266,6 +266,7 @@ Item 总数，设置此属性后，List 会调用 renderEvent 以渲染 Item。
 **仓库里也新增了3.0版本的List，估计坑很多，期望值别太高。**
 
 示例项目升级至 ccc_v2.4.3。
+- 感谢`妖怪香蕉`帮我修复了`分帧渲染`可能会重复渲染多次的问题。
 - 修复边距（Padding）较大时，`Item`回收判定错误的 BUG。（感谢 Cocos 论坛用户`@290027085`）
 - 修复`PAGE`模式下，手动滑动到最后一页，再往后拖一下，使范围外的`Item`都被回收，然后再`scrollTo`到中间的页，会自动多跳一页的 BUG。（感谢 GitHub 用户`shangdibaozi`）
 - 新增多选数据接口`getMultSelected`、`hasMultSelected`。（感谢 GitHub用户`@ckcfcc`提出建议）
