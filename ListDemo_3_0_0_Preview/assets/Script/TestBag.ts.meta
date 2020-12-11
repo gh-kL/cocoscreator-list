@@ -1,0 +1,17 @@
+{
+  "ver": "4.0.9",
+  "importer": "typescript",
+  "imported": true,
+  "uuid": "dfab5605-4abf-4a77-912c-928881e7ed72",
+  "files": [
+    ".js",
+    "editor.js",
+    ".trans"
+  ],
+  "subMetas": {},
+  "userData": {
+    "importAsPlugin": false,
+    "moduleId": "project:///assets/Script/TestBag.js",
+    "importerSettings": 7
+  }
+}

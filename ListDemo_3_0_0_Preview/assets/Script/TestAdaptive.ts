@@ -1,11 +1,10 @@
-// Learn TypeScript:
-//  - https://docs.cocos.com/creator/manual/en/scripting/typescript.html
-// Learn Attribute:
-//  - https://docs.cocos.com/creator/manual/en/scripting/reference/attributes.html
-// Learn life-cycle callbacks:
-//  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
-
-import { _decorator, Node, Component, Label, SpriteFrame, RichText, Layout, Sprite, Vec3, UITransform, utils } from 'cc';
+/******************************************
+ * @author kL <klk0@qq.com>
+ * @date 2020/12/9
+ * @doc TestAdaptive.
+ * @end
+ ******************************************/
+import { _decorator, Node, Component, Label, SpriteFrame, RichText, Layout, Sprite, Vec3, UITransform } from 'cc';
 import List from './List';
 const { ccclass, property } = _decorator;
 
@@ -207,6 +206,7 @@ export class TestAdaptive extends Component {
                 text: '再见了您嘞~<img src="29"/><img src="29"/><img src="29"/>'
             },
         ];
+
         this.list.numItems = this.data.length;
     }
 
@@ -215,7 +215,7 @@ export class TestAdaptive extends Component {
         let avatarNode: Node = item.getChildByName('avatarNode');
         let avatar: Sprite = avatarNode.getComponentInChildren(Sprite);
         let timeNode: Node = item.getChildByName('timeNode');
-        let timeLayout:Layout = timeNode.getComponent(Layout);
+        let timeLayout: Layout = timeNode.getComponent(Layout);
         let time: Label = timeNode.getComponentInChildren(Label);
         let chatBg: Sprite = item.getChildByName('chatBg').getComponent(Sprite);
         let chatBgUt: UITransform = chatBg.node.getComponent(UITransform);
@@ -255,7 +255,9 @@ export class TestAdaptive extends Component {
             case 3://时间 或 其他啥的
                 time.string = data.text;
                 itemUt.height = 60;
-                timeLayout.updateLayout();
+                // 下面这两行，因为3.0.0Preview的缺陷，逼不得已才加的，等到正式版出来，应该就不用了
+                time.updateRenderData(true);
+                timeLayout['_doLayout']();
                 break;
         }
     }

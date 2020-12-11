@@ -171,7 +171,7 @@ export default class List extends cc.Component {
         tooltip: CC_DEV && '触发选择事件',
         visible() { return this.selectedMode > SelectedType.NONE; }
     })
-    private selectedEvent: cc.Component.EventHandler = null//new cc.Component.EventHandler();
+    private selectedEvent: cc.Component.EventHandler = new cc.Component.EventHandler();
     //当前选择id
     private _selectedId: number = -1;
     private _lastSelectedId: number;

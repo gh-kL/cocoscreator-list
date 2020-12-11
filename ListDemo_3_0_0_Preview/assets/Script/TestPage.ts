@@ -1,19 +1,19 @@
 /******************************************
  * @author kL <klk0@qq.com>
- * @date 2019/6/15
+ * @date 2020/12/9
  * @doc TestPage.
  * @end
  ******************************************/
-const { ccclass, property } = cc._decorator;
-
+import { _decorator, Component, Node, Label, EditBox } from 'cc';
 import List from './List';
+const { ccclass, property } = _decorator;
 
-@ccclass
-export default class TestPage extends cc.Component {
+@ccclass('TestPage')
+export class TestPage extends Component {
     @property(List)
     list: List = null;
-    @property(cc.EditBox)
-    input: cc.EditBox = null;
+    @property(EditBox)
+    input: EditBox = null;
     data: number[] = [];
 
     onLoad() {
@@ -24,16 +24,16 @@ export default class TestPage extends cc.Component {
         this.list.numItems = this.data.length;
     }
 
-    onListRender(item: cc.Node, idx: number) {
-        item.getComponentInChildren(cc.Label).string = this.data[idx] + '';
+    onListRender(item: Node, idx: number) {
+        item.getComponentInChildren(Label).string = this.data[idx] + '';
     }
 
     onListPageChange(pageNum: number) {
-        cc.log('当前是第' + pageNum + '页');
+        console.log('当前是第' + pageNum + '页');
     }
     //按钮事件
-    btnEvent(ev: cc.Event) {
-        let name: string = ev.target.name;
+    btnEvent(ev: Event) {
+        let name: string = ev.target['name'];
         let t: any = this;
         switch (name) {
             case 'btn1':

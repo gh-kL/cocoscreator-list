@@ -25,7 +25,7 @@ Cocos 论坛帖子链接：
 - 动态删除 Item 项。
 - ...
 
-Last test by ccc_v2.4.3
+Last test by ccc_v2.3.3
 
 我的邮箱：klk0@qq.com
 
@@ -72,7 +72,7 @@ Last test by ccc_v2.4.3
 模板 Item 类型，分别有 Node 和 Prefab 两种类型可选。
 
 | meta | description       |
-|------|-------------------|
+| ---- | ----------------- |
 | 类型 | List.TemplateType |
 
 #### tmpNode
@@ -80,7 +80,7 @@ Last test by ccc_v2.4.3
 模板 Item 节点。
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Node        |
 
 #### tmpPrefab
@@ -88,7 +88,7 @@ Last test by ccc_v2.4.3
 模板 Item 预制体。
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Prefab      |
 
 #### slideMode
@@ -96,7 +96,7 @@ Last test by ccc_v2.4.3
 滑动模式。分别有 3 种滑动模式：普通、粘附、页面。
 
 | meta | description    |
-|------|----------------|
+| ---- | -------------- |
 | 类型 | List.SlideType |
 
 #### pageDistance
@@ -104,7 +104,7 @@ Last test by ccc_v2.4.3
 翻页作用距离。（仅滑动模式为`页面`时有效）
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Number      |
 
 #### pageChangeEvent
@@ -112,7 +112,7 @@ Last test by ccc_v2.4.3
 翻页响应事件。
 
 | meta | description            |
-|------|------------------------|
+| ---- | ---------------------- |
 | 类型 | Component.EventHandler |
 
 #### virtual
@@ -120,7 +120,7 @@ Last test by ccc_v2.4.3
 是否为虚拟列表。
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Boolean     |
 
 #### cyclic
@@ -128,7 +128,7 @@ Last test by ccc_v2.4.3
 是否为循环列表。
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Boolean     |
 
 #### lackCenter
@@ -136,7 +136,7 @@ Last test by ccc_v2.4.3
 是否在 Item 数量不足以填满 Content 时，居中显示 Item（不支持 Grid 布局）。
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Boolean     |
 
 #### lackSlide
@@ -144,7 +144,7 @@ Last test by ccc_v2.4.3
 是否在 Item 数量不足以填满 Content 时，可滑动列表。
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Boolean     |
 
 #### updateRate
@@ -152,7 +152,7 @@ Last test by ccc_v2.4.3
 刷新频率（值越大刷新频率越低、性能越高）。
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Number      |
 
 #### frameByFrameRenderNum
@@ -160,7 +160,7 @@ Last test by ccc_v2.4.3
 分帧渲染时，每帧渲染的 Item 数量（<=0 时则关闭分帧渲染）。
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Number      |
 
 #### renderEvent
@@ -168,7 +168,7 @@ Last test by ccc_v2.4.3
 渲染事件。
 
 | meta | description            |
-|------|------------------------|
+| ---- | ---------------------- |
 | 类型 | Component.EventHandler |
 
 #### selectedMode
@@ -176,7 +176,7 @@ Last test by ccc_v2.4.3
 选择模式。分别有 2 种选择模式：单选、多选。
 
 | meta | description       |
-|------|-------------------|
+| ---- | ----------------- |
 | 类型 | List.SelectedType |
 
 #### selectedEvent
@@ -184,7 +184,7 @@ Last test by ccc_v2.4.3
 选择响应事件。
 
 | meta | description            |
-|------|------------------------|
+| ---- | ---------------------- |
 | 类型 | Component.EventHandler |
 
 #### selectedId
@@ -192,7 +192,7 @@ Last test by ccc_v2.4.3
 当前选择索引，可通过设置此属性变更选择。
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Number      |
 
 #### numItems
@@ -200,7 +200,7 @@ Last test by ccc_v2.4.3
 Item 总数，设置此属性后，List 会调用 renderEvent 以渲染 Item。
 
 | meta | description |
-|------|-------------|
+| ---- | ----------- |
 | 类型 | Number      |
 
 ## 方法（method）
@@ -258,18 +258,6 @@ Item 总数，设置此属性后，List 会调用 renderEvent 以渲染 Item。
 ---
 
 ## 更新日志
-
-### 2020/12/8
-
-时隔大半年的更新，主要还是填一些坑。
-看到3.0预览版出来了，有点感慨，总之，希望ccc越来越好吧。
-**仓库里也新增了3.0版本的List，估计坑很多，期望值别太高。**
-
-示例项目升级至 ccc_v2.4.3。
-- 感谢`妖怪香蕉`帮我修复了`分帧渲染`可能会重复渲染多次的问题。
-- 修复边距（Padding）较大时，`Item`回收判定错误的 BUG。（感谢 Cocos 论坛用户`@290027085`）
-- 修复`PAGE`模式下，手动滑动到最后一页，再往后拖一下，使范围外的`Item`都被回收，然后再`scrollTo`到中间的页，会自动多跳一页的 BUG。（感谢 GitHub 用户`shangdibaozi`）
-- 新增多选数据接口`getMultSelected`、`hasMultSelected`。（感谢 GitHub用户`@ckcfcc`提出建议）
 
 ### 2020/3/24
 

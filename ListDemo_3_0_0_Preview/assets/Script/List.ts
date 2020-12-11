@@ -1,11 +1,11 @@
 /******************************************
  * @author kL <klk0@qq.com>
- * @date 2019/6/6
+ * @date 2020/12/9
  * @doc 列表组件.
  * @end
  ******************************************/
 const { ccclass, property, disallowMultiple, menu, executionOrder, requireComponent } = _decorator;
-import { Node, Component, Enum, tween, _decorator, EventHandler, Tween, Button, ScrollView, Prefab, Layout, Vec2, Size, NodePool, isValid, instantiate, Vec3, Widget, UITransform, CCFloat, CCBoolean, CCInteger } from 'cc';
+import { Node, Component, Enum, tween, _decorator, EventHandler, Tween, ScrollView, Prefab, Layout, Vec2, Size, NodePool, isValid, instantiate, Vec3, Widget, UITransform, CCFloat, CCBoolean, CCInteger } from 'cc';
 import { DEV } from 'cce.env';
 import ListItem from './ListItem';
 
@@ -371,7 +371,7 @@ export default class List extends Component {
     public curPageNum: number = 0;
     private _beganPos: number;
     private _scrollPos: number;
-    private curScrollIsTouch: boolean;//当前滑动是否为手动
+    private _curScrollIsTouch: boolean;//当前滑动是否为手动
 
     private _scrollToListId: number;
     private _scrollToEndTime: number;
@@ -1356,7 +1356,7 @@ export default class List extends Component {
     //滚动结束时..
     _onScrollEnded() {
         let t: any = this;
-        t.curScrollIsTouch = false;
+        t._curScrollIsTouch = false;
         if (t.scrollToListId != null) {
             let item: any = t.getItemByListId(t.scrollToListId);
             t.scrollToListId = null;
@@ -1375,7 +1375,7 @@ export default class List extends Component {
             //cc.log(t.adhering, t._scrollView.isAutoScrolling(), t._scrollView.isScrolling());
             t.adhere();
         } else if (t._slideMode == SlideType.PAGE) {
-            if (t._beganPos != null && t.curScrollIsTouch) {
+            if (t._beganPos != null && t._curScrollIsTouch) {
                 this._pageAdhere();
             } else {
                 t.adhere();
@@ -1386,7 +1386,7 @@ export default class List extends Component {
     _onTouchStart(ev, captureListeners) {
         if (this._scrollView['_hasNestedViewGroup'](ev, captureListeners))
             return;
-        this.curScrollIsTouch = true;
+        this._curScrollIsTouch = true;
         let isMe = ev.eventPhase === Event.AT_TARGET && ev.target === this.node;
         if (!isMe) {
             let itemNode: any = ev.target;

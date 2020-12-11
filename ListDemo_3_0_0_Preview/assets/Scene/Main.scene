@@ -17,6 +17,15 @@
     "_children": [
       {
         "__id__": 2
+      },
+      {
+        "__id__": 237
+      },
+      {
+        "__id__": 238
+      },
+      {
+        "__id__": 239
       }
     ],
     "_active": true,
@@ -24,7 +33,7 @@
     "_prefab": null,
     "autoReleaseAssets": false,
     "_globals": {
-      "__id__": 237
+      "__id__": 240
     },
     "_id": "d36f11f0-22ca-40c7-a27f-dc4a142fea2d"
   },
@@ -6040,18 +6049,135 @@
     "_id": "06yruY4tJFqZsgSH7GsQjE"
   },
   {
+    "__type__": "cc.Node",
+    "_name": "本Demo运行时DC是较高的。",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 1
+    },
+    "_children": [],
+    "_active": false,
+    "_components": [],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "5818vWKtBJK5VbwjIS8WmV"
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "毕竟有4个列表，还有那么多Label。",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 1
+    },
+    "_children": [],
+    "_active": false,
+    "_components": [],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "4a7+Uw1otIXJTZJs9FKSk4"
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "正常使用，同个View是不会用到4个列表那么多的。",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 1
+    },
+    "_children": [],
+    "_active": false,
+    "_components": [],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "f95EyiCCZGZpa8hiHzlfAS"
+  },
+  {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 238
+      "__id__": 241
     },
     "shadows": {
-      "__id__": 239
+      "__id__": 242
     },
     "_skybox": {
-      "__id__": 240
+      "__id__": 243
     },
     "fog": {
-      "__id__": 241
+      "__id__": 244
     }
   },
   {
