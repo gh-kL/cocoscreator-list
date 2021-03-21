@@ -11,7 +11,7 @@ System.register(["./application.js"], function (_export, _context) {
         if (evt.filename === url) {
           err = evt.error;
         }
-      }
+      } 
 
       window.addEventListener('error', windowErrorListener);
       var script = document.createElement('script');
