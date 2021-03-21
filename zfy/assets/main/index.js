@@ -1,0 +1,22 @@
+System.register("chunks:///_virtual/Main.ts",["cc"],(function(r){"use strict";var e,n,i,o,a,t;return{setters:[function(r){e=r.cclegacy,n=r._decorator,i=r.Label,o=r.Graphics,a=r.Vec2,t=r.Component}],execute:function(){var c,l,u,C,s,f,h;function p(r,e,n,i){n&&Object.defineProperty(r,e,{enumerable:n.enumerable,configurable:n.configurable,writable:n.writable,value:n.initializer?n.initializer.call(i):void 0})}function b(r){if(void 0===r)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return r}function R(r,e,n){return e in r?Object.defineProperty(r,e,{value:n,enumerable:!0,configurable:!0,writable:!0}):r[e]=n,r}function v(r,e,n,i,o){var a={};return Object.keys(i).forEach((function(r){a[r]=i[r]})),a.enumerable=!!a.enumerable,a.configurable=!!a.configurable,("value"in a||a.initializer)&&(a.writable=!0),a=n.slice().reverse().reduce((function(n,i){return i(r,e,n)||n}),a),o&&void 0!==a.initializer&&(a.value=a.initializer?a.initializer.call(o):void 0,a.initializer=void 0),void 0===a.initializer&&(Object.defineProperty(r,e,a),a=null),a}e._RF.push({},"79a4bo+8GBAH5SIZRTIOHyc","Main",void 0);var q=n.ccclass,d=n.property;r("Main",(c=q("Main"),l=d(i),u=d(o),c((f=v((s=function(r){var e,n;function i(){for(var e,n=arguments.length,i=new Array(n),o=0;o<n;o++)i[o]=arguments[o];return p(b(e=r.call.apply(r,[this].concat(i))||this),"labTime",f,b(e)),p(b(e),"graphics",h,b(e)),R(b(e),"_n",0),R(b(e),"qrCornerDataArr",[[1,1,1,1,1,1,1],[1,0,0,0,0,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,0,0,0,0,1],[1,1,1,1,1,1,1]]),R(b(e),"qrCornerCR",7),e}n=r,(e=i).prototype=Object.create(n.prototype),e.prototype.constructor=e,e.__proto__=n;var o=i.prototype;return o.onLoad=function(){this.updateQR()},o.update=function(r){this._n+=r,this._n%1&&this.updateTime()},o.updateTime=function(){var r=new Date;this.labTime.string=r.getHours()+":"+this.patchZero(r.getMinutes(),2)},o.patchZero=function(r,e){for(var n=r+"";n.length<e;)n="0"+n;return n},o.updateQR=function(){for(var r=this,e=37,n=[],i=0;i<e;i++){for(var o=[],t=0;t<37;t++)o.push(Math.round(Math.random()));n.push(o)}for(var c=[],l=0;l<3;l++){var u=Math.floor(4*Math.random())+1;c.indexOf(u)>=0?l--:c.push(u)}c.forEach((function(i){var o,a;switch(i){case 1:o=0,a=0;break;case 2:o=e-r.qrCornerCR,a=0;break;case 3:o=e-r.qrCornerCR,a=37-r.qrCornerCR;break;case 4:o=0,a=37-r.qrCornerCR}for(var t,c=o+r.qrCornerCR,l=a+r.qrCornerCR,u=o,C=0;u<c&&C<r.qrCornerCR;u++,C++)for(var s=a,f=0;s<l&&f<r.qrCornerCR;s++,f++){var h=r.qrCornerDataArr[C][f];n[u][s]=h}switch(i){case 1:for(t=0;t<r.qrCornerCR;t++)n[t][r.qrCornerCR]=0,n[r.qrCornerCR][t]=0;n[r.qrCornerCR][r.qrCornerCR]=0;break;case 2:for(t=e-r.qrCornerCR-1;t<c;t++)n[r.qrCornerCR][t]=0;for(t=0;t<r.qrCornerCR;t++)n[t][e-r.qrCornerCR-1]=0;n[r.qrCornerCR][e-r.qrCornerCR-1]=0;break;case 3:for(t=e-r.qrCornerCR-1;t<c;t++)n[e-r.qrCornerCR-1][t]=0,n[t][e-r.qrCornerCR-1]=0;n[e-r.qrCornerCR-1][e-r.qrCornerCR-1]=0;break;case 4:for(t=e-r.qrCornerCR-1;t<l;t++)n[t][r.qrCornerCR]=0;for(t=0;t<r.qrCornerCR;t++)n[e-r.qrCornerCR-1][t]=0;n[e-r.qrCornerCR-1][r.qrCornerCR]=0}}));var C="";n.forEach((function(r){var e="";r.forEach((function(r){e+=r+" "})),C+=e+"\n"})),console.log(C);var s=15.5;this.graphics.clear();for(var f=new a(-286.75,-286.75),h=0;h<n.length;h++)for(var p=0;p<n[h].length;p++){if(n[h][p]){var b=f.x+p*s,R=f.y+h*s;this.graphics.fillRect(b,R,s,s)}}this.graphics.close()},i}(t)).prototype,"labTime",[l],{configurable:!0,enumerable:!0,writable:!0,initializer:null}),h=v(s.prototype,"graphics",[u],{configurable:!0,enumerable:!0,writable:!0,initializer:null}),C=s))||C));e._RF.pop()}}}));
+
+System.register("chunks:///_virtual/main",["./Main.ts"],(function(){"use strict";return{setters:[function(){}],execute:function(){}}}));
+
+(function(r) {
+  r('virtual:///prerequisite-imports/main', 'chunks:///_virtual/main'); 
+})(function(mid, cid) {
+    System.register(mid, [cid], function (_export, _context) {
+    return {
+        setters: [function(_m) {
+            var _exportObj = {};
+
+            for (var _key in _m) {
+              if (_key !== "default" && _key !== "__esModule") _exportObj[_key] = _m[_key];
+            }
+      
+            _export(_exportObj);
+        }],
+        execute: function () { }
+    };
+    });
+});
