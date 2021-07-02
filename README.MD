@@ -31,18 +31,19 @@ Last test by ccc_v2.4.3
 
 ## 使用说明
 
-1. 在编辑器中，创建一个**ScrollView**（也就是**ScrollView->Mask->Content**这样层级结构的节点！）。
-2. 将 `List` 组件挂载到**ScrollView**节点上。
-3. 设置**模板 Item**，选择 `TemplateType` ，可切换**模板类型**，请按需选择。
-4. 设置**滑动模式（ `SlideMode` ）**， `NORMAL=通常` ， `ADHERING=粘附` ， `PAGE=分页` ，三选一。
-5. 设置是否为**虚拟列表（ `Virtual` ）**，默认为 `true` ，意思是仅在可视范围内渲染 `Item` 。反之，如果为 `false` ，则会渲染所有数量的 Item，一般不推荐这么做，但凡事总有个万一，所以预留了。
-6. （可选）设置**逐帧渲染（ `FrameByFrameRenderNum` ）**，该数量为**每帧渲染的数量**。
-7. 设置**渲染器（ `RenderEvent` ）**，在**View**中写一个函数，将该函数指向**RenderEvent**，运行时，设置 List 数量，Item 将会**通过该函数进行回调**，开发者在该函数中实现**Item 的刷新**。
-8. （可选）设置**选择模式（ `SelectedMode` ）**，选择模式有 `SINGLE（单选）` 、 `MULT（多选）` 两种，须将`cc.Button`和`ListItem` 挂载到**模板 Item**上。在**View**中写一个函数，将该函数指向 `SelectedEvent` ，运行时，当**选择变更**，将会通过该函数**回调**。
+1. 主要依赖于`List`和`ListItem`这两个脚本，先将这两个脚本放置到你的项目中。
+2. 在编辑器中，创建一个**ScrollView**（也就是**ScrollView->Mask->Content**这样层级结构的节点！）。
+3. 将 `List` 组件挂载到**ScrollView**节点上。
+4. 设置**模板 Item**，选择 `TemplateType` ，可切换**模板类型**，请按需选择。
+5. 设置**滑动模式（ `SlideMode` ）**， `NORMAL=通常` ， `ADHERING=粘附` ， `PAGE=分页` ，三选一。
+6. 设置是否为**虚拟列表（ `Virtual` ）**，默认为 `true` ，意思是仅在可视范围内渲染 `Item` 。反之，如果为 `false` ，则会渲染所有数量的 Item，一般不推荐这么做，但凡事总有个万一，所以预留了。
+7. （可选）设置**逐帧渲染（ `FrameByFrameRenderNum` ）**，该数量为**每帧渲染的数量**。
+8. 设置**渲染器（ `RenderEvent` ）**，在**View**中写一个函数，将该函数指向**RenderEvent**，运行时，设置 List 数量，Item 将会**通过该函数进行回调**，开发者在该函数中实现**Item 的刷新**。
+9. （可选）设置**选择模式（ `SelectedMode` ）**，选择模式有 `SINGLE（单选）` 、 `MULT（多选）` 两种，须将`cc.Button`和`ListItem` 挂载到**模板 Item**上。在**View**中写一个函数，将该函数指向 `SelectedEvent` ，运行时，当**选择变更**，将会通过该函数**回调**。
 
 > 在**View**中，若是**单选**模式，用 `list.selectedId=Number` 来改变**当前选择**。若是**多选**模式，则调用 `list.setMultSelected(args, boolean)` 接口来设置多选数据。
 
-9. 完成以上设置后，在**View**中调用 `list.numItems=Number` 设置列表数量，本组件就会通过**渲染器（即 `RenderEvent` ）**进行**回调**了！
+10. 完成以上设置后，在**View**中调用 `list.numItems=Number` 设置列表数量，本组件就会通过**渲染器（即 `RenderEvent` ）**进行**回调**了！
 
 ## 小贴士
 
@@ -60,6 +61,8 @@ Last test by ccc_v2.4.3
 
 - 下拉刷新。
 - 循环列表`PAGE`版。
+
+> 本人已转U3D，就不做新功能，现有功能感觉也够用了。如果有大佬愿意帮我完善，不胜感激
 
 ## 已知问题
 
