@@ -1,0 +1,14 @@
+{
+  "ver": "4.0.22",
+  "importer": "typescript",
+  "imported": true,
+  "uuid": "4a8a92de-d04a-4ab9-8166-0f62fd356a62",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "importAsPlugin": false,
+    "moduleId": "project:///assets/Script/TestPage.js",
+    "importerSettings": 7,
+    "simulateGlobals": []
+  }
+}

@@ -566,7 +566,6 @@ export default class List extends cc.Component {
      * @param {Number} dt
      */
     _processAutoScrolling(dt: number) {
-        // let isAutoScrollBrake = this._scrollView._isNecessaryAutoScrollBrake();
         let brakingFactor: number = 1;
         this._scrollView['_autoScrollAccumulatedTime'] += dt * (1 / brakingFactor);
 
@@ -579,7 +578,6 @@ export default class List extends cc.Component {
         let newPosition: any = this._scrollView['_autoScrollStartPosition'].add(this._scrollView['_autoScrollTargetDelta'].mul(percentage));
         let EPSILON: number = this._scrollView['getScrollEndedEventTiming']();
         let reachedEnd: boolean = Math.abs(percentage - 1) <= EPSILON;
-        // cc.log(reachedEnd, Math.abs(percentage - 1), EPSILON)
 
         let fireEvent: boolean = Math.abs(percentage - 1) <= this._scrollView['getScrollEndedEventTiming']();
         if (fireEvent && !this._scrollView['_isScrollEndedWithThresholdEventFired']) {
@@ -587,27 +585,11 @@ export default class List extends cc.Component {
             this._scrollView['_isScrollEndedWithThresholdEventFired'] = true;
         }
 
-        // if (this._scrollView.elastic && !reachedEnd) {
-        //     let brakeOffsetPosition = newPosition.sub(this._scrollView._autoScrollBrakingStartPosition);
-        //     if (isAutoScrollBrake) {
-        //         brakeOffsetPosition = brakeOffsetPosition.mul(brakingFactor);
-        //     }
-        //     newPosition = this._scrollView._autoScrollBrakingStartPosition.add(brakeOffsetPosition);
-        // } else {
-        //     let moveDelta = newPosition.sub(this._scrollView.getContentPosition());
-        //     let outOfBoundary = this._scrollView._getHowMuchOutOfBoundary(moveDelta);
-        //     if (!outOfBoundary.fuzzyEquals(cc.v2(0, 0), EPSILON)) {
-        //         newPosition = newPosition.add(outOfBoundary);
-        //         reachedEnd = true;
-        //     }
-        // }
-
         if (reachedEnd) {
             this._scrollView['_autoScrolling'] = false;
         }
 
         let deltaMove: any = newPosition.sub(this._scrollView.getContentPosition());
-        // cc.log(deltaMove)
         this._scrollView['_moveContent'](this._scrollView['_clampDelta'](deltaMove), reachedEnd);
         this._scrollView['_dispatchEvent']('scrolling');
 
@@ -1307,7 +1289,7 @@ export default class List extends cc.Component {
     }
     // 触摸时
     _onTouchStart(ev, captureListeners) {
-        if (this._scrollView['_hasNestedViewGroup'](ev, captureListeners))
+        if (this._scrollView['hasNestedViewGroup'](ev, captureListeners))
             return;
         this.curScrollIsTouch = true;
         let isMe = ev.eventPhase === cc.Event.AT_TARGET && ev.target === this.node;
@@ -1338,7 +1320,7 @@ export default class List extends cc.Component {
 
     _onTouchCancelled(ev, captureListeners) {
         let t = this;
-        if (t._scrollView['_hasNestedViewGroup'](ev, captureListeners) || ev.simulate)
+        if (t._scrollView['hasNestedViewGroup'](ev, captureListeners) || ev.simulate)
             return;
 
         t._scrollPos = null;

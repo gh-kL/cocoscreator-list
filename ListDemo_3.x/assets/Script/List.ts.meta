@@ -1,0 +1,14 @@
+{
+  "ver": "4.0.22",
+  "importer": "typescript",
+  "imported": true,
+  "uuid": "1465a2b7-05e1-4445-8bcb-31169f2a75d1",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "importAsPlugin": false,
+    "moduleId": "project:///assets/Script/List.js",
+    "importerSettings": 7,
+    "simulateGlobals": []
+  }
+}

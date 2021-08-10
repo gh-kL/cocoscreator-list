@@ -1,0 +1,14 @@
+{
+  "ver": "4.0.22",
+  "importer": "typescript",
+  "imported": true,
+  "uuid": "43bbffa3-1710-41b0-90e0-f6a0cc37f429",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "importAsPlugin": false,
+    "moduleId": "project:///assets/Script/TestCyclic.js",
+    "importerSettings": 7,
+    "simulateGlobals": []
+  }
+}

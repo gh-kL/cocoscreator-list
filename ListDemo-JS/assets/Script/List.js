@@ -1230,7 +1230,7 @@ cc.Class({
     },
     // 触摸时
     _onTouchStart(ev, captureListeners) {
-        if (this._scrollView._hasNestedViewGroup(ev, captureListeners))
+        if (this._scrollView.hasNestedViewGroup(ev, captureListeners))
             return;
         this.curScrollIsTouch = true;
         let isMe = ev.eventPhase === cc.Event.AT_TARGET && ev.target === this.node;
@@ -1261,7 +1261,7 @@ cc.Class({
 
     _onTouchCancelled(ev, captureListeners) {
         let t = this;
-        if (t._scrollView._hasNestedViewGroup(ev, captureListeners) || ev.simulate)
+        if (t._scrollView.hasNestedViewGroup(ev, captureListeners) || ev.simulate)
             return;
 
         t._scrollPos = null;

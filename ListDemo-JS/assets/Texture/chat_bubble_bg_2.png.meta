@@ -1,6 +1,7 @@
 {
-  "ver": "2.3.5",
+  "ver": "2.3.7",
   "uuid": "06804507-d856-4946-866b-9862935eeb86",
+  "importer": "texture",
   "type": "sprite",
   "wrapMode": "clamp",
   "filterMode": "bilinear",
@@ -12,8 +13,9 @@
   "platformSettings": {},
   "subMetas": {
     "chat_bubble_bg_2": {
-      "ver": "1.0.4",
+      "ver": "1.0.6",
       "uuid": "2282af46-374d-4a87-b689-7b523514777a",
+      "importer": "sprite-frame",
       "rawTextureUuid": "06804507-d856-4946-866b-9862935eeb86",
       "trimType": "auto",
       "trimThreshold": 1,

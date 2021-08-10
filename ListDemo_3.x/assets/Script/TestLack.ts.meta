@@ -1,0 +1,14 @@
+{
+  "ver": "4.0.22",
+  "importer": "typescript",
+  "imported": true,
+  "uuid": "b280f781-5bb1-4bc2-a7cf-7b9a3fcceffa",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "importAsPlugin": false,
+    "moduleId": "project:///assets/Script/TestLack.js",
+    "importerSettings": 7,
+    "simulateGlobals": []
+  }
+}
