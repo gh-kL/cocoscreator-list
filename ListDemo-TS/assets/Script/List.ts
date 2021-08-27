@@ -1866,6 +1866,8 @@ export default class List extends cc.Component {
         if (!pos) {
             return CC_DEV && cc.error('pos is null', listId);
         }
+
+        let itemPos = pos;
         let targetX: number, targetY: number;
 
         switch (t._alignCalcType) {
@@ -1905,7 +1907,20 @@ export default class List extends cc.Component {
         let viewPos: any = t.content.getPosition();
         viewPos = Math.abs(t._sizeType ? viewPos.y : viewPos.x);
 
-        let comparePos = t._sizeType ? pos.y : pos.x;
+        // let comparePos = t._sizeType ? pos.y : pos.x;
+        // 原先的 comparePos 在 Page 滚动模式下（仅在Page模式下会有问题、其它模式不会）
+        // 从右往左(RIGHT_TO_LEFT)、从下往上(BOTTOM_TO_TOP)布局下计算有问题
+        // 导致runScroll永远为true，进而会不断执行 _onScrolling 方法
+        // 这里提供一个临时解决数值问题方法，针对两种布局特定判断，还可以优化
+        let comparePos: number;
+        if (t._alignCalcType === 2) {
+            comparePos = -itemPos.right - t._rightGap;
+        } else if (t._alignCalcType === 4) {
+            comparePos = itemPos.bottom - t._bottomGap;
+        } else {
+            comparePos = t._sizeType ? pos.y : pos.x;
+        }
+
         let runScroll = Math.abs((t._scrollPos != null ? t._scrollPos : viewPos) - comparePos) > .5;
         // cc.log(runScroll, t._scrollPos, viewPos, comparePos)
 
