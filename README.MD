@@ -25,7 +25,7 @@ Cocos 论坛帖子链接：
 - 动态删除 Item 项。
 - ...
 
-Last test by ccc_v2.4.6 and ccc_v3.2.1
+Last test by ccc_v2.4.6 and ccc_v3.4.1
 
 我的邮箱：klk0@qq.com
 
@@ -259,6 +259,10 @@ Item 总数，设置此属性后，List 会调用 renderEvent 以渲染 Item。
 ---
 
 ## 更新日志
+
+### 2021/8/10
+
+适配新版本至 ccc_v3.4.1。
 
 ### 2021/8/10
 
