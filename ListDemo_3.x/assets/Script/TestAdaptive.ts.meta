@@ -1,12 +1,11 @@
 {
-  "ver": "4.0.22",
+  "ver": "4.0.23",
   "importer": "typescript",
   "imported": true,
   "uuid": "fd942bfb-3676-4bde-a45a-8280cdd95314",
   "files": [],
   "subMetas": {},
   "userData": {
-    "importAsPlugin": false,
     "moduleId": "project:///assets/Script/TestAdaptive.js",
     "importerSettings": 7,
     "simulateGlobals": []

@@ -1,12 +1,11 @@
 {
-  "ver": "4.0.22",
+  "ver": "4.0.23",
   "importer": "typescript",
   "imported": true,
   "uuid": "933c959f-c963-426a-924c-255a12f8f12f",
   "files": [],
   "subMetas": {},
   "userData": {
-    "importAsPlugin": false,
     "moduleId": "project:///assets/Script/TestWidget.js",
     "importerSettings": 7,
     "simulateGlobals": []

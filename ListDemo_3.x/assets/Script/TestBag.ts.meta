@@ -1,12 +1,11 @@
 {
-  "ver": "4.0.22",
+  "ver": "4.0.23",
   "importer": "typescript",
   "imported": true,
   "uuid": "dfab5605-4abf-4a77-912c-928881e7ed72",
   "files": [],
   "subMetas": {},
   "userData": {
-    "importAsPlugin": false,
     "moduleId": "project:///assets/Script/TestBag.js",
     "importerSettings": 7,
     "simulateGlobals": []

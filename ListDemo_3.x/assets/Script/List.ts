@@ -426,23 +426,23 @@ export default class List extends Component {
     //注册事件
     _registerEvent() {
         let t: any = this;
-        t.node.on(Node.EventType.TOUCH_START, t._onTouchStart, t, true);
+        t.node.on(Node.EventType.TOUCH_START, t._onTouchStart, t);
         t.node.on('touch-up', t._onTouchUp, t);
-        t.node.on(Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
-        t.node.on('scroll-began', t._onScrollBegan, t, true);
-        t.node.on('scroll-ended', t._onScrollEnded, t, true);
-        t.node.on('scrolling', t._onScrolling, t, true);
+        t.node.on(Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t);
+        t.node.on('scroll-began', t._onScrollBegan, t);
+        t.node.on('scroll-ended', t._onScrollEnded, t);
+        t.node.on('scrolling', t._onScrolling, t);
         t.node.on(Node.EventType.SIZE_CHANGED, t._onSizeChanged, t);
     }
     //卸载事件
     _unregisterEvent() {
         let t: any = this;
-        t.node.off(Node.EventType.TOUCH_START, t._onTouchStart, t, true);
+        t.node.off(Node.EventType.TOUCH_START, t._onTouchStart, t);
         t.node.off('touch-up', t._onTouchUp, t);
-        t.node.off(Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t, true);
-        t.node.off('scroll-began', t._onScrollBegan, t, true);
-        t.node.off('scroll-ended', t._onScrollEnded, t, true);
-        t.node.off('scrolling', t._onScrolling, t, true);
+        t.node.off(Node.EventType.TOUCH_CANCEL, t._onTouchCancelled, t);
+        t.node.off('scroll-began', t._onScrollBegan, t);
+        t.node.off('scroll-ended', t._onScrollEnded, t);
+        t.node.off('scrolling', t._onScrolling, t);
         t.node.off(Node.EventType.SIZE_CHANGED, t._onSizeChanged, t);
     }
     //初始化各种..

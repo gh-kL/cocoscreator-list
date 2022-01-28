@@ -23,7 +23,8 @@
       "terrain",
       "tiled-map",
       "spine",
-      "dragon-bones"
+      "dragon-bones",
+      "marionette"
     ]
   }
 }

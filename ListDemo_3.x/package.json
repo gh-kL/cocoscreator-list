@@ -1,9 +1,9 @@
 {
+  "creator": {
+    "version": "3.4.1"
+  },
   "name": "ListDemo_3_0_0_Preview",
   "type": "3d",
   "uuid": "55e44737-4268-4e9e-bc7d-4398c3c39964",
-  "version": "3.2.1",
-  "creator": {
-    "version": "3.2.1"
-  }
+  "version": "3.4.1"
 }

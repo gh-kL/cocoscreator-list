@@ -1,12 +1,11 @@
 {
-  "ver": "4.0.22",
+  "ver": "4.0.23",
   "importer": "typescript",
   "imported": true,
   "uuid": "e7dc6640-60f5-4b24-ac4d-716f1a4ced49",
   "files": [],
   "subMetas": {},
   "userData": {
-    "importAsPlugin": false,
     "moduleId": "project:///assets/Script/ListItem.js",
     "importerSettings": 7,
     "simulateGlobals": []
